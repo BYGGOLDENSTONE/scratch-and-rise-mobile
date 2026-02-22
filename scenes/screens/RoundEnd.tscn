@@ -1,0 +1,95 @@
+[gd_scene load_steps=2 format=3 uid="uid://round_end"]
+
+[ext_resource type="Script" path="res://scripts/screens/round_end.gd" id="1_rend"]
+
+[node name="RoundEnd" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 720.0
+offset_bottom = 1280.0
+script = ExtResource("1_rend")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.06, 0.04, 0.1, 1)
+
+[node name="VBox" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 40.0
+offset_top = 40.0
+offset_right = -40.0
+offset_bottom = -40.0
+theme_override_constants/separation = 24
+
+[node name="Spacer1" type="Control" parent="VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 2.0
+
+[node name="Title" type="Label" parent="VBox"]
+layout_mode = 2
+text = "TUR BITTI!"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Spacer2" type="Control" parent="VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="EarnedLabel" type="Label" parent="VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Kazanilan: 0 coin"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="CharmEarnedLabel" type="Label" parent="VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "+0 Charm Puani"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TotalCharmLabel" type="Label" parent="VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Toplam Charm: 0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="EnergyLabel" type="Label" parent="VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Enerji: 5 / 5"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Spacer3" type="Control" parent="VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="WatchAdButton" type="Button" parent="VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 60)
+text = "Reklam Izle (+Charm)"
+
+[node name="MenuButton" type="Button" parent="VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 80)
+text = "ANA MENU"
+
+[node name="Spacer4" type="Control" parent="VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 2.0
+
+[connection signal="pressed" from="VBox/WatchAdButton" to="." method="_on_watch_ad_pressed"]
+[connection signal="pressed" from="VBox/MenuButton" to="." method="_on_menu_pressed"]
