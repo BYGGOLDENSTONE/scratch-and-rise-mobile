@@ -3,6 +3,7 @@ extends Control
 ## Charm ekrani. Charm listesi, satin alma, seviye yukseltme.
 
 const CharmDataRef := preload("res://scripts/systems/charm_data.gd")
+const AchievementRef := preload("res://scripts/systems/achievement_system.gd")
 
 @onready var cp_label: Label = %CPLabel
 @onready var charm_list: VBoxContainer = %CharmList
@@ -124,6 +125,19 @@ func _add_charm_item(charm_id: String, charm: Dictionary) -> void:
 
 func _on_charm_buy(charm_id: String) -> void:
 	if GameState.buy_charm(charm_id):
+		# Basarim kontrolu (anahtar charm'lar ve charm ustasi)
+		var context := {}
+		var new_achievements: Array = AchievementRef.check_achievements(context)
+		for ach_id in new_achievements:
+			if ach_id not in GameState.unlocked_achievements:
+				GameState.unlocked_achievements.append(ach_id)
+				var ach: Dictionary = AchievementRef.get_achievement(ach_id)
+				var reward_cp: int = ach.get("reward_cp", 0)
+				GameState.charm_points += reward_cp
+				var display_name: String = ach.get("real_name", ach.get("name", ach_id))
+				print("[CharmScreen] Basarim acildi: %s (+%d CP)" % [display_name, reward_cp])
+				GameState.achievement_unlocked.emit(ach_id)
+				SaveManager.save_game()
 		_rebuild_list()
 
 

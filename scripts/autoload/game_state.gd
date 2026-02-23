@@ -12,6 +12,8 @@ signal energy_changed(new_amount: int)
 signal charm_points_changed(new_amount: int)
 signal round_started()
 signal round_ended(total_earned: int)
+signal achievement_unlocked(id: String)
+signal event_triggered(id: String, data: Dictionary)
 
 # --- Tur İçi (her tur sıfırlanır) ---
 var coins: int = 0:
@@ -37,6 +39,27 @@ var last_round_earnings: int = 0
 # --- Koleksiyon & Sinerji ---
 var collected_pieces: Dictionary = {}  # { "set_id": ["piece1", "piece2"] }
 var discovered_synergies: Array = []   # ["meyve_kokteyli", "gece_gokyuzu", ...]
+
+# --- İstatistikler (Kalıcı) ---
+var stats: Dictionary = {
+	"total_tickets": 0,
+	"total_matches": 0,
+	"total_jackpots": 0,
+	"total_synergies_found": 0,
+	"best_streak": 0,
+}
+
+# --- Başarımlar (Kalıcı) ---
+var unlocked_achievements: Array = []  # ["ilk_kazima", "ilk_eslesme", ...]
+
+# --- Tur İçi Olay & İstatistik ---
+var round_stats: Dictionary = {}
+var active_events: Dictionary = {}  # { "bull_run": remaining_count, ... }
+var _tickets_since_golden: int = 0
+var _joker_rain_active: bool = false
+var _mega_ticket_active: bool = false
+var _free_ticket_active: bool = false
+var _current_match_streak: int = 0
 
 # --- Enerji Sistemi ---
 const BASE_MAX_ENERGY: int = 5
@@ -82,6 +105,20 @@ func start_round() -> bool:
 	coins = get_starting_coins()
 	in_round = true
 	total_rounds_played += 1
+	# Tur ici state'leri sifirla
+	round_stats = {
+		"tickets": 0,
+		"matches": 0,
+		"jackpots": 0,
+		"synergies": 0,
+		"coins_earned": 0,
+	}
+	active_events = {}
+	_tickets_since_golden = 0
+	_joker_rain_active = false
+	_mega_ticket_active = false
+	_free_ticket_active = false
+	_current_match_streak = 0
 	round_started.emit()
 	print("[GameState] Tur başladı — Başlangıç coin: ", coins)
 	return true
@@ -194,6 +231,14 @@ func discover_synergy(synergy_id: String) -> bool:
 ## Sinerji kesfedilmis mi
 func is_synergy_discovered(synergy_id: String) -> bool:
 	return synergy_id in discovered_synergies
+
+
+## Toplam charm seviyesi (tum charm'larin seviyelerinin toplami)
+func get_total_charm_levels() -> int:
+	var total := 0
+	for level in charms.values():
+		total += int(level)
+	return total
 
 
 ## Büyük sayıları okunabilir formata çevir

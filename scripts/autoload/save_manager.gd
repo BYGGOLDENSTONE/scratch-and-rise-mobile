@@ -23,6 +23,8 @@ func save_game() -> void:
 		"best_round_coins": GameState.best_round_coins,
 		"collected_pieces": GameState.collected_pieces,
 		"discovered_synergies": GameState.discovered_synergies,
+		"stats": GameState.stats,
+		"unlocked_achievements": GameState.unlocked_achievements,
 		"timestamp": Time.get_unix_time_from_system(),
 	}
 	# Mevcut save'i backup'a kopyala
@@ -67,6 +69,17 @@ func load_game() -> bool:
 	GameState.best_round_coins = int(data.get("best_round_coins", 0))
 	GameState.collected_pieces = data.get("collected_pieces", {})
 	GameState.discovered_synergies = data.get("discovered_synergies", [])
+
+	# Stats ve basarimlar
+	var saved_stats: Dictionary = data.get("stats", {})
+	GameState.stats = {
+		"total_tickets": int(saved_stats.get("total_tickets", 0)),
+		"total_matches": int(saved_stats.get("total_matches", 0)),
+		"total_jackpots": int(saved_stats.get("total_jackpots", 0)),
+		"total_synergies_found": int(saved_stats.get("total_synergies_found", 0)),
+		"best_streak": int(saved_stats.get("best_streak", 0)),
+	}
+	GameState.unlocked_achievements = data.get("unlocked_achievements", [])
 
 	# Enerji yenilenme hesabı
 	var saved_energy: int = int(data.get("energy", GameState.BASE_MAX_ENERGY))

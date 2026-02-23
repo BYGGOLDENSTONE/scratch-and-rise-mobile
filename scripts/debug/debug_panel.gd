@@ -4,6 +4,8 @@ extends Control
 ## Save sifirlama, coin/enerji/charm ekleme, tur bitirme.
 const SynergyRef := preload("res://scripts/systems/synergy_system.gd")
 const CollectionRef := preload("res://scripts/systems/collection_system.gd")
+const EventRef := preload("res://scripts/systems/event_system.gd")
+const AchievementRef := preload("res://scripts/systems/achievement_system.gd")
 
 signal panel_closed()
 
@@ -54,6 +56,31 @@ func _ready() -> void:
 	parent_container.add_child(col_all_btn)
 	parent_container.move_child(col_all_btn, end_round_btn.get_index())
 
+	# M8: Olay ve basarim butonlari
+	var bull_btn := Button.new()
+	bull_btn.text = "Olay: Bull Run"
+	bull_btn.pressed.connect(_on_trigger_bull_run)
+	parent_container.add_child(bull_btn)
+	parent_container.move_child(bull_btn, end_round_btn.get_index())
+
+	var golden_btn := Button.new()
+	golden_btn.text = "Olay: Altin Bilet"
+	golden_btn.pressed.connect(_on_trigger_golden_ticket)
+	parent_container.add_child(golden_btn)
+	parent_container.move_child(golden_btn, end_round_btn.get_index())
+
+	var ach_btn := Button.new()
+	ach_btn.text = "Basarim Ac"
+	ach_btn.pressed.connect(_on_unlock_achievement)
+	parent_container.add_child(ach_btn)
+	parent_container.move_child(ach_btn, end_round_btn.get_index())
+
+	var ach_all_btn := Button.new()
+	ach_all_btn.text = "Tum Basarimlari Ac"
+	ach_all_btn.pressed.connect(_on_unlock_all_achievements)
+	parent_container.add_child(ach_all_btn)
+	parent_container.move_child(ach_all_btn, end_round_btn.get_index())
+
 	_update_context()
 	print("[Debug] Panel acildi")
 
@@ -92,6 +119,21 @@ func _on_reset_save() -> void:
 	GameState.in_round = false
 	GameState.collected_pieces = {}
 	GameState.discovered_synergies = []
+	GameState.stats = {
+		"total_tickets": 0,
+		"total_matches": 0,
+		"total_jackpots": 0,
+		"total_synergies_found": 0,
+		"best_streak": 0,
+	}
+	GameState.unlocked_achievements = []
+	GameState.round_stats = {}
+	GameState.active_events = {}
+	GameState._tickets_since_golden = 0
+	GameState._joker_rain_active = false
+	GameState._mega_ticket_active = false
+	GameState._free_ticket_active = false
+	GameState._current_match_streak = 0
 	SaveManager.save_game()
 	print("[Debug] Save sifirlandi!")
 	_update_context()
@@ -166,6 +208,47 @@ func _on_complete_all_collections() -> void:
 				GameState.add_collection_piece(set_id, piece_id)
 	SaveManager.save_game()
 	print("[Debug] Tum koleksiyonlar tamamlandi!")
+	_update_info()
+
+
+func _on_trigger_bull_run() -> void:
+	GameState.active_events["bull_run"] = 3
+	GameState.event_triggered.emit("bull_run", EventRef.get_event("bull_run"))
+	print("[Debug] Bull Run tetiklendi! Sonraki 3 bilet x2")
+	_update_info()
+
+
+func _on_trigger_golden_ticket() -> void:
+	GameState._free_ticket_active = true
+	GameState.event_triggered.emit("golden_ticket", EventRef.get_event("golden_ticket"))
+	print("[Debug] Altin bilet! Sonraki bilet ucretsiz")
+	_update_info()
+
+
+func _on_unlock_achievement() -> void:
+	for ach_id in AchievementRef.ACHIEVEMENT_ORDER:
+		if ach_id not in GameState.unlocked_achievements:
+			GameState.unlocked_achievements.append(ach_id)
+			var ach: Dictionary = AchievementRef.get_achievement(ach_id)
+			var reward_cp: int = ach.get("reward_cp", 0)
+			GameState.charm_points += reward_cp
+			var display_name: String = ach.get("real_name", ach.get("name", ach_id))
+			print("[Debug] Basarim acildi: %s (+%d CP)" % [display_name, reward_cp])
+			GameState.achievement_unlocked.emit(ach_id)
+			SaveManager.save_game()
+			_update_info()
+			return
+	print("[Debug] Tum basarimlar zaten acilmis!")
+
+
+func _on_unlock_all_achievements() -> void:
+	for ach_id in AchievementRef.ACHIEVEMENT_ORDER:
+		if ach_id not in GameState.unlocked_achievements:
+			GameState.unlocked_achievements.append(ach_id)
+			var ach: Dictionary = AchievementRef.get_achievement(ach_id)
+			GameState.charm_points += ach.get("reward_cp", 0)
+	SaveManager.save_game()
+	print("[Debug] Tum basarimlar acildi!")
 	_update_info()
 
 

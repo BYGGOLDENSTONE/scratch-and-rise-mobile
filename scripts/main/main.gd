@@ -9,6 +9,11 @@ const MatchResultScene := preload("res://scenes/ui/MatchResult.tscn")
 const DebugPanelScene := preload("res://scenes/debug/DebugPanel.tscn")
 const SynergyRef := preload("res://scripts/systems/synergy_system.gd")
 const CollectionRef := preload("res://scripts/systems/collection_system.gd")
+const EventRef := preload("res://scripts/systems/event_system.gd")
+const AchievementRef := preload("res://scripts/systems/achievement_system.gd")
+const AchievementToastScene := preload("res://scenes/ui/AchievementToast.tscn")
+const EventBannerScene := preload("res://scenes/ui/EventBanner.tscn")
+const GoldenTicketScene := preload("res://scenes/ui/GoldenTicketPopup.tscn")
 
 @onready var coin_label: Label = %CoinLabel
 @onready var energy_label: Label = %EnergyLabel
@@ -25,6 +30,9 @@ var _debug_tap_count: int = 0
 var _debug_last_tap_time: float = 0.0
 var _debug_panel: Control = null
 var _ticket_buttons: Dictionary = {}  # { "paper": Button, ... }
+var _last_symbols: Array = []
+var _last_match_data: Dictionary = {}
+var _golden_ticket_popup: PanelContainer = null
 
 
 func _ready() -> void:
@@ -71,6 +79,11 @@ func _on_energy_changed(_new_amount: int) -> void:
 
 
 func _on_round_ended(_total_earned: int) -> void:
+	# Tur sonu basarim kontrolu
+	var context := {"round_end": true}
+	var new_achievements: Array = AchievementRef.check_achievements(context)
+	for ach_id in new_achievements:
+		_unlock_achievement(ach_id)
 	SaveManager.save_game()
 	get_tree().change_scene_to_file("res://scenes/screens/RoundEnd.tscn")
 
@@ -87,29 +100,61 @@ func _on_ticket_buy(type: String) -> void:
 		return
 	var config: Dictionary = TicketData.TICKET_CONFIGS.get(type, TicketData.TICKET_CONFIGS["paper"])
 	var price: int = config["price"]
-	if not GameState.spend_coins(price):
-		print("[Main] Coin yetersiz!")
-		_show_warning("Coin yetersiz!")
-		return
+
+	# Bedava bilet kontrolu
+	var is_free := false
+	if GameState._free_ticket_active:
+		is_free = true
+		GameState._free_ticket_active = false
+		print("[Main] Bedava bilet kullanildi!")
+	else:
+		if not GameState.spend_coins(price):
+			print("[Main] Coin yetersiz!")
+			_show_warning("Coin yetersiz!")
+			return
 
 	# Placeholder'i gizle, bilet olustur
 	ticket_placeholder.visible = false
 	current_ticket = TicketScene.instantiate()
 	ticket_area.add_child(current_ticket)
-	current_ticket.setup(type)
+
+	# Joker Yagmuru: tum semboller joker
+	var symbol_override := ""
+	if GameState._joker_rain_active:
+		symbol_override = "joker"
+		GameState._joker_rain_active = false
+		print("[Main] Joker Yagmuru aktif! Tum semboller Joker!")
+
+	current_ticket.setup(type, symbol_override)
 	current_ticket.ticket_completed.connect(_on_ticket_completed)
 	_update_ticket_buttons()
-	print("[Main] %s satin alindi (%d coin), kalan: %d" % [config["name"], price, GameState.coins])
+	if is_free:
+		print("[Main] %s (UCRETSIZ), kalan: %d" % [config["name"], GameState.coins])
+	else:
+		print("[Main] %s satin alindi (%d coin), kalan: %d" % [config["name"], price, GameState.coins])
 
 
 func _on_ticket_completed(symbols: Array) -> void:
 	print("[Main] Bilet tamamlandi! Semboller: ", symbols)
+	_last_symbols = symbols
 
 	# Eslesme kontrolu
 	var ticket_type: String = "paper"
 	if current_ticket and current_ticket.has_method("get_ticket_type"):
 		ticket_type = current_ticket.get_ticket_type()
 	var match_data: Dictionary = MatchSystem.check_match(symbols, ticket_type)
+
+	# Mega Bilet override: garanti jackpot
+	if GameState._mega_ticket_active:
+		GameState._mega_ticket_active = false
+		if not match_data["has_match"] or match_data["tier"] != "jackpot":
+			var price: int = TicketData.TICKET_CONFIGS.get(ticket_type, TicketData.TICKET_CONFIGS["paper"])["price"]
+			match_data["has_match"] = true
+			match_data["best_count"] = 5
+			match_data["multiplier"] = randi_range(20, 100)
+			match_data["tier"] = "jackpot"
+			match_data["reward"] = price * match_data["multiplier"]
+			print("[Main] MEGA BILET! Garanti jackpot!")
 
 	# Sinerji kontrolu
 	var synergies: Array = SynergyRef.check_synergies(symbols)
@@ -120,6 +165,7 @@ func _on_ticket_completed(symbols: Array) -> void:
 	for syn in synergies:
 		if GameState.discover_synergy(syn["id"]):
 			match_data["new_synergies"].append(syn["id"])
+			GameState.stats["total_synergies_found"] += 1
 
 	# En yuksek sinerji carpanini bul
 	var synergy_mult := 1
@@ -135,11 +181,35 @@ func _on_ticket_completed(symbols: Array) -> void:
 		if synergy_mult > 1:
 			reward *= synergy_mult
 			print("[Main] Sinerji! x%d carpan" % synergy_mult)
+		# Bull Run: x2 carpan
+		var bull_remaining: int = GameState.active_events.get("bull_run", 0)
+		if bull_remaining > 0:
+			reward *= 2
+			GameState.active_events["bull_run"] = bull_remaining - 1
+			print("[Main] Bull Run! x2 carpan (kalan: %d)" % (bull_remaining - 1))
 		match_data["reward"] = reward
 		GameState.add_coins(reward)
 		print("[Main] Eslesme! +", reward, " coin")
 	else:
 		print("[Main] Eslesme yok")
+
+	# --- Stats guncelle ---
+	GameState.stats["total_tickets"] += 1
+	GameState.round_stats["tickets"] = GameState.round_stats.get("tickets", 0) + 1
+	if match_data["has_match"]:
+		GameState.stats["total_matches"] += 1
+		GameState.round_stats["matches"] = GameState.round_stats.get("matches", 0) + 1
+		GameState.round_stats["coins_earned"] = GameState.round_stats.get("coins_earned", 0) + match_data["reward"]
+		GameState._current_match_streak += 1
+		if GameState._current_match_streak > GameState.stats["best_streak"]:
+			GameState.stats["best_streak"] = GameState._current_match_streak
+		if match_data["tier"] == "jackpot":
+			GameState.stats["total_jackpots"] += 1
+			GameState.round_stats["jackpots"] = GameState.round_stats.get("jackpots", 0) + 1
+	else:
+		GameState._current_match_streak = 0
+	if synergies.size() > 0:
+		GameState.round_stats["synergies"] = GameState.round_stats.get("synergies", 0) + synergies.size()
 
 	# Koleksiyon parcasi dusme kontrolu
 	var drop: Dictionary = CollectionRef.roll_collection_drop(ticket_type)
@@ -152,6 +222,7 @@ func _on_ticket_completed(symbols: Array) -> void:
 			match_data["set_completed"] = drop["set_id"]
 			print("[Main] SET TAMAMLANDI: ", drop["set_id"])
 
+	_last_match_data = match_data
 	# Sonuc popup'ini goster
 	_show_match_result(match_data)
 
@@ -168,7 +239,24 @@ func _on_match_result_dismissed() -> void:
 		match_result_popup.queue_free()
 		match_result_popup = null
 	tickets_scratched += 1
+	GameState._tickets_since_golden += 1
 	ticket_count_label.text = "Bilet: %d" % tickets_scratched
+
+	# Basarim kontrolu
+	var context := {
+		"symbols": _last_symbols,
+		"match_data": _last_match_data,
+		"synergies": _last_match_data.get("synergies", []),
+	}
+	var new_achievements: Array = AchievementRef.check_achievements(context)
+	for ach_id in new_achievements:
+		_unlock_achievement(ach_id)
+
+	# Olay kontrolu
+	var event_id: String = EventRef.roll_event(tickets_scratched, GameState._tickets_since_golden)
+	if event_id != "":
+		_trigger_event(event_id)
+
 	_remove_current_ticket()
 
 
@@ -244,6 +332,84 @@ func _apply_charm_bonuses(base_reward: int, match_data: Dictionary) -> int:
 			print("[Main] YOLO! x50!")
 
 	return reward
+
+
+## Olay tetikle
+func _trigger_event(event_id: String) -> void:
+	var event_data: Dictionary = EventRef.get_event(event_id)
+	if event_data.is_empty():
+		return
+	print("[Main] Olay tetiklendi: %s" % event_id)
+	GameState.event_triggered.emit(event_id, event_data)
+
+	match event_id:
+		"golden_ticket":
+			GameState._tickets_since_golden = 0
+			_show_golden_ticket_popup()
+		"bull_run":
+			GameState.active_events["bull_run"] = event_data.get("duration", 3)
+			_show_event_banner(event_data["name"], event_data["description"])
+		"free_ticket":
+			GameState._free_ticket_active = true
+			_show_event_banner(event_data["name"], event_data["description"])
+		"joker_rain":
+			GameState._joker_rain_active = true
+			_show_event_banner(event_data["name"], event_data["description"])
+		"mega_ticket":
+			GameState._mega_ticket_active = true
+			_show_event_banner(event_data["name"], event_data["description"])
+
+
+## Basarim ac
+func _unlock_achievement(ach_id: String) -> void:
+	if ach_id in GameState.unlocked_achievements:
+		return
+	var ach: Dictionary = AchievementRef.get_achievement(ach_id)
+	if ach.is_empty():
+		return
+	GameState.unlocked_achievements.append(ach_id)
+	var reward_cp: int = ach.get("reward_cp", 0)
+	GameState.charm_points += reward_cp
+	GameState.achievement_unlocked.emit(ach_id)
+	var display_name: String = ach.get("real_name", ach.get("name", ach_id))
+	print("[Main] Basarim acildi: %s (+%d CP)" % [display_name, reward_cp])
+	_show_achievement_toast(display_name, reward_cp)
+	SaveManager.save_game()
+
+
+## Basarim toast'u goster
+func _show_achievement_toast(ach_name: String, reward_cp: int) -> void:
+	var toast := AchievementToastScene.instantiate()
+	get_node("UILayer").add_child(toast)
+	toast.show_achievement(ach_name, reward_cp)
+
+
+## Olay banner'i goster
+func _show_event_banner(event_name: String, description: String) -> void:
+	var banner := EventBannerScene.instantiate()
+	get_node("UILayer").add_child(banner)
+	banner.show_event(event_name, description)
+
+
+## Altin bilet popup'u goster
+func _show_golden_ticket_popup() -> void:
+	if _golden_ticket_popup != null:
+		return
+	_golden_ticket_popup = GoldenTicketScene.instantiate()
+	get_node("UILayer").add_child(_golden_ticket_popup)
+	_golden_ticket_popup.golden_ticket_caught.connect(_on_golden_caught)
+	_golden_ticket_popup.golden_ticket_missed.connect(_on_golden_missed)
+
+
+func _on_golden_caught() -> void:
+	GameState._free_ticket_active = true
+	print("[Main] Altin bilet yakalandi! Sonraki bilet ucretsiz!")
+	_golden_ticket_popup = null
+
+
+func _on_golden_missed() -> void:
+	print("[Main] Altin bilet kacti!")
+	_golden_ticket_popup = null
 
 
 func _on_debug_tap_input(event: InputEvent) -> void:

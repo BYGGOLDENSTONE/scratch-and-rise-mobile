@@ -63,8 +63,8 @@ scratch-mobil/
 | Faz | Isim | Kapsam | Durum |
 |-----|------|--------|-------|
 | M6 | Bilet Turleri | Bronz/Gumus/Altin/Platin biletler, anahtar charm'lar, farkli alan+sembol havuzlari | `tamamlandi` |
-| M7 | Sinerji & Koleksiyon | Sinerjiler, sinerji albumu, koleksiyon sistemi, koleksiyon UI | `test-bekliyor` |
-| M8 | Olaylar & Basarimlar | Altin bilet, Bull Run, basarim sistemi, istatistikler | `bekliyor` |
+| M7 | Sinerji & Koleksiyon | Sinerjiler, sinerji albumu, koleksiyon sistemi, koleksiyon UI | `tamamlandi` `f7a65e6` |
+| M8 | Olaylar & Basarimlar | Altin bilet, Bull Run, basarim sistemi, istatistikler | `tamamlandi` |
 | M9 | Save & Polish | Save/Load, enerji yenilenme, temel animasyonlar, UI duzeni | `bekliyor` |
 
 ### Faz 3: Monetizasyon & Yayinlama
@@ -119,6 +119,22 @@ scratch-mobil/
 - **Set bonuslari:** Eslesme odulu, ozel sembol, jackpot, baslangic coin, tum oduller, altin bilet sansi
 - **Toplanan parcalar:** GameState.collected_pieces'de saklanir
 - **UI:** Koleksiyon ekrani (`scenes/screens/CollectionScreen.tscn`)
+
+## Olay Sistemi Notlari
+- **Dosya:** `scripts/systems/event_system.gd` (preload ile referans)
+- **Olaylar:** Altin Bilet (%15-50 artan), Bull Run (%3, x2 3 bilet), Bedava Bilet (%20 her 10. bilet), Joker Yagmuru (%1), Mega Bilet (%0.5 garanti jackpot)
+- **Tetikleme:** Her bilet sonrasi `_on_match_result_dismissed` icinde roll yapilir
+- **State:** `GameState.active_events`, `_tickets_since_golden`, `_joker_rain_active`, `_mega_ticket_active`, `_free_ticket_active`
+- **UI:** Olay banner (`scenes/ui/EventBanner.tscn`), Altin bilet popup (`scenes/ui/GoldenTicketPopup.tscn`)
+
+## Basarim Sistemi Notlari
+- **Dosya:** `scripts/systems/achievement_system.gd` (preload ile referans)
+- **Basarimlar:** 5 erken + 5 orta + 5 gec + 4 gizli = 19 basarim
+- **Oduller:** 2-30 CP arasi
+- **Kontrol:** Her bilet sonrasi + tur sonu + charm satin alma sonrasi
+- **State:** `GameState.unlocked_achievements`, `GameState.stats`, `GameState.round_stats`
+- **UI:** Basarim ekrani (`scenes/screens/AchievementScreen.tscn`), Basarim toast (`scenes/ui/AchievementToast.tscn`)
+- **Gizli basarimlar:** Joker Ustasi (3x joker), Seri Eslesme (5 ardisik), Cift Sinerji (2 sinerji 1 bilet), Sifirdan Zirveye (0 charm + 500 coin)
 
 ## PC Versiyonu Notu
 - PC versiyonu ayri proje: `D:\godotproject\incremental`

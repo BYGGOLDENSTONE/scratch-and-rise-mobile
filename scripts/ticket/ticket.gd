@@ -18,7 +18,7 @@ var is_complete: bool = false
 @onready var status_label: Label = $VBox/StatusLabel
 
 
-func setup(type: String) -> void:
+func setup(type: String, symbol_override: String = "") -> void:
 	ticket_type = type
 	var config: Dictionary = TicketData.TICKET_CONFIGS.get(type, TicketData.TICKET_CONFIGS["paper"])
 
@@ -41,8 +41,13 @@ func setup(type: String) -> void:
 	get_parent().custom_minimum_size = Vector2(0, 0)  # serbest birak
 	custom_minimum_size = Vector2(ticket_w, ticket_h)
 
-	# Semboller
-	symbols = TicketData.get_random_symbols(type)
+	# Semboller (override varsa tum alanlari ayni sembolle doldur)
+	if symbol_override != "":
+		symbols = []
+		for i in total_areas:
+			symbols.append(symbol_override)
+	else:
+		symbols = TicketData.get_random_symbols(type)
 
 	# ScratchArea'lari olustur
 	for i in total_areas:

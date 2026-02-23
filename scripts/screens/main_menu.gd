@@ -13,6 +13,7 @@ const DebugPanelScene := preload("res://scenes/debug/DebugPanel.tscn")
 @onready var charm_btn: Button = $VBox/BottomButtons/CharmBtn
 @onready var sinerji_btn: Button = $VBox/BottomButtons/SynerjiBtn
 @onready var koleksiyon_btn: Button = $VBox/BottomButtons/KoleksiyonBtn
+@onready var basarim_btn: Button = $VBox/BottomButtons/BasarimBtn
 
 var _debug_tap_count: int = 0
 var _debug_last_tap_time: float = 0.0
@@ -27,6 +28,7 @@ func _ready() -> void:
 	charm_btn.pressed.connect(_on_charm_pressed)
 	sinerji_btn.pressed.connect(_on_sinerji_pressed)
 	koleksiyon_btn.pressed.connect(_on_koleksiyon_pressed)
+	basarim_btn.pressed.connect(_on_basarim_pressed)
 	_update_ui()
 	print("[MainMenu] Ready — Energy: ", GameState.energy)
 
@@ -93,3 +95,7 @@ func _on_sinerji_pressed() -> void:
 
 func _on_koleksiyon_pressed() -> void:
 	get_tree().change_scene_to_file("res://scenes/screens/CollectionScreen.tscn")
+
+
+func _on_basarim_pressed() -> void:
+	get_tree().change_scene_to_file("res://scenes/screens/AchievementScreen.tscn")
