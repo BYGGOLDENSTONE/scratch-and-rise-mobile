@@ -22,6 +22,7 @@ const GoldenTicketScene := preload("res://scenes/ui/GoldenTicketPopup.tscn")
 @onready var ticket_placeholder: Label = %TicketPlaceholder
 @onready var bilet_secimi: HBoxContainer = %BiletSecimi
 @onready var warning_label: Label = %WarningLabel
+@onready var energy_timer_label: Label = %EnergyTimerLabel
 
 var current_ticket: PanelContainer = null
 var match_result_popup: PanelContainer = null
@@ -47,6 +48,17 @@ func _ready() -> void:
 	print("[Main] Game screen ready")
 
 
+func _process(_delta: float) -> void:
+	if GameState.energy < GameState.get_max_energy():
+		var remaining: float = GameState.ENERGY_REGEN_SECONDS - GameState._energy_regen_accumulator
+		var mins: int = int(remaining) / 60
+		var secs: int = int(remaining) % 60
+		energy_timer_label.text = "%d:%02d" % [mins, secs]
+		energy_timer_label.visible = true
+	else:
+		energy_timer_label.visible = false
+
+
 func _build_ticket_buttons() -> void:
 	# Sahne'deki mevcut butonlari temizle
 	for child in bilet_secimi.get_children():
@@ -70,8 +82,15 @@ func _update_ui() -> void:
 
 
 func _on_coins_changed(_new_amount: int) -> void:
+	var old_text := coin_label.text
 	coin_label.text = "Coin: %s" % GameState.format_number(GameState.coins)
 	_update_ticket_buttons()
+	# Coin degisim animasyonu: pulse + renk
+	if coin_label.text != old_text:
+		coin_label.pivot_offset = coin_label.size / 2
+		var tw := create_tween()
+		tw.tween_property(coin_label, "scale", Vector2(1.2, 1.2), 0.1)
+		tw.tween_property(coin_label, "scale", Vector2.ONE, 0.15)
 
 
 func _on_energy_changed(_new_amount: int) -> void:
@@ -85,14 +104,14 @@ func _on_round_ended(_total_earned: int) -> void:
 	for ach_id in new_achievements:
 		_unlock_achievement(ach_id)
 	SaveManager.save_game()
-	get_tree().change_scene_to_file("res://scenes/screens/RoundEnd.tscn")
+	SceneTransition.change_scene("res://scenes/screens/RoundEnd.tscn")
 
 
 func _on_back_pressed() -> void:
 	if GameState.in_round:
 		GameState.end_round()
 	else:
-		get_tree().change_scene_to_file("res://scenes/screens/MainMenu.tscn")
+		SceneTransition.change_scene("res://scenes/screens/MainMenu.tscn")
 
 
 func _on_ticket_buy(type: String) -> void:
@@ -410,6 +429,12 @@ func _on_golden_caught() -> void:
 func _on_golden_missed() -> void:
 	print("[Main] Altin bilet kacti!")
 	_golden_ticket_popup = null
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel"):
+		_on_back_pressed()
+		get_viewport().set_input_as_handled()
 
 
 func _on_debug_tap_input(event: InputEvent) -> void:

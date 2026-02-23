@@ -4,6 +4,7 @@ extends Control
 ## Basliga 5 kez tikla -> Debug Panel
 
 const DebugPanelScene := preload("res://scenes/debug/DebugPanel.tscn")
+const SettingsPopupScene := preload("res://scenes/ui/SettingsPopup.tscn")
 
 @onready var energy_label: Label = %EnergyLabel
 @onready var charm_label: Label = %CharmLabel
@@ -14,10 +15,12 @@ const DebugPanelScene := preload("res://scenes/debug/DebugPanel.tscn")
 @onready var sinerji_btn: Button = $VBox/BottomButtons/SynerjiBtn
 @onready var koleksiyon_btn: Button = $VBox/BottomButtons/KoleksiyonBtn
 @onready var basarim_btn: Button = $VBox/BottomButtons/BasarimBtn
+@onready var ayarlar_btn: Button = $VBox/BottomButtons/AyarlarBtn
 
 var _debug_tap_count: int = 0
 var _debug_last_tap_time: float = 0.0
 var _debug_panel: Control = null
+var _settings_popup: PanelContainer = null
 
 
 func _ready() -> void:
@@ -82,20 +85,34 @@ func _on_energy_changed(_new_amount: int) -> void:
 
 func _on_play_pressed() -> void:
 	if GameState.start_round():
-		get_tree().change_scene_to_file("res://scenes/main/Main.tscn")
+		SceneTransition.change_scene("res://scenes/main/Main.tscn")
 
 
 func _on_charm_pressed() -> void:
-	get_tree().change_scene_to_file("res://scenes/screens/CharmScreen.tscn")
+	SceneTransition.change_scene("res://scenes/screens/CharmScreen.tscn")
 
 
 func _on_sinerji_pressed() -> void:
-	get_tree().change_scene_to_file("res://scenes/screens/SynergyAlbum.tscn")
+	SceneTransition.change_scene("res://scenes/screens/SynergyAlbum.tscn")
 
 
 func _on_koleksiyon_pressed() -> void:
-	get_tree().change_scene_to_file("res://scenes/screens/CollectionScreen.tscn")
+	SceneTransition.change_scene("res://scenes/screens/CollectionScreen.tscn")
 
 
 func _on_basarim_pressed() -> void:
-	get_tree().change_scene_to_file("res://scenes/screens/AchievementScreen.tscn")
+	SceneTransition.change_scene("res://scenes/screens/AchievementScreen.tscn")
+
+
+func _on_ayarlar_pressed() -> void:
+	if _settings_popup != null:
+		return
+	_settings_popup = SettingsPopupScene.instantiate()
+	add_child(_settings_popup)
+	_settings_popup.popup_closed.connect(func(): _settings_popup = null)
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel"):
+		get_tree().quit()
+		get_viewport().set_input_as_handled()

@@ -1,0 +1,62 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/settings_popup.gd" id="1_sp"]
+
+[node name="SettingsPopup" type="PanelContainer"]
+script = ExtResource("1_sp")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="BG" type="ColorRect" parent="."]
+layout_mode = 2
+color = Color(0, 0, 0, 0.7)
+
+[node name="CenterBox" type="CenterContainer" parent="."]
+layout_mode = 2
+
+[node name="Panel" type="PanelContainer" parent="CenterBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(400, 300)
+
+[node name="VBox" type="VBoxContainer" parent="CenterBox/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="Spacer1" type="Control" parent="CenterBox/Panel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Title" type="Label" parent="CenterBox/Panel/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "AYARLAR"
+horizontal_alignment = 1
+
+[node name="InfoLabel" type="Label" parent="CenterBox/Panel/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Ses ve muzik ayarlari
+yakin zamanda eklenecek!"
+horizontal_alignment = 1
+
+[node name="ResetBtn" type="Button" parent="CenterBox/Panel/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(0, 45)
+text = "Save Sifirla"
+
+[node name="Spacer2" type="Control" parent="CenterBox/Panel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="CloseBtn" type="Button" parent="CenterBox/Panel/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(0, 50)
+text = "KAPAT"
+
+[node name="Spacer3" type="Control" parent="CenterBox/Panel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3

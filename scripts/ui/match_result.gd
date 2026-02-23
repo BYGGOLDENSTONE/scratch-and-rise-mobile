@@ -75,6 +75,14 @@ func show_result(match_data: Dictionary) -> void:
 		detail_label.text += drop_text
 
 	visible = true
+	# Giris animasyonu: panel scale + fade
+	var panel: PanelContainer = $CenterBox/Panel
+	panel.pivot_offset = panel.size / 2
+	panel.scale = Vector2(0.7, 0.7)
+	panel.modulate.a = 0.0
+	var tw := create_tween().set_parallel(true)
+	tw.tween_property(panel, "scale", Vector2.ONE, 0.3).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	tw.tween_property(panel, "modulate:a", 1.0, 0.2)
 	print("[MatchResult] Sonuc: ", match_data)
 
 

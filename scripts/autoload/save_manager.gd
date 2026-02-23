@@ -99,3 +99,9 @@ func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
 		save_game()
 		print("[SaveManager] Emergency save on quit")
+	elif what == NOTIFICATION_APPLICATION_PAUSED:
+		save_game()
+		print("[SaveManager] Save on app pause")
+	elif what == NOTIFICATION_APPLICATION_FOCUS_OUT:
+		save_game()
+		print("[SaveManager] Save on focus out")

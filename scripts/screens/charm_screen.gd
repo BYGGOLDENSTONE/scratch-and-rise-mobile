@@ -149,4 +149,10 @@ func _rebuild_list() -> void:
 
 
 func _on_back() -> void:
-	get_tree().change_scene_to_file("res://scenes/screens/MainMenu.tscn")
+	SceneTransition.change_scene("res://scenes/screens/MainMenu.tscn")
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel"):
+		_on_back()
+		get_viewport().set_input_as_handled()
