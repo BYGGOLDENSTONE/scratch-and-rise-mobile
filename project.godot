@@ -21,6 +21,7 @@ GameState="*res://scripts/autoload/game_state.gd"
 SaveManager="*res://scripts/autoload/save_manager.gd"
 AdManager="*res://scripts/autoload/ad_manager.gd"
 SceneTransition="*res://scripts/autoload/scene_transition.gd"
+ScreenEffects="*res://scripts/effects/screen_effects.gd"
 
 [display]
 

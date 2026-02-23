@@ -1,9 +1,20 @@
 extends PanelContainer
 
 ## Olay duyuru banner'i. Ekranin ustunden kayarak girer, 2 saniye gosterir.
+const ThemeHelper := preload("res://scripts/ui/theme_helper.gd")
 
 @onready var event_label: Label = $Margin/VBox/EventLabel
 @onready var desc_label: Label = $Margin/VBox/DescLabel
+
+
+func _ready() -> void:
+	_apply_theme()
+
+
+func _apply_theme() -> void:
+	ThemeHelper.make_neon_panel(self, ThemeHelper.NEON_GOLD, ThemeHelper.BG_PANEL)
+	ThemeHelper.style_label(event_label, ThemeHelper.NEON_GOLD, 18)
+	ThemeHelper.style_label(desc_label, ThemeHelper.TEXT_WHITE, 13)
 
 
 func show_event(event_name: String, description: String) -> void:

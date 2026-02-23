@@ -1,6 +1,7 @@
 extends PanelContainer
 
 ## Ayarlar popup'u. Placeholder — M12'de ses ayarlari eklenecek.
+const ThemeHelper := preload("res://scripts/ui/theme_helper.gd")
 
 signal popup_closed
 
@@ -13,6 +14,7 @@ var _confirm_reset: bool = false
 func _ready() -> void:
 	close_btn.pressed.connect(_on_close)
 	reset_btn.pressed.connect(_on_reset)
+	_apply_theme()
 	# Giris animasyonu
 	var panel: PanelContainer = $CenterBox/Panel
 	panel.pivot_offset = panel.size / 2
@@ -21,6 +23,15 @@ func _ready() -> void:
 	var tw := create_tween().set_parallel(true)
 	tw.tween_property(panel, "scale", Vector2.ONE, 0.25).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 	tw.tween_property(panel, "modulate:a", 1.0, 0.2)
+
+
+func _apply_theme() -> void:
+	var panel: PanelContainer = $CenterBox/Panel
+	ThemeHelper.make_neon_panel(panel, ThemeHelper.NEON_CYAN, ThemeHelper.BG_PANEL)
+	var title: Label = $CenterBox/Panel/VBox/Title
+	ThemeHelper.style_title_label(title, ThemeHelper.NEON_CYAN, 24)
+	ThemeHelper.make_neon_button(close_btn, ThemeHelper.NEON_GREEN, 18)
+	ThemeHelper.make_neon_button(reset_btn, ThemeHelper.NEON_RED, 14)
 
 
 func _on_close() -> void:

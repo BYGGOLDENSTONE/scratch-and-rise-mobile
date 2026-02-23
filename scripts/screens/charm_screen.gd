@@ -4,6 +4,7 @@ extends Control
 
 const CharmDataRef := preload("res://scripts/systems/charm_data.gd")
 const AchievementRef := preload("res://scripts/systems/achievement_system.gd")
+const ThemeHelper := preload("res://scripts/ui/theme_helper.gd")
 
 @onready var cp_label: Label = %CPLabel
 @onready var charm_list: VBoxContainer = %CharmList
@@ -13,9 +14,18 @@ const AchievementRef := preload("res://scripts/systems/achievement_system.gd")
 func _ready() -> void:
 	back_btn.pressed.connect(_on_back)
 	GameState.charm_points_changed.connect(_on_cp_changed)
+	_apply_theme()
 	_build_charm_list()
 	_update_cp()
 	print("[CharmScreen] Ready — CP: ", GameState.charm_points)
+
+
+func _apply_theme() -> void:
+	$Background.color = ThemeHelper.BG_DARK
+	var title: Label = $VBox/TopBar/Title
+	ThemeHelper.style_title_label(title, ThemeHelper.NEON_CYAN, 24)
+	ThemeHelper.style_label(cp_label, ThemeHelper.NEON_GOLD, 18)
+	ThemeHelper.make_neon_button(back_btn, ThemeHelper.NEON_RED, 16)
 
 
 func _update_cp() -> void:
@@ -57,7 +67,7 @@ func _add_section_header(category: String) -> void:
 	var header := Label.new()
 	header.text = labels.get(category, category.to_upper())
 	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	header.add_theme_color_override("font_color", Color(1.0, 0.85, 0.0))
+	ThemeHelper.style_label(header, ThemeHelper.NEON_GOLD, 16)
 	charm_list.add_child(header)
 
 
@@ -69,6 +79,8 @@ func _add_charm_item(charm_id: String, charm: Dictionary) -> void:
 	# Ana konteyner
 	var item := PanelContainer.new()
 	item.custom_minimum_size.y = 70
+	var item_color := ThemeHelper.NEON_CYAN if level > 0 else ThemeHelper.TEXT_DIM
+	ThemeHelper.make_card_panel(item, item_color)
 
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 8)
@@ -94,13 +106,13 @@ func _add_charm_item(charm_id: String, charm: Dictionary) -> void:
 		name_label.text = "%s  AKTIF" % charm["name"]
 	else:
 		name_label.text = charm["name"]
+	ThemeHelper.style_label(name_label, ThemeHelper.TEXT_WHITE, 15)
 	info_vbox.add_child(name_label)
 
 	# Efekt aciklamasi
 	var desc_label := Label.new()
 	desc_label.text = CharmDataRef.get_effect_text(charm_id, level)
-	desc_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
-	desc_label.add_theme_font_size_override("font_size", 12)
+	ThemeHelper.style_label(desc_label, ThemeHelper.TEXT_DIM, 12)
 	info_vbox.add_child(desc_label)
 
 	# Sag: buton
@@ -117,6 +129,7 @@ func _add_charm_item(charm_id: String, charm: Dictionary) -> void:
 		btn.text = "AL  %d CP" % cost
 		btn.disabled = GameState.charm_points < cost
 
+	ThemeHelper.make_neon_button(btn, ThemeHelper.NEON_GREEN, 13)
 	btn.pressed.connect(_on_charm_buy.bind(charm_id))
 	hbox.add_child(btn)
 

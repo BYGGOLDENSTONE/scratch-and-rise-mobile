@@ -14,6 +14,7 @@ const AchievementRef := preload("res://scripts/systems/achievement_system.gd")
 const AchievementToastScene := preload("res://scenes/ui/AchievementToast.tscn")
 const EventBannerScene := preload("res://scenes/ui/EventBanner.tscn")
 const GoldenTicketScene := preload("res://scenes/ui/GoldenTicketPopup.tscn")
+const ThemeHelper := preload("res://scripts/ui/theme_helper.gd")
 
 @onready var coin_label: Label = %CoinLabel
 @onready var energy_label: Label = %EnergyLabel
@@ -34,6 +35,7 @@ var _ticket_buttons: Dictionary = {}  # { "paper": Button, ... }
 var _last_symbols: Array = []
 var _last_match_data: Dictionary = {}
 var _golden_ticket_popup: PanelContainer = null
+var _yolo_triggered: bool = false
 
 
 func _ready() -> void:
@@ -42,10 +44,35 @@ func _ready() -> void:
 	GameState.round_ended.connect(_on_round_ended)
 	energy_label.mouse_filter = Control.MOUSE_FILTER_STOP
 	energy_label.gui_input.connect(_on_debug_tap_input)
+	_apply_theme()
 	_build_ticket_buttons()
 	_update_ui()
 	_update_ticket_buttons()
 	print("[Main] Game screen ready")
+
+
+func _apply_theme() -> void:
+	# Arka plan
+	$Background.color = ThemeHelper.BG_DARK
+	# Top bar
+	var top_bar: PanelContainer = get_node("UILayer/UIRoot/VBox/TopBar")
+	ThemeHelper.style_top_bar(top_bar)
+	# Top bar labellari
+	ThemeHelper.style_label(coin_label, ThemeHelper.NEON_GOLD, 16)
+	ThemeHelper.style_label(ticket_count_label, ThemeHelper.TEXT_WHITE, 14)
+	ThemeHelper.style_label(energy_label, ThemeHelper.NEON_GREEN, 14)
+	ThemeHelper.style_label(energy_timer_label, ThemeHelper.TEXT_DIM, 11)
+	# Placeholder
+	ThemeHelper.style_label(ticket_placeholder, ThemeHelper.TEXT_DIM, 16)
+	# Warning
+	ThemeHelper.style_warning(warning_label)
+	# Action butonlari
+	var charm_btn: Button = get_node("UILayer/UIRoot/VBox/BottomPanel/ActionButtons/CharmBtn")
+	var koleksiyon_btn: Button = get_node("UILayer/UIRoot/VBox/BottomPanel/ActionButtons/KoleksiyonBtn")
+	var back_btn: Button = get_node("UILayer/UIRoot/VBox/BottomPanel/ActionButtons/BackBtn")
+	ThemeHelper.make_neon_button(charm_btn, ThemeHelper.NEON_CYAN, 14)
+	ThemeHelper.make_neon_button(koleksiyon_btn, ThemeHelper.NEON_GREEN, 14)
+	ThemeHelper.make_neon_button(back_btn, ThemeHelper.NEON_RED, 14)
 
 
 func _process(_delta: float) -> void:
@@ -71,6 +98,7 @@ func _build_ticket_buttons() -> void:
 		var btn := Button.new()
 		btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		btn.pressed.connect(_on_ticket_buy.bind(t_type))
+		ThemeHelper.make_neon_button(btn, ThemeHelper.get_tier_color(t_type), 12)
 		bilet_secimi.add_child(btn)
 		_ticket_buttons[t_type] = btn
 
@@ -242,11 +270,41 @@ func _on_ticket_completed(symbols: Array) -> void:
 			print("[Main] SET TAMAMLANDI: ", drop["set_id"])
 
 	_last_match_data = match_data
+
+	# Gorsel efektler
+	_play_match_effects(match_data)
+
 	# Sonuc popup'ini goster
 	_show_match_result(match_data)
 
 
-func _show_match_result(match_data: Dictionary) -> void:
+func _play_match_effects(match_data: Dictionary) -> void:
+	if not match_data["has_match"]:
+		return
+
+	var reward: int = match_data["reward"]
+	var tier: String = match_data["tier"]
+	var synergies: Array = match_data.get("synergies", [])
+
+	# Coin ucma efekti (bilet alaninin ortasindan)
+	var fly_pos := Vector2(360, 500)
+	ScreenEffects.coin_fly(reward, fly_pos)
+
+	# YOLO efekti
+	if _yolo_triggered:
+		_yolo_triggered = false
+		ScreenEffects.yolo_effect()
+	elif tier == "jackpot":
+		ScreenEffects.jackpot_effect()
+	elif tier == "big":
+		ScreenEffects.big_win_effect()
+
+	# Sinerji efekti
+	if not synergies.is_empty():
+		ScreenEffects.synergy_effect()
+
+
+
 	match_result_popup = MatchResultScene.instantiate()
 	get_node("UILayer").add_child(match_result_popup)
 	match_result_popup.show_result(match_data)
@@ -348,6 +406,7 @@ func _apply_charm_bonuses(base_reward: int, match_data: Dictionary) -> int:
 	if GameState.get_charm_level("yolo") > 0:
 		if randf() < 0.01:
 			reward *= 50
+			_yolo_triggered = true
 			print("[Main] YOLO! x50!")
 
 	return reward

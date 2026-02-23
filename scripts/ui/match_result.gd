@@ -2,6 +2,7 @@ extends PanelContainer
 
 ## Eslesme sonuc popup'i.
 const CollectionRef := preload("res://scripts/systems/collection_system.gd")
+const ThemeHelper := preload("res://scripts/ui/theme_helper.gd")
 ## Eslesme varsa sembol, carpan, toplam coin gosterir.
 ## Eslesme yoksa "Eslesme yok" gosterir.
 ## DEVAM butonuyla kapanir.
@@ -16,6 +17,15 @@ signal result_dismissed
 
 func _ready() -> void:
 	continue_btn.pressed.connect(_on_continue_pressed)
+	_apply_theme()
+
+
+func _apply_theme() -> void:
+	var panel: PanelContainer = $CenterBox/Panel
+	ThemeHelper.make_neon_panel(panel, ThemeHelper.NEON_GOLD, ThemeHelper.BG_PANEL)
+	ThemeHelper.style_title_label(title_label, ThemeHelper.NEON_GOLD, 28)
+	ThemeHelper.style_label(detail_label, ThemeHelper.TEXT_WHITE, 16)
+	ThemeHelper.make_neon_button(continue_btn, ThemeHelper.NEON_GREEN, 18)
 
 
 func show_result(match_data: Dictionary) -> void:
@@ -30,8 +40,10 @@ func show_result(match_data: Dictionary) -> void:
 		match tier:
 			"jackpot":
 				title_label.text = "JACKPOT!"
+				ThemeHelper.style_title_label(title_label, ThemeHelper.NEON_GOLD, 32)
 			"big":
 				title_label.text = "BUYUK ESLESME!"
+				ThemeHelper.style_title_label(title_label, ThemeHelper.NEON_GREEN, 28)
 			_:
 				title_label.text = "ESLESME!"
 
@@ -56,12 +68,13 @@ func show_result(match_data: Dictionary) -> void:
 
 		detail_label.text = detail_text
 		reward_label.text = "+%s Coin!" % GameState.format_number(reward)
-		reward_label.add_theme_color_override("font_color", Color(0.2, 0.9, 0.3))
+		ThemeHelper.style_label(reward_label, ThemeHelper.NEON_GREEN, 24)
 	else:
 		title_label.text = "Eslesme yok..."
+		ThemeHelper.style_title_label(title_label, ThemeHelper.TEXT_DIM, 24)
 		detail_label.text = "3 ayni sembol bulunamadi"
 		reward_label.text = "0 Coin"
-		reward_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
+		ThemeHelper.style_label(reward_label, ThemeHelper.TEXT_MUTED, 20)
 
 	# Koleksiyon parcasi dustu mu?
 	var drop: Dictionary = match_data.get("collection_drop", {})

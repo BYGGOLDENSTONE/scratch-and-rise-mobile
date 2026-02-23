@@ -2,6 +2,7 @@ extends PanelContainer
 
 ## Altin bilet popup'u. 5 saniyelik geri sayim + YAKALA butonu.
 ## Dokunursa: ucretsiz bilet hakki. Zaman dolarsa: kaybolur.
+const ThemeHelper := preload("res://scripts/ui/theme_helper.gd")
 
 signal golden_ticket_caught()
 signal golden_ticket_missed()
@@ -16,9 +17,17 @@ var _active: bool = true
 
 func _ready() -> void:
 	catch_btn.pressed.connect(_on_catch)
+	_apply_theme()
 	modulate.a = 0.0
 	var tw := create_tween()
 	tw.tween_property(self, "modulate:a", 1.0, 0.3)
+
+
+func _apply_theme() -> void:
+	ThemeHelper.make_neon_panel(self, ThemeHelper.NEON_GOLD, ThemeHelper.BG_PANEL)
+	ThemeHelper.style_title_label(title_label, ThemeHelper.NEON_GOLD, 22)
+	ThemeHelper.style_label(timer_label, ThemeHelper.NEON_RED, 16)
+	ThemeHelper.make_neon_button(catch_btn, ThemeHelper.NEON_GOLD, 18)
 
 
 func _process(delta: float) -> void:

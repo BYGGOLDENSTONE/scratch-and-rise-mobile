@@ -65,14 +65,14 @@ scratch-mobil/
 | M6 | Bilet Turleri | Bronz/Gumus/Altin/Platin biletler, anahtar charm'lar, farkli alan+sembol havuzlari | `tamamlandi` |
 | M7 | Sinerji & Koleksiyon | Sinerjiler, sinerji albumu, koleksiyon sistemi, koleksiyon UI | `tamamlandi` `f7a65e6` |
 | M8 | Olaylar & Basarimlar | Altin bilet, Bull Run, basarim sistemi, istatistikler | `tamamlandi` |
-| M9 | Save & Polish | Save/Load, enerji yenilenme, temel animasyonlar, UI duzeni | `bekliyor` |
+| M9 | Save & Polish | Save/Load, enerji yenilenme, temel animasyonlar, UI duzeni | `tamamlandi` `427df58` |
 
 ### Faz 3: Monetizasyon & Yayinlama
 | Faz | Isim | Kapsam | Durum |
 |-----|------|--------|-------|
 | M10 | Reklam | AdMob entegrasyonu, rewarded video, interstitial, banner | `bekliyor` |
 | M11 | IAP | Google Play Billing, enerji paketleri, reklam kaldirma | `bekliyor` |
-| M12 | Gorsel & Ses | Kazima shader'i, animasyonlar, ses efektleri, muzik, neon casino stili | `bekliyor` |
+| M12 | Gorsel Polish | Neon casino tema, kazima shader, ekran efektleri, bilet/sembol gorselleri | `tamamlandi` |
 | M13 | Test & Yayin | Balans, beta test, Play Store yayin, ASO | `bekliyor` |
 
 ---
@@ -135,6 +135,16 @@ scratch-mobil/
 - **State:** `GameState.unlocked_achievements`, `GameState.stats`, `GameState.round_stats`
 - **UI:** Basarim ekrani (`scenes/screens/AchievementScreen.tscn`), Basarim toast (`scenes/ui/AchievementToast.tscn`)
 - **Gizli basarimlar:** Joker Ustasi (3x joker), Seri Eslesme (5 ardisik), Cift Sinerji (2 sinerji 1 bilet), Sifirdan Zirveye (0 charm + 500 coin)
+
+## Gorsel Polish (M12) Notlari
+- **ThemeHelper:** `scripts/ui/theme_helper.gd` (preload ile referans, static fonksiyonlar)
+- **ScreenEffects:** `scripts/effects/screen_effects.gd` (autoload: ScreenEffects)
+- **Shader:** `assets/shaders/scratch_cover.gdshader` (metalik kapak + dissolve)
+- **Tema:** Koyu mor-siyah arka plan, neon glow butonlar/paneller (yesil/altin/cyan/mor/pembe)
+- **Bilet tier renkleri:** paper=gri, bronze=bakir, silver=gumus, gold=altin, platinum=mor neon
+- **Efektler:** Ekran flash, screen shake, konfeti (GPUParticles2D), coin ucma, YOLO x50 efekti, sinerji efekti
+- **Animasyonlar:** Eslesen semboller pulse, kapak dissolve, bilet tier border/gradient
+- **Tum ekranlar:** `_apply_theme()` fonksiyonu ile runtime'da stillendirilir
 
 ## PC Versiyonu Notu
 - PC versiyonu ayri proje: `D:\godotproject\incremental`

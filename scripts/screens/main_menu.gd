@@ -5,6 +5,7 @@ extends Control
 
 const DebugPanelScene := preload("res://scenes/debug/DebugPanel.tscn")
 const SettingsPopupScene := preload("res://scenes/ui/SettingsPopup.tscn")
+const ThemeHelper := preload("res://scripts/ui/theme_helper.gd")
 
 @onready var energy_label: Label = %EnergyLabel
 @onready var charm_label: Label = %CharmLabel
@@ -32,8 +33,31 @@ func _ready() -> void:
 	sinerji_btn.pressed.connect(_on_sinerji_pressed)
 	koleksiyon_btn.pressed.connect(_on_koleksiyon_pressed)
 	basarim_btn.pressed.connect(_on_basarim_pressed)
+	_apply_theme()
 	_update_ui()
 	print("[MainMenu] Ready — Energy: ", GameState.energy)
+
+
+func _apply_theme() -> void:
+	# Arka plan
+	$Background.color = ThemeHelper.BG_DARK
+	# Baslik
+	ThemeHelper.style_title_label(title_label, ThemeHelper.NEON_GOLD, 36)
+	# Altyazi
+	var subtitle: Label = $VBox/Subtitle
+	ThemeHelper.style_label(subtitle, ThemeHelper.TEXT_DIM, 18)
+	# Enerji & Charm label
+	ThemeHelper.style_label(energy_label, ThemeHelper.NEON_GREEN, 20)
+	ThemeHelper.style_label(charm_label, ThemeHelper.NEON_CYAN, 20)
+	ThemeHelper.style_label(status_label, ThemeHelper.TEXT_DIM, 14)
+	# OYNA butonu
+	ThemeHelper.make_neon_button(play_button, ThemeHelper.NEON_GOLD, 28)
+	# Alt butonlar
+	ThemeHelper.make_neon_button(charm_btn, ThemeHelper.NEON_CYAN, 13)
+	ThemeHelper.make_neon_button(sinerji_btn, ThemeHelper.NEON_PURPLE, 13)
+	ThemeHelper.make_neon_button(koleksiyon_btn, ThemeHelper.NEON_GREEN, 13)
+	ThemeHelper.make_neon_button(basarim_btn, ThemeHelper.NEON_GOLD, 13)
+	ThemeHelper.make_neon_button(ayarlar_btn, ThemeHelper.TEXT_DIM, 13)
 
 
 func _on_title_input(event: InputEvent) -> void:

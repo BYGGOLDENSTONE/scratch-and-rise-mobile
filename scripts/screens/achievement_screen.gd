@@ -2,6 +2,7 @@ extends Control
 
 ## Basarim ekrani. Kategorilere gore listeleme.
 const AchievementRef := preload("res://scripts/systems/achievement_system.gd")
+const ThemeHelper := preload("res://scripts/ui/theme_helper.gd")
 
 @onready var achievement_list: VBoxContainer = %AchievementList
 @onready var back_btn: Button = %BackBtn
@@ -10,9 +11,18 @@ const AchievementRef := preload("res://scripts/systems/achievement_system.gd")
 
 func _ready() -> void:
 	back_btn.pressed.connect(_on_back)
+	_apply_theme()
 	_build_list()
 	_update_counter()
 	print("[AchievementScreen] Ready")
+
+
+func _apply_theme() -> void:
+	$Background.color = ThemeHelper.BG_DARK
+	var title: Label = $VBox/TopBar/Title
+	ThemeHelper.style_title_label(title, ThemeHelper.NEON_GOLD, 24)
+	ThemeHelper.style_label(counter_label, ThemeHelper.TEXT_DIM, 16)
+	ThemeHelper.make_neon_button(back_btn, ThemeHelper.NEON_RED, 16)
 
 
 func _update_counter() -> void:
@@ -45,7 +55,7 @@ func _add_section_header(category: String) -> void:
 	var header := Label.new()
 	header.text = AchievementRef.CATEGORY_NAMES.get(category, category.to_upper())
 	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	header.add_theme_color_override("font_color", Color(1.0, 0.85, 0.0))
+	ThemeHelper.style_label(header, ThemeHelper.NEON_GOLD, 16)
 	achievement_list.add_child(header)
 
 
@@ -55,6 +65,8 @@ func _add_achievement_item(ach_id: String, ach: Dictionary) -> void:
 	# Ana kart
 	var card := PanelContainer.new()
 	card.custom_minimum_size.y = 70
+	var card_color := ThemeHelper.NEON_GREEN if is_unlocked else ThemeHelper.TEXT_MUTED
+	ThemeHelper.make_card_panel(card, card_color)
 
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 10)
@@ -76,16 +88,15 @@ func _add_achievement_item(ach_id: String, ach: Dictionary) -> void:
 	var name_label := Label.new()
 	name_label.text = AchievementRef.get_display_name(ach_id)
 	if is_unlocked:
-		name_label.add_theme_color_override("font_color", Color(0.2, 0.9, 0.3))
+		ThemeHelper.style_label(name_label, ThemeHelper.NEON_GREEN, 15)
 	else:
-		name_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
+		ThemeHelper.style_label(name_label, ThemeHelper.TEXT_MUTED, 15)
 	info_vbox.add_child(name_label)
 
 	# Aciklama
 	var desc_label := Label.new()
 	desc_label.text = AchievementRef.get_display_description(ach_id)
-	desc_label.add_theme_font_size_override("font_size", 12)
-	desc_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
+	ThemeHelper.style_label(desc_label, ThemeHelper.TEXT_DIM, 12)
 	info_vbox.add_child(desc_label)
 
 	# Sag: odul
@@ -94,10 +105,10 @@ func _add_achievement_item(ach_id: String, ach: Dictionary) -> void:
 	reward_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	if is_unlocked:
 		reward_label.text = "+%d CP" % ach["reward_cp"]
-		reward_label.add_theme_color_override("font_color", Color(0.2, 0.9, 0.3))
+		ThemeHelper.style_label(reward_label, ThemeHelper.NEON_GREEN, 16)
 	else:
 		reward_label.text = "%d CP" % ach["reward_cp"]
-		reward_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
+		ThemeHelper.style_label(reward_label, ThemeHelper.TEXT_MUTED, 16)
 	hbox.add_child(reward_label)
 
 	achievement_list.add_child(card)

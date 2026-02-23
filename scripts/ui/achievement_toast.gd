@@ -2,9 +2,20 @@ extends PanelContainer
 
 ## Basarim acilinca ekranin ustunde beliren bildirim.
 ## 3 saniye gosterir, fade ile kaybolur.
+const ThemeHelper := preload("res://scripts/ui/theme_helper.gd")
 
 @onready var name_label: Label = $Margin/VBox/NameLabel
 @onready var reward_label: Label = $Margin/VBox/RewardLabel
+
+
+func _ready() -> void:
+	_apply_theme()
+
+
+func _apply_theme() -> void:
+	ThemeHelper.make_neon_panel(self, ThemeHelper.NEON_GREEN, ThemeHelper.BG_PANEL)
+	ThemeHelper.style_label(name_label, ThemeHelper.NEON_GREEN, 15)
+	ThemeHelper.style_label(reward_label, ThemeHelper.NEON_GOLD, 13)
 
 
 func show_achievement(ach_name: String, reward_cp: int) -> void:
