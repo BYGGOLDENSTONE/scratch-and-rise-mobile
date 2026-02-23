@@ -53,8 +53,8 @@ scratch-mobil/
 ### Faz 1: Temel Mekanik
 | Faz | Isim | Kapsam | Durum |
 |-----|------|--------|-------|
-| M1 | Proje Altyapisi | Godot ayarlari, klasor yapisi, autoload iskeletleri, portrait layout, placeholder UI | `bekliyor` |
-| M2 | Bilet & Kazima | Bilet sahnesi, dokunma ile kazima, sembol atama, bilet tamamlanma | `bekliyor` |
+| M1 | Proje Altyapisi | Godot ayarlari, klasor yapisi, autoload iskeletleri, portrait layout, placeholder UI | `tamamlandi` `cddfe39` |
+| M2 | Bilet & Kazima | Bilet sahnesi, dokunma ile kazima, sembol atama, bilet tamamlanma | `test-bekliyor` |
 | M3 | Eslesme & Coin | Eslesme kontrolu, coin hesaplama, ust bar, eslesme sonuc ekrani | `bekliyor` |
 | M4 | Enerji & Tur | Enerji sistemi, tur baslangic/bitis, baslangic parasi, bilet satin alma | `bekliyor` |
 | M5 | Charm Sistemi | Charm puani kazanma, charm listesi, charm satin alma, seviye artirma | `bekliyor` |
@@ -81,6 +81,19 @@ scratch-mobil/
 - Her faz sonrasi kullanici test eder -> onaylarsa commit+push
 - Commit mesaji formati: `[M1] Proje altyapisi: autoload, ana sahne, klasor yapisi`
 - Tamamlanan fazlar tabloda `commit_hash` ile referanslanir
+
+## Gelistirme Sureci (Her Faz Icin)
+1. **Implementasyon** — Kod yazilir
+2. **Godot Log Testi** — Godot headless calistirilir, loglar okunur, compile/runtime hatalari kontrol edilir
+3. **Kullanici Testi** — Kullanici oyunu acip manuel test eder, onaylarsa commit+push
+4. **CLAUDE.md Guncelle** — Faz durumu guncellenir
+
+## Log Kontrol Yaklasimi
+- Her implementasyon sonrasi `Godot --headless --quit` ile oyun baslatilir
+- Ciktidaki `[GameState]`, `[Main]`, `[Ticket]` gibi prefixli loglar kontrol edilir
+- `ERROR`, `WARNING`, `Parse Error`, `Invalid` gibi hata kelimeleri aranir
+- Compile hatasi varsa kullaniciya sormadan once duzeltilir
+- Her script `print("[ModulAdi] ...")` formatiyla log basar — bu sayede hangi modulun yuklendigi/calismadigi anlasilir
 
 ## PC Versiyonu Notu
 - PC versiyonu ayri proje: `D:\godotproject\incremental`
