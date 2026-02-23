@@ -18,6 +18,9 @@ mono_crash.*.json
 *.swo
 *~
 
+# Test harness
+_test_*
+
 # OS
 .DS_Store
 Thumbs.db

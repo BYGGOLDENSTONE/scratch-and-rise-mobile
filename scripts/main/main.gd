@@ -304,7 +304,7 @@ func _play_match_effects(match_data: Dictionary) -> void:
 		ScreenEffects.synergy_effect()
 
 
-
+func _show_match_result(match_data: Dictionary) -> void:
 	match_result_popup = MatchResultScene.instantiate()
 	get_node("UILayer").add_child(match_result_popup)
 	match_result_popup.show_result(match_data)
