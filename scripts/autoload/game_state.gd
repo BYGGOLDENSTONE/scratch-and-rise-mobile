@@ -4,6 +4,7 @@ extends Node
 ## Mobil: tur bazlı, enerji sistemi, charm puanları.
 
 const CharmDataRef := preload("res://scripts/systems/charm_data.gd")
+const CollectionRef := preload("res://scripts/systems/collection_system.gd")
 
 # --- Sinyaller ---
 signal coins_changed(new_amount: int)
@@ -32,6 +33,10 @@ var total_coins_earned: int = 0
 var total_rounds_played: int = 0
 var best_round_coins: int = 0
 var last_round_earnings: int = 0
+
+# --- Koleksiyon & Sinerji ---
+var collected_pieces: Dictionary = {}  # { "set_id": ["piece1", "piece2"] }
+var discovered_synergies: Array = []   # ["meyve_kokteyli", "gece_gokyuzu", ...]
 
 # --- Enerji Sistemi ---
 const BASE_MAX_ENERGY: int = 5
@@ -110,12 +115,13 @@ func spend_coins(amount: int) -> bool:
 	return false
 
 
-## Başlangıç coin: 50 + charm bonusları
+## Başlangıç coin: 50 + charm bonusları + koleksiyon bonusu
 func get_starting_coins() -> int:
 	var base := 50
 	var bonus: int = get_charm_level("zengin_baslangic") * 10
 	var mega_bonus: int = get_charm_level("mega_baslangic") * 50
-	return base + bonus + mega_bonus
+	var col_bonus: int = CollectionRef.get_starting_coins_bonus()
+	return base + bonus + mega_bonus + col_bonus
 
 
 ## Coin'den charm puanı hesapla
@@ -151,6 +157,43 @@ func buy_charm(charm_id: String) -> bool:
 	SaveManager.save_game()
 	print("[GameState] Charm alindi: ", charm_id, " -> Lv.", current_level + 1)
 	return true
+
+
+## Koleksiyon parcasi ekle
+func add_collection_piece(set_id: String, piece_id: String) -> void:
+	if not collected_pieces.has(set_id):
+		collected_pieces[set_id] = []
+	if piece_id not in collected_pieces[set_id]:
+		collected_pieces[set_id].append(piece_id)
+		SaveManager.save_game()
+		print("[GameState] Koleksiyon parcasi eklendi: %s / %s" % [set_id, piece_id])
+
+
+## Koleksiyon parcasi var mi kontrol
+func has_collection_piece(set_id: String, piece_id: String) -> bool:
+	if not collected_pieces.has(set_id):
+		return false
+	return piece_id in collected_pieces[set_id]
+
+
+## Set tamamlandi mi kontrol
+func is_set_complete(set_id: String) -> bool:
+	return CollectionRef.is_set_complete(set_id)
+
+
+## Sinerji kesfet
+func discover_synergy(synergy_id: String) -> bool:
+	if synergy_id in discovered_synergies:
+		return false
+	discovered_synergies.append(synergy_id)
+	SaveManager.save_game()
+	print("[GameState] Sinerji kesfedildi: ", synergy_id)
+	return true
+
+
+## Sinerji kesfedilmis mi
+func is_synergy_discovered(synergy_id: String) -> bool:
+	return synergy_id in discovered_synergies
 
 
 ## Büyük sayıları okunabilir formata çevir

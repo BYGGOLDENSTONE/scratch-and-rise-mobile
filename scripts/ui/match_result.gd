@@ -1,6 +1,7 @@
 extends PanelContainer
 
 ## Eslesme sonuc popup'i.
+const CollectionRef := preload("res://scripts/systems/collection_system.gd")
 ## Eslesme varsa sembol, carpan, toplam coin gosterir.
 ## Eslesme yoksa "Eslesme yok" gosterir.
 ## DEVAM butonuyla kapanir.
@@ -34,7 +35,26 @@ func show_result(match_data: Dictionary) -> void:
 			_:
 				title_label.text = "ESLESME!"
 
-		detail_label.text = "%s x%d = x%d carpan" % [symbol_name, count, multiplier]
+		var detail_text := "%s x%d = x%d carpan" % [symbol_name, count, multiplier]
+
+		# Sinerji bilgisi
+		var synergies: Array = match_data.get("synergies", [])
+		var new_synergies: Array = match_data.get("new_synergies", [])
+		var synergy_mult: int = match_data.get("synergy_multiplier", 1)
+
+		if not synergies.is_empty():
+			for syn in synergies:
+				var syn_name: String = syn["name"]
+				if syn["id"] in new_synergies:
+					detail_text += "\nYENI SINERJI: %s! x%d" % [syn_name, syn["multiplier"]]
+				else:
+					detail_text += "\nSINERJI: %s! x%d" % [syn_name, syn["multiplier"]]
+
+			# Yeni sinerji kesfedildiyse basligi degistir
+			if not new_synergies.is_empty():
+				title_label.text = "SINERJI KESFEDILDI!"
+
+		detail_label.text = detail_text
 		reward_label.text = "+%s Coin!" % GameState.format_number(reward)
 		reward_label.add_theme_color_override("font_color", Color(0.2, 0.9, 0.3))
 	else:
@@ -42,6 +62,17 @@ func show_result(match_data: Dictionary) -> void:
 		detail_label.text = "3 ayni sembol bulunamadi"
 		reward_label.text = "0 Coin"
 		reward_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
+
+	# Koleksiyon parcasi dustu mu?
+	var drop: Dictionary = match_data.get("collection_drop", {})
+	if not drop.is_empty():
+		var piece_name: String = CollectionRef.get_piece_name(drop["set_id"], drop["piece_id"])
+		var set_name: String = CollectionRef.get_set(drop["set_id"]).get("name", "")
+		var drop_text := "\nKoleksiyon: %s (%s)" % [piece_name, set_name]
+		var set_completed: String = match_data.get("set_completed", "")
+		if set_completed != "":
+			drop_text += "\nSET TAMAMLANDI!"
+		detail_label.text += drop_text
 
 	visible = true
 	print("[MatchResult] Sonuc: ", match_data)

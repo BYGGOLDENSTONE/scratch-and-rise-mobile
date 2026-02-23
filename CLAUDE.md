@@ -63,7 +63,7 @@ scratch-mobil/
 | Faz | Isim | Kapsam | Durum |
 |-----|------|--------|-------|
 | M6 | Bilet Turleri | Bronz/Gumus/Altin/Platin biletler, anahtar charm'lar, farkli alan+sembol havuzlari | `tamamlandi` |
-| M7 | Sinerji & Koleksiyon | Sinerjiler, sinerji albumu, koleksiyon sistemi, koleksiyon UI | `bekliyor` |
+| M7 | Sinerji & Koleksiyon | Sinerjiler, sinerji albumu, koleksiyon sistemi, koleksiyon UI | `test-bekliyor` |
 | M8 | Olaylar & Basarimlar | Altin bilet, Bull Run, basarim sistemi, istatistikler | `bekliyor` |
 | M9 | Save & Polish | Save/Load, enerji yenilenme, temel animasyonlar, UI duzeni | `bekliyor` |
 
@@ -97,13 +97,28 @@ scratch-mobil/
 
 ## Debug Araclari
 - **Erisim:** Basliga 5 kez tikla (ana menu) veya Enerji labelina 5 kez tikla (oyun ekrani)
-- **Ozellikler:** Save sifirlama, enerji doldurma, +10/+100 charm, +100/+1000 coin, tur bitirme
+- **Ozellikler:** Save sifirlama, enerji doldurma, +10/+100 charm, +100/+1000 coin, tur bitirme, sinerji kesfet, koleksiyon ekle, tum koleksiyonlari tamamla
 - **Dosyalar:** `scripts/debug/debug_panel.gd`, `scenes/debug/DebugPanel.tscn`
 
 ## Charm Sistemi Notlari
-- **Aktif efektler:** Sans Tokasi, Zengin/Mega Baslangic, Altinparmak, Kral Dokunusu, YOLO, Enerji Deposu, Hizli Parmak
-- **Ertelenmis efektler:** Keskin Goz (M6-sembol uretimi), Joker Miknatisi (M6-ozel semboller), Carpan Gucu (M6), Sinerji Radari (M7), Anahtar Charm'lar (M6-bilet turleri)
+- **Aktif efektler:** Sans Tokasi, Zengin/Mega Baslangic, Altinparmak, Kral Dokunusu, YOLO, Enerji Deposu, Hizli Parmak, Sinerji Radari
+- **Ertelenmis efektler:** Keskin Goz (M6-sembol uretimi), Joker Miknatisi (M6-ozel semboller), Carpan Gucu (M6), Anahtar Charm'lar (M6-bilet turleri)
 - **CharmData:** `scripts/systems/charm_data.gd` (preload ile referans, class_name cache sorunu nedeniyle)
+
+## Sinerji Sistemi Notlari
+- **Dosya:** `scripts/systems/synergy_system.gd` (preload ile referans)
+- **Sinerjiler:** Meyve Kokteyli (x3), Gece Gokyuzu (x4), Lucky Seven (x10), Kraliyet (x5), Ejderha Atesi (x8), Full House (x25), Gokkusagi (x5), Gizli Sinerji (x15)
+- **Sinerji Radari charm:** Sembol uretiminde sinerji yonlendirme sansi (seviye x %5)
+- **Kesfedilen sinerjiler:** GameState.discovered_synergies'de saklanir
+- **UI:** Sinerji Albumu ekrani (`scenes/screens/SynergyAlbum.tscn`)
+
+## Koleksiyon Sistemi Notlari
+- **Dosya:** `scripts/systems/collection_system.gd` (preload ile referans)
+- **Setler:** Meyve, Degerli Taslar, Sansli 7'ler, Kripto, Kozmik, Meme Lords (her biri 4 parca)
+- **Dusme sanslari:** Paper %3, Bronze %5, Silver %8, Gold %12, Platinum %18
+- **Set bonuslari:** Eslesme odulu, ozel sembol, jackpot, baslangic coin, tum oduller, altin bilet sansi
+- **Toplanan parcalar:** GameState.collected_pieces'de saklanir
+- **UI:** Koleksiyon ekrani (`scenes/screens/CollectionScreen.tscn`)
 
 ## PC Versiyonu Notu
 - PC versiyonu ayri proje: `D:\godotproject\incremental`

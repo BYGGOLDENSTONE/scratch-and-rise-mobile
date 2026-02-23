@@ -11,6 +11,8 @@ const DebugPanelScene := preload("res://scenes/debug/DebugPanel.tscn")
 @onready var status_label: Label = %StatusLabel
 @onready var title_label: Label = $VBox/Title
 @onready var charm_btn: Button = $VBox/BottomButtons/CharmBtn
+@onready var sinerji_btn: Button = $VBox/BottomButtons/SynerjiBtn
+@onready var koleksiyon_btn: Button = $VBox/BottomButtons/KoleksiyonBtn
 
 var _debug_tap_count: int = 0
 var _debug_last_tap_time: float = 0.0
@@ -23,6 +25,8 @@ func _ready() -> void:
 	title_label.mouse_filter = Control.MOUSE_FILTER_STOP
 	title_label.gui_input.connect(_on_title_input)
 	charm_btn.pressed.connect(_on_charm_pressed)
+	sinerji_btn.pressed.connect(_on_sinerji_pressed)
+	koleksiyon_btn.pressed.connect(_on_koleksiyon_pressed)
 	_update_ui()
 	print("[MainMenu] Ready — Energy: ", GameState.energy)
 
@@ -81,3 +85,11 @@ func _on_play_pressed() -> void:
 
 func _on_charm_pressed() -> void:
 	get_tree().change_scene_to_file("res://scenes/screens/CharmScreen.tscn")
+
+
+func _on_sinerji_pressed() -> void:
+	get_tree().change_scene_to_file("res://scenes/screens/SynergyAlbum.tscn")
+
+
+func _on_koleksiyon_pressed() -> void:
+	get_tree().change_scene_to_file("res://scenes/screens/CollectionScreen.tscn")

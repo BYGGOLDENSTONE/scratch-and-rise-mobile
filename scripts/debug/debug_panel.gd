@@ -2,6 +2,8 @@ extends Control
 
 ## Gizli debug paneli. Basliga 5 kez tiklayinca acilir.
 ## Save sifirlama, coin/enerji/charm ekleme, tur bitirme.
+const SynergyRef := preload("res://scripts/systems/synergy_system.gd")
+const CollectionRef := preload("res://scripts/systems/collection_system.gd")
 
 signal panel_closed()
 
@@ -25,14 +27,33 @@ func _ready() -> void:
 	coin1000_btn.pressed.connect(_on_add_coin.bind(1000))
 	end_round_btn.pressed.connect(_on_end_round)
 	close_btn.pressed.connect(_on_close)
-	# Tum Biletleri Ac butonu (dinamik, sahne duzenlemesiz)
+	# Dinamik butonlar (sahne duzenlemesiz)
+	var parent_container: Container = end_round_btn.get_parent()
+
 	var unlock_btn := Button.new()
 	unlock_btn.text = "Tum Biletleri Ac"
 	unlock_btn.pressed.connect(_on_unlock_all_tickets)
-	# EndRoundBtn'den once ekle
-	var parent_container: Container = end_round_btn.get_parent()
 	parent_container.add_child(unlock_btn)
 	parent_container.move_child(unlock_btn, end_round_btn.get_index())
+
+	var syn_btn := Button.new()
+	syn_btn.text = "Sinerji Kesfet"
+	syn_btn.pressed.connect(_on_discover_synergy)
+	parent_container.add_child(syn_btn)
+	parent_container.move_child(syn_btn, end_round_btn.get_index())
+
+	var col_btn := Button.new()
+	col_btn.text = "Koleksiyon Ekle"
+	col_btn.pressed.connect(_on_add_collection)
+	parent_container.add_child(col_btn)
+	parent_container.move_child(col_btn, end_round_btn.get_index())
+
+	var col_all_btn := Button.new()
+	col_all_btn.text = "Tum Koleksiyonlari Tamamla"
+	col_all_btn.pressed.connect(_on_complete_all_collections)
+	parent_container.add_child(col_all_btn)
+	parent_container.move_child(col_all_btn, end_round_btn.get_index())
+
 	_update_context()
 	print("[Debug] Panel acildi")
 
@@ -69,6 +90,8 @@ func _on_reset_save() -> void:
 	GameState.best_round_coins = 0
 	GameState.coins = 0
 	GameState.in_round = false
+	GameState.collected_pieces = {}
+	GameState.discovered_synergies = []
 	SaveManager.save_game()
 	print("[Debug] Save sifirlandi!")
 	_update_context()
@@ -107,6 +130,43 @@ func _on_end_round() -> void:
 		GameState.end_round()
 		print("[Debug] Tur bitirildi!")
 	_update_context()
+
+
+func _on_discover_synergy() -> void:
+	# Kesfedilmemis bir sinerji bul ve kesfet
+	for syn_id in SynergyRef.SYNERGY_ORDER:
+		if not GameState.is_synergy_discovered(syn_id):
+			GameState.discover_synergy(syn_id)
+			var syn: Dictionary = SynergyRef.get_synergy(syn_id)
+			print("[Debug] Sinerji kesfedildi: %s" % syn.get("name", syn_id))
+			_update_info()
+			return
+	print("[Debug] Tum sinerjiler zaten kesfedilmis!")
+
+
+func _on_add_collection() -> void:
+	# Toplanmamis bir parca bul ve ekle
+	for set_id in CollectionRef.SET_ORDER:
+		var set_data: Dictionary = CollectionRef.get_set(set_id)
+		for piece_id in set_data["pieces"]:
+			if not GameState.has_collection_piece(set_id, piece_id):
+				GameState.add_collection_piece(set_id, piece_id)
+				var piece_name: String = CollectionRef.get_piece_name(set_id, piece_id)
+				print("[Debug] Koleksiyon eklendi: %s / %s" % [set_data["name"], piece_name])
+				_update_info()
+				return
+	print("[Debug] Tum koleksiyonlar zaten tamamlanmis!")
+
+
+func _on_complete_all_collections() -> void:
+	for set_id in CollectionRef.SET_ORDER:
+		var set_data: Dictionary = CollectionRef.get_set(set_id)
+		for piece_id in set_data["pieces"]:
+			if not GameState.has_collection_piece(set_id, piece_id):
+				GameState.add_collection_piece(set_id, piece_id)
+	SaveManager.save_game()
+	print("[Debug] Tum koleksiyonlar tamamlandi!")
+	_update_info()
 
 
 func _on_close() -> void:

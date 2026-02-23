@@ -7,6 +7,8 @@ extends Node2D
 const TicketScene := preload("res://scenes/ticket/Ticket.tscn")
 const MatchResultScene := preload("res://scenes/ui/MatchResult.tscn")
 const DebugPanelScene := preload("res://scenes/debug/DebugPanel.tscn")
+const SynergyRef := preload("res://scripts/systems/synergy_system.gd")
+const CollectionRef := preload("res://scripts/systems/collection_system.gd")
 
 @onready var coin_label: Label = %CoinLabel
 @onready var energy_label: Label = %EnergyLabel
@@ -109,14 +111,46 @@ func _on_ticket_completed(symbols: Array) -> void:
 		ticket_type = current_ticket.get_ticket_type()
 	var match_data: Dictionary = MatchSystem.check_match(symbols, ticket_type)
 
+	# Sinerji kontrolu
+	var synergies: Array = SynergyRef.check_synergies(symbols)
+	match_data["synergies"] = synergies
+	match_data["new_synergies"] = []
+
+	# Sinerji kesfedilmemisse kaydet
+	for syn in synergies:
+		if GameState.discover_synergy(syn["id"]):
+			match_data["new_synergies"].append(syn["id"])
+
+	# En yuksek sinerji carpanini bul
+	var synergy_mult := 1
+	for syn in synergies:
+		if syn["multiplier"] > synergy_mult:
+			synergy_mult = syn["multiplier"]
+	match_data["synergy_multiplier"] = synergy_mult
+
 	# Charm bonuslarini uygula ve coin ekle
 	if match_data["has_match"]:
 		var reward: int = _apply_charm_bonuses(match_data["reward"], match_data)
+		# Sinerji carpanini uygula
+		if synergy_mult > 1:
+			reward *= synergy_mult
+			print("[Main] Sinerji! x%d carpan" % synergy_mult)
 		match_data["reward"] = reward
 		GameState.add_coins(reward)
 		print("[Main] Eslesme! +", reward, " coin")
 	else:
 		print("[Main] Eslesme yok")
+
+	# Koleksiyon parcasi dusme kontrolu
+	var drop: Dictionary = CollectionRef.roll_collection_drop(ticket_type)
+	match_data["collection_drop"] = drop
+	match_data["set_completed"] = ""
+	if not drop.is_empty():
+		GameState.add_collection_piece(drop["set_id"], drop["piece_id"])
+		print("[Main] Koleksiyon parcasi dustu: %s / %s" % [drop["set_id"], drop["piece_id"]])
+		if CollectionRef.is_set_complete(drop["set_id"]):
+			match_data["set_completed"] = drop["set_id"]
+			print("[Main] SET TAMAMLANDI: ", drop["set_id"])
 
 	# Sonuc popup'ini goster
 	_show_match_result(match_data)
@@ -186,6 +220,14 @@ func _apply_charm_bonuses(base_reward: int, match_data: Dictionary) -> int:
 
 	# Altinparmak: +15% tum oduller per level
 	bonus_mult += GameState.get_charm_level("altinparmak") * 0.15
+
+	# Koleksiyon bonuslari
+	bonus_mult += CollectionRef.get_match_reward_bonus()
+	bonus_mult += CollectionRef.get_all_rewards_bonus()
+
+	# Jackpot bonusu (sadece jackpot tier'da)
+	if match_data["tier"] == "jackpot":
+		bonus_mult += CollectionRef.get_jackpot_bonus()
 
 	# Kral Dokunusu: 4+ eslesme odulu x(level+1)
 	if match_data["best_count"] >= 4:

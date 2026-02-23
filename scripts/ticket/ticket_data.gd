@@ -4,6 +4,7 @@ extends RefCounted
 ## Bilet turleri, sembol tanimlari, rastgele sembol uretimi.
 
 const CharmDataRef := preload("res://scripts/systems/charm_data.gd")
+const SynergyRef := preload("res://scripts/systems/synergy_system.gd")
 
 const SYMBOL_NAMES := {
 	"cherry": "Kiraz",
@@ -122,14 +123,32 @@ static func get_cheapest_unlocked_price() -> int:
 	return cheapest
 
 
-## Rastgele sembol dizisi dondurur
+## Rastgele sembol dizisi dondurur (Sinerji Radari charm etkisi dahil)
 static func get_random_symbols(type: String) -> Array:
 	var config: Dictionary = TICKET_CONFIGS.get(type, TICKET_CONFIGS["paper"])
 	var pool: Array = config["symbol_pool"]
 	var count: int = config["area_count"]
 	var symbols: Array = []
-	for i in count:
+
+	# Sinerji Radari charm etkisi: sinerji yonlendirme sansi
+	var radar_level: int = GameState.get_charm_level("sinerji_radari")
+	var nudge_chance: float = radar_level * 0.05
+	var nudge_symbols: Array = []
+
+	if radar_level > 0 and randf() < nudge_chance:
+		nudge_symbols = SynergyRef.get_synergy_nudge_symbols(pool)
+
+	# Nudge sembollerini yerlestir (varsa)
+	for ns in nudge_symbols:
+		if symbols.size() < count:
+			symbols.append(ns)
+
+	# Kalan alanlari rastgele doldur
+	while symbols.size() < count:
 		symbols.append(pool[randi() % pool.size()])
+
+	# Sirayi karistir (nudge sembolleri belli olmasin)
+	symbols.shuffle()
 	return symbols
 
 

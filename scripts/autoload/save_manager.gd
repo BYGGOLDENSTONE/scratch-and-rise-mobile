@@ -21,6 +21,8 @@ func save_game() -> void:
 		"total_coins_earned": GameState.total_coins_earned,
 		"total_rounds_played": GameState.total_rounds_played,
 		"best_round_coins": GameState.best_round_coins,
+		"collected_pieces": GameState.collected_pieces,
+		"discovered_synergies": GameState.discovered_synergies,
 		"timestamp": Time.get_unix_time_from_system(),
 	}
 	# Mevcut save'i backup'a kopyala
@@ -63,6 +65,8 @@ func load_game() -> bool:
 	GameState.total_coins_earned = int(data.get("total_coins_earned", 0))
 	GameState.total_rounds_played = int(data.get("total_rounds_played", 0))
 	GameState.best_round_coins = int(data.get("best_round_coins", 0))
+	GameState.collected_pieces = data.get("collected_pieces", {})
+	GameState.discovered_synergies = data.get("discovered_synergies", [])
 
 	# Enerji yenilenme hesabı
 	var saved_energy: int = int(data.get("energy", GameState.BASE_MAX_ENERGY))
