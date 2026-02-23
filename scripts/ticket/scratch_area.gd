@@ -28,18 +28,15 @@ func setup(idx: int, symbol: String) -> void:
 	symbol_label.text = TicketData.get_display_name(symbol)
 	var color: Color = TicketData.get_color(symbol)
 
-	# Sembol panelini renklendir + neon glow border
+	# Sembol panelini renklendir
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(color.r * 0.25, color.g * 0.25, color.b * 0.25, 0.95)
-	style.border_color = Color(color.r, color.g, color.b, 0.7)
-	style.border_width_left = 2
-	style.border_width_top = 2
-	style.border_width_right = 2
-	style.border_width_bottom = 2
-	style.corner_radius_top_left = 6
-	style.corner_radius_top_right = 6
-	style.corner_radius_bottom_left = 6
-	style.corner_radius_bottom_right = 6
+	if ThemeHelper.is_dark():
+		style.bg_color = Color(color.r * 0.20, color.g * 0.20, color.b * 0.20, 0.9)
+	else:
+		style.bg_color = Color(color.r * 0.08 + 0.90, color.g * 0.08 + 0.90, color.b * 0.08 + 0.90, 1.0)
+	style.border_color = Color(color.r, color.g, color.b, ThemeHelper.pf("border_alpha") + 0.15)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(6)
 	symbol_panel.add_theme_stylebox_override("panel", style)
 
 	# Sembol label stili: parlak, kalin
@@ -69,6 +66,7 @@ func _setup_cover_shader() -> void:
 	_cover_shader_mat.set_shader_parameter("reveal", 0.0)
 	_cover_shader_mat.set_shader_parameter("base_color", Color(0.50, 0.50, 0.55, 1.0))
 	_cover_shader_mat.set_shader_parameter("shine_color", Color(0.72, 0.72, 0.78, 1.0))
+	_cover_shader_mat.set_shader_parameter("edge_glow_color", ThemeHelper.p("success"))
 	cover_panel.material = _cover_shader_mat
 
 

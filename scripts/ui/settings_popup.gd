@@ -1,12 +1,13 @@
 extends PanelContainer
 
-## Ayarlar popup'u. Placeholder — M12'de ses ayarlari eklenecek.
+## Ayarlar popup'u — tema degistirme, save sifirlama.
 const ThemeHelper := preload("res://scripts/ui/theme_helper.gd")
 
 signal popup_closed
 
 @onready var close_btn: Button = %CloseBtn
 @onready var reset_btn: Button = %ResetBtn
+@onready var theme_btn: Button = %ThemeToggleBtn
 
 var _confirm_reset: bool = false
 
@@ -14,7 +15,9 @@ var _confirm_reset: bool = false
 func _ready() -> void:
 	close_btn.pressed.connect(_on_close)
 	reset_btn.pressed.connect(_on_reset)
+	theme_btn.pressed.connect(_on_theme_toggle)
 	_apply_theme()
+	_update_theme_btn_text()
 	# Giris animasyonu
 	var panel: PanelContainer = $CenterBox/Panel
 	panel.pivot_offset = panel.size / 2
@@ -27,11 +30,27 @@ func _ready() -> void:
 
 func _apply_theme() -> void:
 	var panel: PanelContainer = $CenterBox/Panel
-	ThemeHelper.make_neon_panel(panel, ThemeHelper.NEON_CYAN, ThemeHelper.BG_PANEL)
+	ThemeHelper.make_panel(panel, ThemeHelper.p("info"), ThemeHelper.p("bg_panel"))
 	var title: Label = $CenterBox/Panel/VBox/Title
-	ThemeHelper.style_title_label(title, ThemeHelper.NEON_CYAN, 24)
-	ThemeHelper.make_neon_button(close_btn, ThemeHelper.NEON_GREEN, 18)
-	ThemeHelper.make_neon_button(reset_btn, ThemeHelper.NEON_RED, 14)
+	ThemeHelper.style_title(title, ThemeHelper.p("info"), 24)
+	ThemeHelper.make_button(close_btn, ThemeHelper.p("success"), 18)
+	ThemeHelper.make_button(reset_btn, ThemeHelper.p("danger"), 14)
+	ThemeHelper.make_button(theme_btn, ThemeHelper.p("primary"), 16)
+	$BG.color = Color(0, 0, 0, 0.7)
+
+
+func _update_theme_btn_text() -> void:
+	if GameState.user_theme == 0:
+		theme_btn.text = "Tema: Karanlik"
+	else:
+		theme_btn.text = "Tema: Aydinlik"
+
+
+func _on_theme_toggle() -> void:
+	var new_theme := 1 if GameState.user_theme == 0 else 0
+	GameState.set_user_theme(new_theme)
+	_apply_theme()
+	_update_theme_btn_text()
 
 
 func _on_close() -> void:

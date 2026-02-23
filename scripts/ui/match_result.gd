@@ -22,10 +22,10 @@ func _ready() -> void:
 
 func _apply_theme() -> void:
 	var panel: PanelContainer = $CenterBox/Panel
-	ThemeHelper.make_neon_panel(panel, ThemeHelper.NEON_GOLD, ThemeHelper.BG_PANEL)
-	ThemeHelper.style_title_label(title_label, ThemeHelper.NEON_GOLD, 28)
-	ThemeHelper.style_label(detail_label, ThemeHelper.TEXT_WHITE, 16)
-	ThemeHelper.make_neon_button(continue_btn, ThemeHelper.NEON_GREEN, 18)
+	ThemeHelper.make_panel(panel, ThemeHelper.p("warning"), ThemeHelper.p("bg_panel"))
+	ThemeHelper.style_title(title_label, ThemeHelper.p("warning"), 28)
+	ThemeHelper.style_label(detail_label, ThemeHelper.p("text_primary"), 16)
+	ThemeHelper.make_button(continue_btn, ThemeHelper.p("success"), 18)
 
 
 func show_result(match_data: Dictionary) -> void:
@@ -40,10 +40,10 @@ func show_result(match_data: Dictionary) -> void:
 		match tier:
 			"jackpot":
 				title_label.text = "JACKPOT!"
-				ThemeHelper.style_title_label(title_label, ThemeHelper.NEON_GOLD, 32)
+				ThemeHelper.style_title(title_label, ThemeHelper.p("warning"), 32)
 			"big":
 				title_label.text = "BUYUK ESLESME!"
-				ThemeHelper.style_title_label(title_label, ThemeHelper.NEON_GREEN, 28)
+				ThemeHelper.style_title(title_label, ThemeHelper.p("success"), 28)
 			_:
 				title_label.text = "ESLESME!"
 
@@ -68,13 +68,13 @@ func show_result(match_data: Dictionary) -> void:
 
 		detail_label.text = detail_text
 		reward_label.text = "+%s Coin!" % GameState.format_number(reward)
-		ThemeHelper.style_label(reward_label, ThemeHelper.NEON_GREEN, 24)
+		ThemeHelper.style_label(reward_label, ThemeHelper.p("success"), 24)
 	else:
 		title_label.text = "Eslesme yok..."
-		ThemeHelper.style_title_label(title_label, ThemeHelper.TEXT_DIM, 24)
+		ThemeHelper.style_title(title_label, ThemeHelper.p("text_secondary"), 24)
 		detail_label.text = "3 ayni sembol bulunamadi"
 		reward_label.text = "0 Coin"
-		ThemeHelper.style_label(reward_label, ThemeHelper.TEXT_MUTED, 20)
+		ThemeHelper.style_label(reward_label, ThemeHelper.p("text_muted"), 20)
 
 	# Koleksiyon parcasi dustu mu?
 	var drop: Dictionary = match_data.get("collection_drop", {})

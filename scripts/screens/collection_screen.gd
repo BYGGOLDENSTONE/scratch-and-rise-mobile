@@ -16,10 +16,10 @@ func _ready() -> void:
 
 
 func _apply_theme() -> void:
-	$Background.color = ThemeHelper.BG_DARK
+	$Background.color = ThemeHelper.p("bg_main")
 	var title: Label = $VBox/TopBar/Title
-	ThemeHelper.style_title_label(title, ThemeHelper.NEON_GREEN, 24)
-	ThemeHelper.make_neon_button(back_btn, ThemeHelper.NEON_RED, 16)
+	ThemeHelper.style_title(title, ThemeHelper.p("success"), 24)
+	ThemeHelper.make_button(back_btn, ThemeHelper.p("danger"), 16)
 
 
 func _build_collection_list() -> void:
@@ -36,8 +36,8 @@ func _add_set_card(set_id: String, set_data: Dictionary) -> void:
 	# Ana kart
 	var card := PanelContainer.new()
 	card.custom_minimum_size.y = 100
-	var card_color := ThemeHelper.NEON_GOLD if is_complete else ThemeHelper.NEON_GREEN
-	ThemeHelper.make_card_panel(card, card_color)
+	var card_color := ThemeHelper.p("warning") if is_complete else ThemeHelper.p("success")
+	ThemeHelper.make_card(card, card_color)
 
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 12)
@@ -54,9 +54,9 @@ func _add_set_card(set_id: String, set_data: Dictionary) -> void:
 	var name_label := Label.new()
 	name_label.text = set_data["name"]
 	if is_complete:
-		ThemeHelper.style_label(name_label, ThemeHelper.NEON_GOLD, 17)
+		ThemeHelper.style_label(name_label, ThemeHelper.p("warning"), 17)
 	else:
-		ThemeHelper.style_label(name_label, ThemeHelper.TEXT_WHITE, 17)
+		ThemeHelper.style_label(name_label, ThemeHelper.p("text_primary"), 17)
 	vbox.add_child(name_label)
 
 	# Parcalar satiri
@@ -71,9 +71,9 @@ func _add_set_card(set_id: String, set_data: Dictionary) -> void:
 		var piece_label := Label.new()
 		piece_label.text = piece_names.get(piece_id, piece_id)
 		if has_piece:
-			ThemeHelper.style_label(piece_label, ThemeHelper.NEON_GREEN, 12)
+			ThemeHelper.style_label(piece_label, ThemeHelper.p("success"), 12)
 		else:
-			ThemeHelper.style_label(piece_label, ThemeHelper.TEXT_MUTED, 12)
+			ThemeHelper.style_label(piece_label, ThemeHelper.p("text_muted"), 12)
 		pieces_hbox.add_child(piece_label)
 
 	# Bonus bilgisi
@@ -81,14 +81,14 @@ func _add_set_card(set_id: String, set_data: Dictionary) -> void:
 	bonus_label.add_theme_font_size_override("font_size", 12)
 	if is_complete:
 		bonus_label.text = "TAMAMLANDI! %s" % set_data["bonus_text"]
-		ThemeHelper.style_label(bonus_label, ThemeHelper.NEON_GOLD, 12)
+		ThemeHelper.style_label(bonus_label, ThemeHelper.p("warning"), 12)
 	else:
 		var collected_count := 0
 		for p_id in pieces:
 			if GameState.has_collection_piece(set_id, p_id):
 				collected_count += 1
 		bonus_label.text = "%d / %d — Bonus: %s" % [collected_count, pieces.size(), set_data["bonus_text"]]
-		ThemeHelper.style_label(bonus_label, ThemeHelper.TEXT_DIM, 12)
+		ThemeHelper.style_label(bonus_label, ThemeHelper.p("text_secondary"), 12)
 	vbox.add_child(bonus_label)
 
 	collection_list.add_child(card)

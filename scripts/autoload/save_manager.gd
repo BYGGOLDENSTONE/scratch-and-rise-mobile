@@ -25,6 +25,7 @@ func save_game() -> void:
 		"discovered_synergies": GameState.discovered_synergies,
 		"stats": GameState.stats,
 		"unlocked_achievements": GameState.unlocked_achievements,
+		"user_theme": GameState.user_theme,
 		"timestamp": Time.get_unix_time_from_system(),
 	}
 	# Mevcut save'i backup'a kopyala
@@ -80,6 +81,10 @@ func load_game() -> bool:
 		"best_streak": int(saved_stats.get("best_streak", 0)),
 	}
 	GameState.unlocked_achievements = data.get("unlocked_achievements", [])
+
+	# Tema tercihi
+	GameState.user_theme = int(data.get("user_theme", 0))
+	GameState._apply_saved_theme()
 
 	# Enerji yenilenme hesabı
 	var saved_energy: int = int(data.get("energy", GameState.BASE_MAX_ENERGY))

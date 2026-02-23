@@ -14,6 +14,10 @@ signal round_started()
 signal round_ended(total_earned: int)
 signal achievement_unlocked(id: String)
 signal event_triggered(id: String, data: Dictionary)
+signal theme_changed(theme_id: int)
+
+# --- Kullanici Ayarlari ---
+var user_theme: int = 0  # 0 = dark, 1 = light
 
 # --- Tur İçi (her tur sıfırlanır) ---
 var coins: int = 0:
@@ -73,8 +77,27 @@ var energy: int = BASE_MAX_ENERGY:
 var _energy_regen_accumulator: float = 0.0
 
 
+const ThemeHelperRef := preload("res://scripts/ui/theme_helper.gd")
+
 func _ready() -> void:
+	_apply_saved_theme()
 	print("[GameState] Initialized — Mobile")
+
+
+## Tema degistir ve kaydet
+func set_user_theme(theme_id: int) -> void:
+	user_theme = theme_id
+	_apply_saved_theme()
+	theme_changed.emit(theme_id)
+	SaveManager.save_game()
+
+
+## Kaydedilmis temayi ThemeHelper'a uygula
+func _apply_saved_theme() -> void:
+	ThemeHelperRef.set_theme(
+		ThemeHelperRef.ThemeMode.DARK if user_theme == 0 else ThemeHelperRef.ThemeMode.LIGHT
+	)
+	RenderingServer.set_default_clear_color(ThemeHelperRef.p("bg_main"))
 
 
 func _process(delta: float) -> void:

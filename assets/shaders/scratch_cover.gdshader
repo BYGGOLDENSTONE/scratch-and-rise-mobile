@@ -5,6 +5,7 @@ shader_type canvas_item;
 uniform float reveal : hint_range(0.0, 1.0) = 0.0;
 uniform vec4 base_color : source_color = vec4(0.55, 0.55, 0.6, 1.0);
 uniform vec4 shine_color : source_color = vec4(0.75, 0.75, 0.8, 1.0);
+uniform vec4 edge_glow_color : source_color = vec4(0.3, 0.78, 0.47, 1.0);
 
 // Basit hash noise (mobil uyumlu)
 float hash(vec2 p) {
@@ -41,6 +42,6 @@ void fragment() {
 	float edge_glow = smoothstep(reveal - 0.08, reveal, n) - smoothstep(reveal, reveal + 0.08, n);
 
 	COLOR = metal;
-	COLOR.rgb += edge_glow * vec3(0.3, 1.0, 0.5) * step(0.01, reveal) * step(reveal, 0.99);
+	COLOR.rgb += edge_glow * edge_glow_color.rgb * step(0.01, reveal) * step(reveal, 0.99);
 	COLOR.a *= dissolve_edge;
 }

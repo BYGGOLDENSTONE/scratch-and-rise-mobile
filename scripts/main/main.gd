@@ -42,6 +42,7 @@ func _ready() -> void:
 	GameState.coins_changed.connect(_on_coins_changed)
 	GameState.energy_changed.connect(_on_energy_changed)
 	GameState.round_ended.connect(_on_round_ended)
+	GameState.theme_changed.connect(func(_t): _apply_theme())
 	energy_label.mouse_filter = Control.MOUSE_FILTER_STOP
 	energy_label.gui_input.connect(_on_debug_tap_input)
 	_apply_theme()
@@ -52,27 +53,21 @@ func _ready() -> void:
 
 
 func _apply_theme() -> void:
-	# Arka plan
-	$Background.color = ThemeHelper.BG_DARK
-	# Top bar
+	$Background.color = ThemeHelper.p("bg_main")
 	var top_bar: PanelContainer = get_node("UILayer/UIRoot/VBox/TopBar")
 	ThemeHelper.style_top_bar(top_bar)
-	# Top bar labellari
-	ThemeHelper.style_label(coin_label, ThemeHelper.NEON_GOLD, 16)
-	ThemeHelper.style_label(ticket_count_label, ThemeHelper.TEXT_WHITE, 14)
-	ThemeHelper.style_label(energy_label, ThemeHelper.NEON_GREEN, 14)
-	ThemeHelper.style_label(energy_timer_label, ThemeHelper.TEXT_DIM, 11)
-	# Placeholder
-	ThemeHelper.style_label(ticket_placeholder, ThemeHelper.TEXT_DIM, 16)
-	# Warning
+	ThemeHelper.style_label(coin_label, ThemeHelper.p("warning"), 16)
+	ThemeHelper.style_label(ticket_count_label, ThemeHelper.p("text_primary"), 14)
+	ThemeHelper.style_label(energy_label, ThemeHelper.p("success"), 14)
+	ThemeHelper.style_label(energy_timer_label, ThemeHelper.p("text_secondary"), 11)
+	ThemeHelper.style_label(ticket_placeholder, ThemeHelper.p("text_secondary"), 16)
 	ThemeHelper.style_warning(warning_label)
-	# Action butonlari
 	var charm_btn: Button = get_node("UILayer/UIRoot/VBox/BottomPanel/ActionButtons/CharmBtn")
 	var koleksiyon_btn: Button = get_node("UILayer/UIRoot/VBox/BottomPanel/ActionButtons/KoleksiyonBtn")
 	var back_btn: Button = get_node("UILayer/UIRoot/VBox/BottomPanel/ActionButtons/BackBtn")
-	ThemeHelper.make_neon_button(charm_btn, ThemeHelper.NEON_CYAN, 14)
-	ThemeHelper.make_neon_button(koleksiyon_btn, ThemeHelper.NEON_GREEN, 14)
-	ThemeHelper.make_neon_button(back_btn, ThemeHelper.NEON_RED, 14)
+	ThemeHelper.make_button(charm_btn, ThemeHelper.p("info"), 14)
+	ThemeHelper.make_button(koleksiyon_btn, ThemeHelper.p("success"), 14)
+	ThemeHelper.make_button(back_btn, ThemeHelper.p("danger"), 14)
 
 
 func _process(_delta: float) -> void:
@@ -98,7 +93,7 @@ func _build_ticket_buttons() -> void:
 		var btn := Button.new()
 		btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		btn.pressed.connect(_on_ticket_buy.bind(t_type))
-		ThemeHelper.make_neon_button(btn, ThemeHelper.get_tier_color(t_type), 12)
+		ThemeHelper.make_button(btn, ThemeHelper.get_tier_color(t_type), 12)
 		bilet_secimi.add_child(btn)
 		_ticket_buttons[t_type] = btn
 

@@ -17,11 +17,11 @@ func _ready() -> void:
 
 
 func _apply_theme() -> void:
-	$Background.color = ThemeHelper.BG_DARK
+	$Background.color = ThemeHelper.p("bg_main")
 	var title: Label = $VBox/TopBar/Title
-	ThemeHelper.style_title_label(title, ThemeHelper.NEON_PURPLE, 24)
-	ThemeHelper.style_label(count_label, ThemeHelper.TEXT_DIM, 16)
-	ThemeHelper.make_neon_button(back_btn, ThemeHelper.NEON_RED, 16)
+	ThemeHelper.style_title(title, ThemeHelper.p("secondary"), 24)
+	ThemeHelper.style_label(count_label, ThemeHelper.p("text_secondary"), 16)
+	ThemeHelper.make_button(back_btn, ThemeHelper.p("danger"), 16)
 
 
 func _build_synergy_list() -> void:
@@ -47,8 +47,8 @@ func _add_synergy_item(synergy_id: String, synergy: Dictionary, discovered: bool
 
 	var item := PanelContainer.new()
 	item.custom_minimum_size.y = 70
-	var border_color := ThemeHelper.NEON_PURPLE if discovered else ThemeHelper.TEXT_MUTED
-	ThemeHelper.make_card_panel(item, border_color)
+	var border_color := ThemeHelper.p("secondary") if discovered else ThemeHelper.p("text_muted")
+	ThemeHelper.make_card(item, border_color)
 
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 12)
@@ -68,9 +68,9 @@ func _add_synergy_item(synergy_id: String, synergy: Dictionary, discovered: bool
 		if is_hidden:
 			display_name = synergy["name"]
 		name_label.text = "%s  x%d" % [display_name, synergy["multiplier"]]
-		ThemeHelper.style_label(name_label, ThemeHelper.NEON_GREEN, 16)
+		ThemeHelper.style_label(name_label, ThemeHelper.p("success"), 16)
 		desc_label.text = synergy.get("condition_text", "")
-		ThemeHelper.style_label(desc_label, ThemeHelper.TEXT_WHITE, 12)
+		ThemeHelper.style_label(desc_label, ThemeHelper.p("text_primary"), 12)
 	else:
 		if is_hidden:
 			name_label.text = "???"
@@ -78,8 +78,8 @@ func _add_synergy_item(synergy_id: String, synergy: Dictionary, discovered: bool
 		else:
 			name_label.text = "%s  x%d" % [synergy["name"], synergy["multiplier"]]
 			desc_label.text = "Henuz kesfedilmedi"
-		ThemeHelper.style_label(name_label, ThemeHelper.TEXT_MUTED, 16)
-		ThemeHelper.style_label(desc_label, ThemeHelper.TEXT_MUTED, 12)
+		ThemeHelper.style_label(name_label, ThemeHelper.p("text_muted"), 16)
+		ThemeHelper.style_label(desc_label, ThemeHelper.p("text_muted"), 12)
 
 	vbox.add_child(name_label)
 	vbox.add_child(desc_label)

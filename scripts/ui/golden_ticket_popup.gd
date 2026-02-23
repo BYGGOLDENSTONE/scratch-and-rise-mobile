@@ -24,10 +24,10 @@ func _ready() -> void:
 
 
 func _apply_theme() -> void:
-	ThemeHelper.make_neon_panel(self, ThemeHelper.NEON_GOLD, ThemeHelper.BG_PANEL)
-	ThemeHelper.style_title_label(title_label, ThemeHelper.NEON_GOLD, 22)
-	ThemeHelper.style_label(timer_label, ThemeHelper.NEON_RED, 16)
-	ThemeHelper.make_neon_button(catch_btn, ThemeHelper.NEON_GOLD, 18)
+	ThemeHelper.make_panel(self, ThemeHelper.p("warning"), ThemeHelper.p("bg_panel"))
+	ThemeHelper.style_title(title_label, ThemeHelper.p("warning"), 22)
+	ThemeHelper.style_label(timer_label, ThemeHelper.p("danger"), 16)
+	ThemeHelper.make_button(catch_btn, ThemeHelper.p("warning"), 18)
 
 
 func _process(delta: float) -> void:

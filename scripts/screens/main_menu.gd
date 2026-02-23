@@ -33,31 +33,26 @@ func _ready() -> void:
 	sinerji_btn.pressed.connect(_on_sinerji_pressed)
 	koleksiyon_btn.pressed.connect(_on_koleksiyon_pressed)
 	basarim_btn.pressed.connect(_on_basarim_pressed)
+	GameState.theme_changed.connect(func(_t): _apply_theme())
 	_apply_theme()
 	_update_ui()
 	print("[MainMenu] Ready — Energy: ", GameState.energy)
 
 
 func _apply_theme() -> void:
-	# Arka plan
-	$Background.color = ThemeHelper.BG_DARK
-	# Baslik
-	ThemeHelper.style_title_label(title_label, ThemeHelper.NEON_GOLD, 36)
-	# Altyazi
+	$Background.color = ThemeHelper.p("bg_main")
+	ThemeHelper.style_title(title_label, ThemeHelper.p("warning"), 36)
 	var subtitle: Label = $VBox/Subtitle
-	ThemeHelper.style_label(subtitle, ThemeHelper.TEXT_DIM, 18)
-	# Enerji & Charm label
-	ThemeHelper.style_label(energy_label, ThemeHelper.NEON_GREEN, 20)
-	ThemeHelper.style_label(charm_label, ThemeHelper.NEON_CYAN, 20)
-	ThemeHelper.style_label(status_label, ThemeHelper.TEXT_DIM, 14)
-	# OYNA butonu
-	ThemeHelper.make_neon_button(play_button, ThemeHelper.NEON_GOLD, 28)
-	# Alt butonlar
-	ThemeHelper.make_neon_button(charm_btn, ThemeHelper.NEON_CYAN, 13)
-	ThemeHelper.make_neon_button(sinerji_btn, ThemeHelper.NEON_PURPLE, 13)
-	ThemeHelper.make_neon_button(koleksiyon_btn, ThemeHelper.NEON_GREEN, 13)
-	ThemeHelper.make_neon_button(basarim_btn, ThemeHelper.NEON_GOLD, 13)
-	ThemeHelper.make_neon_button(ayarlar_btn, ThemeHelper.TEXT_DIM, 13)
+	ThemeHelper.style_label(subtitle, ThemeHelper.p("text_secondary"), 18)
+	ThemeHelper.style_label(energy_label, ThemeHelper.p("success"), 20)
+	ThemeHelper.style_label(charm_label, ThemeHelper.p("info"), 20)
+	ThemeHelper.style_label(status_label, ThemeHelper.p("text_secondary"), 14)
+	ThemeHelper.make_button(play_button, ThemeHelper.p("warning"), 28)
+	ThemeHelper.make_button(charm_btn, ThemeHelper.p("info"), 13)
+	ThemeHelper.make_button(sinerji_btn, ThemeHelper.p("secondary"), 13)
+	ThemeHelper.make_button(koleksiyon_btn, ThemeHelper.p("success"), 13)
+	ThemeHelper.make_button(basarim_btn, ThemeHelper.p("warning"), 13)
+	ThemeHelper.make_button(ayarlar_btn, ThemeHelper.p("text_secondary"), 13)
 
 
 func _on_title_input(event: InputEvent) -> void:

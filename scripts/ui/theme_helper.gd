@@ -1,56 +1,117 @@
 extends RefCounted
 
-## Neon Casino tema yardimcisi.
-## Static fonksiyonlar — autoload degil.
+## Premium tema sistemi — Light/Dark palet destegi.
+## Static fonksiyonlar — autoload degil, preload ile kullanilir.
 
-# --- RENKLER ---
-const BG_DARK := Color(0.06, 0.04, 0.10)
-const BG_PANEL := Color(0.10, 0.07, 0.16)
-const BG_CARD := Color(0.12, 0.09, 0.20)
+enum ThemeMode { DARK, LIGHT }
 
-const NEON_GREEN := Color(0.2, 1.0, 0.4)
-const NEON_GOLD := Color(1.0, 0.85, 0.1)
-const NEON_CYAN := Color(0.2, 0.9, 1.0)
-const NEON_PINK := Color(1.0, 0.3, 0.6)
-const NEON_PURPLE := Color(0.7, 0.3, 1.0)
-const NEON_RED := Color(1.0, 0.2, 0.2)
+static var current_theme: ThemeMode = ThemeMode.DARK
 
-const TEXT_WHITE := Color(0.95, 0.95, 0.95)
-const TEXT_DIM := Color(0.55, 0.50, 0.65)
-const TEXT_MUTED := Color(0.4, 0.35, 0.5)
+# --- DARK PALET ---
+const DARK_PALETTE := {
+	"bg_main": Color(0.07, 0.07, 0.09),
+	"bg_panel": Color(0.11, 0.11, 0.14),
+	"bg_card": Color(0.14, 0.14, 0.18),
+	"primary": Color(0.36, 0.53, 1.0),
+	"secondary": Color(0.55, 0.36, 1.0),
+	"success": Color(0.30, 0.78, 0.47),
+	"warning": Color(1.0, 0.72, 0.25),
+	"danger": Color(0.95, 0.35, 0.38),
+	"info": Color(0.30, 0.75, 0.93),
+	"text_primary": Color(0.95, 0.95, 0.97),
+	"text_secondary": Color(0.62, 0.62, 0.68),
+	"text_muted": Color(0.40, 0.40, 0.47),
+	"topbar_bg": Color(0.09, 0.09, 0.12, 0.95),
+	"topbar_border_alpha": 0.2,
+	"border_alpha": 0.25,
+	"tier_bg_paper": Color(0.14, 0.14, 0.15),
+	"tier_bg_bronze": Color(0.16, 0.12, 0.08),
+	"tier_bg_silver": Color(0.14, 0.15, 0.18),
+	"tier_bg_gold": Color(0.18, 0.15, 0.06),
+	"tier_bg_platinum": Color(0.13, 0.10, 0.20),
+}
 
-# Bilet tier renkleri
+# --- LIGHT PALET ---
+const LIGHT_PALETTE := {
+	"bg_main": Color(0.96, 0.96, 0.98),
+	"bg_panel": Color(1.0, 1.0, 1.0),
+	"bg_card": Color(0.94, 0.94, 0.96),
+	"primary": Color(0.24, 0.42, 0.95),
+	"secondary": Color(0.45, 0.28, 0.90),
+	"success": Color(0.18, 0.65, 0.38),
+	"warning": Color(0.90, 0.60, 0.10),
+	"danger": Color(0.85, 0.22, 0.27),
+	"info": Color(0.15, 0.58, 0.82),
+	"text_primary": Color(0.10, 0.10, 0.14),
+	"text_secondary": Color(0.40, 0.40, 0.47),
+	"text_muted": Color(0.60, 0.60, 0.66),
+	"topbar_bg": Color(1.0, 1.0, 1.0, 0.95),
+	"topbar_border_alpha": 0.12,
+	"border_alpha": 0.15,
+	"tier_bg_paper": Color(0.92, 0.92, 0.93),
+	"tier_bg_bronze": Color(0.95, 0.91, 0.86),
+	"tier_bg_silver": Color(0.91, 0.92, 0.95),
+	"tier_bg_gold": Color(0.96, 0.94, 0.86),
+	"tier_bg_platinum": Color(0.93, 0.90, 0.97),
+}
+
+# Bilet tier aksanlari (tema-bagimsiz)
 const TIER_COLORS := {
-	"paper": Color(0.6, 0.58, 0.55),
-	"bronze": Color(0.72, 0.45, 0.20),
-	"silver": Color(0.75, 0.78, 0.82),
-	"gold": Color(1.0, 0.82, 0.15),
-	"platinum": Color(0.65, 0.35, 1.0),
-}
-
-const TIER_BG_COLORS := {
-	"paper": Color(0.18, 0.17, 0.16),
-	"bronze": Color(0.20, 0.14, 0.08),
-	"silver": Color(0.18, 0.19, 0.22),
-	"gold": Color(0.22, 0.18, 0.06),
-	"platinum": Color(0.14, 0.08, 0.22),
+	"paper": Color(0.55, 0.55, 0.58),
+	"bronze": Color(0.70, 0.48, 0.25),
+	"silver": Color(0.68, 0.72, 0.78),
+	"gold": Color(0.90, 0.72, 0.15),
+	"platinum": Color(0.55, 0.35, 0.90),
 }
 
 
-## Neon glow'lu buton stili olustur
-static func make_neon_button(btn: Button, color: Color = NEON_GREEN, font_size: int = 16) -> void:
+## Aktif paletten renk al
+static func p(key: String) -> Color:
+	var palette: Dictionary = DARK_PALETTE if current_theme == ThemeMode.DARK else LIGHT_PALETTE
+	var val = palette.get(key)
+	if val is Color:
+		return val
+	return Color.MAGENTA
+
+
+## Aktif paletten float deger al (alpha vb.)
+static func pf(key: String) -> float:
+	var palette: Dictionary = DARK_PALETTE if current_theme == ThemeMode.DARK else LIGHT_PALETTE
+	return float(palette.get(key, 1.0))
+
+
+## Tema degistir
+static func set_theme(theme: ThemeMode) -> void:
+	current_theme = theme
+
+
+## Karanlik tema mi?
+static func is_dark() -> bool:
+	return current_theme == ThemeMode.DARK
+
+
+# =======================================================
+#  STIL FONKSIYONLARI
+# =======================================================
+
+
+## Premium buton stili
+static func make_button(btn: Button, accent: Color = Color.TRANSPARENT, font_size: int = 16) -> void:
+	if accent == Color.TRANSPARENT:
+		accent = p("primary")
+
+	var bg_base := p("bg_card")
+	var border_a := pf("border_alpha")
+
 	# Normal
 	var normal := StyleBoxFlat.new()
-	normal.bg_color = Color(color.r * 0.15, color.g * 0.15, color.b * 0.15, 0.9)
-	normal.border_color = color
-	normal.border_width_left = 2
-	normal.border_width_top = 2
-	normal.border_width_right = 2
-	normal.border_width_bottom = 2
-	normal.corner_radius_top_left = 8
-	normal.corner_radius_top_right = 8
-	normal.corner_radius_bottom_left = 8
-	normal.corner_radius_bottom_right = 8
+	if is_dark():
+		normal.bg_color = Color(accent.r * 0.12, accent.g * 0.12, accent.b * 0.12, 0.85)
+	else:
+		normal.bg_color = Color(accent.r * 0.06 + 0.92, accent.g * 0.06 + 0.92, accent.b * 0.06 + 0.92, 1.0)
+	normal.border_color = Color(accent.r, accent.g, accent.b, border_a + 0.15)
+	normal.set_border_width_all(1)
+	normal.set_corner_radius_all(10)
 	normal.content_margin_left = 12.0
 	normal.content_margin_right = 12.0
 	normal.content_margin_top = 8.0
@@ -59,42 +120,53 @@ static func make_neon_button(btn: Button, color: Color = NEON_GREEN, font_size: 
 
 	# Hover
 	var hover := normal.duplicate()
-	hover.bg_color = Color(color.r * 0.25, color.g * 0.25, color.b * 0.25, 0.95)
-	hover.border_color = Color(color.r, color.g, color.b, 1.0)
+	if is_dark():
+		hover.bg_color = Color(accent.r * 0.18, accent.g * 0.18, accent.b * 0.18, 0.9)
+	else:
+		hover.bg_color = Color(accent.r * 0.10 + 0.88, accent.g * 0.10 + 0.88, accent.b * 0.10 + 0.88, 1.0)
+	hover.border_color = Color(accent.r, accent.g, accent.b, border_a + 0.25)
 	btn.add_theme_stylebox_override("hover", hover)
 
 	# Pressed
 	var pressed := normal.duplicate()
-	pressed.bg_color = Color(color.r * 0.35, color.g * 0.35, color.b * 0.35, 1.0)
+	if is_dark():
+		pressed.bg_color = Color(accent.r * 0.25, accent.g * 0.25, accent.b * 0.25, 0.95)
+	else:
+		pressed.bg_color = Color(accent.r * 0.15 + 0.82, accent.g * 0.15 + 0.82, accent.b * 0.15 + 0.82, 1.0)
 	btn.add_theme_stylebox_override("pressed", pressed)
 
 	# Disabled
-	var disabled := normal.duplicate()
-	disabled.bg_color = Color(0.08, 0.06, 0.10, 0.7)
-	disabled.border_color = Color(0.3, 0.25, 0.35, 0.5)
+	var disabled := StyleBoxFlat.new()
+	disabled.bg_color = Color(p("bg_panel").r, p("bg_panel").g, p("bg_panel").b, 0.7)
+	disabled.border_color = Color(p("text_muted").r, p("text_muted").g, p("text_muted").b, 0.2)
+	disabled.set_border_width_all(1)
+	disabled.set_corner_radius_all(10)
+	disabled.content_margin_left = 12.0
+	disabled.content_margin_right = 12.0
+	disabled.content_margin_top = 8.0
+	disabled.content_margin_bottom = 8.0
 	btn.add_theme_stylebox_override("disabled", disabled)
 
 	# Font renkleri
-	btn.add_theme_color_override("font_color", color)
-	btn.add_theme_color_override("font_hover_color", Color(color.r, color.g, color.b, 1.0))
-	btn.add_theme_color_override("font_pressed_color", TEXT_WHITE)
-	btn.add_theme_color_override("font_disabled_color", TEXT_MUTED)
+	btn.add_theme_color_override("font_color", accent)
+	btn.add_theme_color_override("font_hover_color", accent)
+	btn.add_theme_color_override("font_pressed_color", p("text_primary"))
+	btn.add_theme_color_override("font_disabled_color", p("text_muted"))
 	btn.add_theme_font_size_override("font_size", font_size)
 
 
-## Neon panel stili olustur
-static func make_neon_panel(panel: PanelContainer, border_color: Color = NEON_GREEN, bg: Color = BG_PANEL) -> void:
+## Premium panel stili
+static func make_panel(panel: PanelContainer, border_color: Color = Color.TRANSPARENT, bg: Color = Color.TRANSPARENT) -> void:
+	if border_color == Color.TRANSPARENT:
+		border_color = p("primary")
+	if bg == Color.TRANSPARENT:
+		bg = p("bg_panel")
+
 	var style := StyleBoxFlat.new()
 	style.bg_color = bg
-	style.border_color = Color(border_color.r, border_color.g, border_color.b, 0.6)
-	style.border_width_left = 1
-	style.border_width_top = 1
-	style.border_width_right = 1
-	style.border_width_bottom = 1
-	style.corner_radius_top_left = 10
-	style.corner_radius_top_right = 10
-	style.corner_radius_bottom_left = 10
-	style.corner_radius_bottom_right = 10
+	style.border_color = Color(border_color.r, border_color.g, border_color.b, pf("border_alpha"))
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(12)
 	style.content_margin_left = 12.0
 	style.content_margin_right = 12.0
 	style.content_margin_top = 10.0
@@ -102,31 +174,32 @@ static func make_neon_panel(panel: PanelContainer, border_color: Color = NEON_GR
 	panel.add_theme_stylebox_override("panel", style)
 
 
-## Neon baslik label'i
-static func style_title_label(label: Label, color: Color = NEON_GOLD, size: int = 32) -> void:
+## Baslik label stili
+static func style_title(label: Label, color: Color = Color.TRANSPARENT, size: int = 32) -> void:
+	if color == Color.TRANSPARENT:
+		color = p("warning")
 	label.add_theme_color_override("font_color", color)
 	label.add_theme_font_size_override("font_size", size)
 
 
 ## Normal label stili
-static func style_label(label: Label, color: Color = TEXT_WHITE, size: int = 16) -> void:
+static func style_label(label: Label, color: Color = Color.TRANSPARENT, size: int = 16) -> void:
+	if color == Color.TRANSPARENT:
+		color = p("text_primary")
 	label.add_theme_color_override("font_color", color)
 	label.add_theme_font_size_override("font_size", size)
 
 
-## Neon glow'lu kart/item paneli
-static func make_card_panel(panel: PanelContainer, border_color: Color = NEON_CYAN) -> void:
+## Kart/item paneli stili
+static func make_card(panel: PanelContainer, border_color: Color = Color.TRANSPARENT) -> void:
+	if border_color == Color.TRANSPARENT:
+		border_color = p("info")
+
 	var style := StyleBoxFlat.new()
-	style.bg_color = BG_CARD
-	style.border_color = Color(border_color.r, border_color.g, border_color.b, 0.4)
-	style.border_width_left = 1
-	style.border_width_top = 1
-	style.border_width_right = 1
-	style.border_width_bottom = 1
-	style.corner_radius_top_left = 6
-	style.corner_radius_top_right = 6
-	style.corner_radius_bottom_left = 6
-	style.corner_radius_bottom_right = 6
+	style.bg_color = p("bg_card")
+	style.border_color = Color(border_color.r, border_color.g, border_color.b, pf("border_alpha"))
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(8)
 	style.content_margin_left = 10.0
 	style.content_margin_right = 10.0
 	style.content_margin_top = 8.0
@@ -136,24 +209,25 @@ static func make_card_panel(panel: PanelContainer, border_color: Color = NEON_CY
 
 ## Bilet tier rengini dondur
 static func get_tier_color(tier: String) -> Color:
-	return TIER_COLORS.get(tier, NEON_GREEN)
+	return TIER_COLORS.get(tier, p("success"))
 
 
 ## Bilet tier arka plan rengini dondur
 static func get_tier_bg(tier: String) -> Color:
-	return TIER_BG_COLORS.get(tier, BG_PANEL)
+	return p("tier_bg_" + tier)
 
 
-## Arka plan ColorRect'ini renklendir
+## Arka plan ColorRect stillendir
 static func style_background(bg: ColorRect) -> void:
-	bg.color = BG_DARK
+	bg.color = p("bg_main")
 
 
-## Top bar panelini stillendir
+## Top bar paneli stillendir
 static func style_top_bar(panel: PanelContainer) -> void:
+	var accent := p("primary")
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.08, 0.06, 0.14, 0.95)
-	style.border_color = Color(NEON_GREEN.r, NEON_GREEN.g, NEON_GREEN.b, 0.3)
+	style.bg_color = p("topbar_bg")
+	style.border_color = Color(accent.r, accent.g, accent.b, pf("topbar_border_alpha"))
 	style.border_width_bottom = 1
 	style.corner_radius_top_left = 0
 	style.corner_radius_top_right = 0
@@ -168,5 +242,5 @@ static func style_top_bar(panel: PanelContainer) -> void:
 
 ## Warning label stili
 static func style_warning(label: Label) -> void:
-	label.add_theme_color_override("font_color", NEON_RED)
+	label.add_theme_color_override("font_color", p("danger"))
 	label.add_theme_font_size_override("font_size", 18)

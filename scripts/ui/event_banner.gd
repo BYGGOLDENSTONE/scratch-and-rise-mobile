@@ -12,9 +12,9 @@ func _ready() -> void:
 
 
 func _apply_theme() -> void:
-	ThemeHelper.make_neon_panel(self, ThemeHelper.NEON_GOLD, ThemeHelper.BG_PANEL)
-	ThemeHelper.style_label(event_label, ThemeHelper.NEON_GOLD, 18)
-	ThemeHelper.style_label(desc_label, ThemeHelper.TEXT_WHITE, 13)
+	ThemeHelper.make_panel(self, ThemeHelper.p("warning"), ThemeHelper.p("bg_panel"))
+	ThemeHelper.style_label(event_label, ThemeHelper.p("warning"), 18)
+	ThemeHelper.style_label(desc_label, ThemeHelper.p("text_primary"), 13)
 
 
 func show_event(event_name: String, description: String) -> void:

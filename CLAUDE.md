@@ -139,12 +139,18 @@ scratch-mobil/
 ## Gorsel Polish (M12) Notlari
 - **ThemeHelper:** `scripts/ui/theme_helper.gd` (preload ile referans, static fonksiyonlar)
 - **ScreenEffects:** `scripts/effects/screen_effects.gd` (autoload: ScreenEffects)
-- **Shader:** `assets/shaders/scratch_cover.gdshader` (metalik kapak + dissolve)
-- **Tema:** Koyu mor-siyah arka plan, neon glow butonlar/paneller (yesil/altin/cyan/mor/pembe)
-- **Bilet tier renkleri:** paper=gri, bronze=bakir, silver=gumus, gold=altin, platinum=mor neon
+- **Shader:** `assets/shaders/scratch_cover.gdshader` (metalik kapak + dissolve + edge_glow_color uniform)
+- **Tema sistemi:** Dual palet (Dark + Light), `ThemeHelper.p("key")` ile renk erisimi
+  - Dark: Koyu lacivert-siyah arka plan, yumusak mavi/mor/yesil/amber aksanlar (Stripe/Linear tarzi)
+  - Light: Acik gri-beyaz arka plan, daha koyu aksanlar
+  - Palet anahtarlari: bg_main, bg_panel, bg_card, primary, secondary, success, warning, danger, info, text_primary, text_secondary, text_muted, topbar_bg, tier_bg_*
+- **Tema degistirme:** GameState.set_user_theme(0=dark/1=light), SaveManager'da saklanir, Ayarlar popup'inda toggle
+- **Viewport sync:** `RenderingServer.set_default_clear_color()` ile viewport arka plani tema ile senkron
+- **Bilet tier renkleri:** paper=gri, bronze=bakir, silver=gumus, gold=altin, platinum=mor (tema-bagimsiz)
 - **Efektler:** Ekran flash, screen shake, konfeti (GPUParticles2D), coin ucma, YOLO x50 efekti, sinerji efekti
 - **Animasyonlar:** Eslesen semboller pulse, kapak dissolve, bilet tier border/gradient
-- **Tum ekranlar:** `_apply_theme()` fonksiyonu ile runtime'da stillendirilir
+- **Tum ekranlar:** `_apply_theme()` fonksiyonu ile runtime'da stillendirilir, `theme_changed` sinyali ile canli guncelleme
+- **Stil fonksiyonlari:** make_button, make_panel, make_card, style_title, style_label, style_warning, style_top_bar, style_background
 
 ## Test Harness Sistemi
 - **Dosya:** `scripts/autoload/test_harness.gd` (autoload: TestHarness, en son sirada)
@@ -204,22 +210,14 @@ scratch-mobil/
 
 ---
 
-## Bekleyen Gorevler (Sonraki Session)
+## Tamamlanan Gorevler
 
-### Gorev 1: Gorsel Tema Yenileme
-**Oncelik:** Yuksek — Mevcut neon casino teması tutarsiz ve mobilde kotu okuyor
-
-**Sorun:** Tek karanlik tema, neon renkler birbiriyle catisiyor, profesyonel gorunmuyor
-
-**Cozum plani:**
-- 2 renk paleti tasarla: **Aydinlik (Light)** ve **Karanlik (Dark)** mod
-- Premium/sik tarz hedefle (casino salakligi degil, modern mobil uygulama hissi)
-- ThemeHelper'i palet-bazli sisteme cevir (tek dosyadan tum renkler yonetilsin)
-- Tum ekranlardaki `_apply_theme()` fonksiyonlarini guncelle
-- Kullanici ayarlardan tema secebilsin
-- **Not:** Bilet tier renkleri (paper/bronze/silver/gold/platinum) korunabilir ama neon glow yerine daha subtle tonlar
-
-**Etkilenen dosyalar:** `scripts/ui/theme_helper.gd`, tum ekran/UI scriptleri, `settings_popup.gd`
+### Gorsel Tema Yenileme (2026-02-23)
+- Neon casino temasi kaldirildi, dual palet sistemi (Dark + Light) eklendi
+- 19 dosya guncellendi: ThemeHelper, GameState, SaveManager, SettingsPopup, 11 ekran/UI scripti, shader, scratch_area
+- Ayarlar popup'ina tema toggle butonu eklendi
+- Viewport clear color tema ile senkronize edildi
+- Tum ekranlar her iki temada test edildi ve onaylandi
 
 ---
 

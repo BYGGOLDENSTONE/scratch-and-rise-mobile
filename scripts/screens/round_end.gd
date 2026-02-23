@@ -32,22 +32,21 @@ func _ready() -> void:
 
 
 func _apply_theme() -> void:
-	$Background.color = ThemeHelper.BG_DARK
+	$Background.color = ThemeHelper.p("bg_main")
 	var title: Label = $VBox/Title
-	ThemeHelper.style_title_label(title, ThemeHelper.NEON_GOLD, 32)
-	ThemeHelper.style_label(earned_label, ThemeHelper.NEON_GOLD, 22)
-	ThemeHelper.style_label(charm_earned_label, ThemeHelper.NEON_CYAN, 20)
-	ThemeHelper.style_label(total_charm_label, ThemeHelper.TEXT_DIM, 16)
-	ThemeHelper.style_label(energy_label, ThemeHelper.NEON_GREEN, 16)
-	ThemeHelper.style_label(tickets_label, ThemeHelper.TEXT_WHITE, 14)
-	ThemeHelper.style_label(matches_label, ThemeHelper.TEXT_WHITE, 14)
-	ThemeHelper.style_label(synergies_label, ThemeHelper.TEXT_WHITE, 14)
-	ThemeHelper.style_label(jackpots_label, ThemeHelper.TEXT_WHITE, 14)
-	# Butonlar
+	ThemeHelper.style_title(title, ThemeHelper.p("warning"), 32)
+	ThemeHelper.style_label(earned_label, ThemeHelper.p("warning"), 22)
+	ThemeHelper.style_label(charm_earned_label, ThemeHelper.p("info"), 20)
+	ThemeHelper.style_label(total_charm_label, ThemeHelper.p("text_secondary"), 16)
+	ThemeHelper.style_label(energy_label, ThemeHelper.p("success"), 16)
+	ThemeHelper.style_label(tickets_label, ThemeHelper.p("text_primary"), 14)
+	ThemeHelper.style_label(matches_label, ThemeHelper.p("text_primary"), 14)
+	ThemeHelper.style_label(synergies_label, ThemeHelper.p("text_primary"), 14)
+	ThemeHelper.style_label(jackpots_label, ThemeHelper.p("text_primary"), 14)
 	var menu_btn: Button = $VBox/MenuButton
 	var ad_btn: Button = $VBox/WatchAdButton
-	ThemeHelper.make_neon_button(menu_btn, ThemeHelper.NEON_GOLD, 22)
-	ThemeHelper.make_neon_button(ad_btn, ThemeHelper.NEON_GREEN, 16)
+	ThemeHelper.make_button(menu_btn, ThemeHelper.p("warning"), 22)
+	ThemeHelper.make_button(ad_btn, ThemeHelper.p("success"), 16)
 
 
 func _update_ui() -> void:

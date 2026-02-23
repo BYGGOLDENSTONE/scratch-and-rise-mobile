@@ -13,9 +13,9 @@ func _ready() -> void:
 
 
 func _apply_theme() -> void:
-	ThemeHelper.make_neon_panel(self, ThemeHelper.NEON_GREEN, ThemeHelper.BG_PANEL)
-	ThemeHelper.style_label(name_label, ThemeHelper.NEON_GREEN, 15)
-	ThemeHelper.style_label(reward_label, ThemeHelper.NEON_GOLD, 13)
+	ThemeHelper.make_panel(self, ThemeHelper.p("success"), ThemeHelper.p("bg_panel"))
+	ThemeHelper.style_label(name_label, ThemeHelper.p("success"), 15)
+	ThemeHelper.style_label(reward_label, ThemeHelper.p("warning"), 13)
 
 
 func show_achievement(ach_name: String, reward_cp: int) -> void:

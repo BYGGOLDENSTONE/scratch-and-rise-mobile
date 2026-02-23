@@ -70,7 +70,7 @@ func setup(type: String, symbol_override: String = "") -> void:
 
 	# Footer & status
 	ticket_footer.text = "Kazi ve eslesmeleri bul!"
-	ThemeHelper.style_label(ticket_footer, ThemeHelper.TEXT_DIM, 13)
+	ThemeHelper.style_label(ticket_footer, ThemeHelper.p("text_secondary"), 13)
 	status_label.visible = false
 
 	print("[Ticket] %s olusturuldu, %d alan, %dx%d grid" % [config["name"], total_areas, cols, rows])
@@ -109,7 +109,7 @@ func _complete() -> void:
 		return
 	is_complete = true
 	status_label.text = "Tamamlandi!"
-	ThemeHelper.style_label(status_label, ThemeHelper.NEON_GREEN, 14)
+	ThemeHelper.style_label(status_label, ThemeHelper.p("success"), 14)
 	status_label.visible = true
 	ticket_footer.visible = false
 
