@@ -13,7 +13,7 @@ const DebugPanelScene := preload("res://scenes/debug/DebugPanel.tscn")
 @onready var ticket_count_label: Label = %TicketCountLabel
 @onready var ticket_area: CenterContainer = %TicketArea
 @onready var ticket_placeholder: Label = %TicketPlaceholder
-@onready var kagit_btn: Button = %Btn1
+@onready var bilet_secimi: HBoxContainer = %BiletSecimi
 @onready var warning_label: Label = %WarningLabel
 
 var current_ticket: PanelContainer = null
@@ -22,18 +22,35 @@ var tickets_scratched: int = 0
 var _debug_tap_count: int = 0
 var _debug_last_tap_time: float = 0.0
 var _debug_panel: Control = null
+var _ticket_buttons: Dictionary = {}  # { "paper": Button, ... }
 
 
 func _ready() -> void:
 	GameState.coins_changed.connect(_on_coins_changed)
 	GameState.energy_changed.connect(_on_energy_changed)
 	GameState.round_ended.connect(_on_round_ended)
-	kagit_btn.pressed.connect(_on_kagit_pressed)
 	energy_label.mouse_filter = Control.MOUSE_FILTER_STOP
 	energy_label.gui_input.connect(_on_debug_tap_input)
+	_build_ticket_buttons()
 	_update_ui()
 	_update_ticket_buttons()
 	print("[Main] Game screen ready")
+
+
+func _build_ticket_buttons() -> void:
+	# Sahne'deki mevcut butonlari temizle
+	for child in bilet_secimi.get_children():
+		child.queue_free()
+	_ticket_buttons.clear()
+
+	# Her bilet turu icin buton olustur
+	for t_type in TicketData.TICKET_ORDER:
+		var config: Dictionary = TicketData.TICKET_CONFIGS[t_type]
+		var btn := Button.new()
+		btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		btn.pressed.connect(_on_ticket_buy.bind(t_type))
+		bilet_secimi.add_child(btn)
+		_ticket_buttons[t_type] = btn
 
 
 func _update_ui() -> void:
@@ -63,10 +80,11 @@ func _on_back_pressed() -> void:
 		get_tree().change_scene_to_file("res://scenes/screens/MainMenu.tscn")
 
 
-func _on_kagit_pressed() -> void:
+func _on_ticket_buy(type: String) -> void:
 	if current_ticket != null:
 		return
-	var price: int = TicketData.TICKET_CONFIGS["paper"]["price"]
+	var config: Dictionary = TicketData.TICKET_CONFIGS.get(type, TicketData.TICKET_CONFIGS["paper"])
+	var price: int = config["price"]
 	if not GameState.spend_coins(price):
 		print("[Main] Coin yetersiz!")
 		_show_warning("Coin yetersiz!")
@@ -76,10 +94,10 @@ func _on_kagit_pressed() -> void:
 	ticket_placeholder.visible = false
 	current_ticket = TicketScene.instantiate()
 	ticket_area.add_child(current_ticket)
-	current_ticket.setup("paper")
+	current_ticket.setup(type)
 	current_ticket.ticket_completed.connect(_on_ticket_completed)
 	_update_ticket_buttons()
-	print("[Main] Bilet satin alindi, kalan coin: ", GameState.coins)
+	print("[Main] %s satin alindi (%d coin), kalan: %d" % [config["name"], price, GameState.coins])
 
 
 func _on_ticket_completed(symbols: Array) -> void:
@@ -128,15 +146,26 @@ func _remove_current_ticket() -> void:
 	_update_ticket_buttons()
 
 	# Coin yetersizse turu otomatik bitir
-	var cheapest_price: int = TicketData.TICKET_CONFIGS["paper"]["price"]
+	var cheapest_price: int = TicketData.get_cheapest_unlocked_price()
 	if GameState.coins < cheapest_price and GameState.in_round:
 		print("[Main] Coin bitti, tur otomatik bitiyor!")
 		GameState.end_round()
 
 
 func _update_ticket_buttons() -> void:
-	var price: int = TicketData.TICKET_CONFIGS["paper"]["price"]
-	kagit_btn.disabled = (current_ticket != null) or (GameState.coins < price)
+	for t_type in TicketData.TICKET_ORDER:
+		var btn: Button = _ticket_buttons.get(t_type)
+		if btn == null:
+			continue
+		var config: Dictionary = TicketData.TICKET_CONFIGS[t_type]
+		var unlocked: bool = TicketData.is_ticket_unlocked(t_type)
+
+		if not unlocked:
+			btn.text = "%s\nKilitli" % config["name"]
+			btn.disabled = true
+		else:
+			btn.text = "%s\n%d C" % [config["name"], config["price"]]
+			btn.disabled = (current_ticket != null) or (GameState.coins < config["price"])
 
 
 func _show_warning(text: String) -> void:
@@ -198,3 +227,4 @@ func _open_debug_panel() -> void:
 func _on_debug_closed() -> void:
 	_debug_panel = null
 	_update_ui()
+	_update_ticket_buttons()

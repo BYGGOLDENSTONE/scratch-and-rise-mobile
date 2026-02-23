@@ -26,10 +26,20 @@ func setup(type: String) -> void:
 	ticket_header.text = "%s - %d Coin" % [config["name"], config["price"]]
 
 	# Grid ayarlari
-	grid.columns = config["columns"]
+	var cols: int = config["columns"]
+	grid.columns = cols
 	total_areas = config["area_count"]
 	scratched_count = 0
 	is_complete = false
+
+	# Dinamik boyutlandirma: 5 sutun icin alanlari kucult
+	var rows: int = ceili(float(total_areas) / float(cols))
+	var area_w: int = 100 if cols <= 4 else 65
+	var area_h: int = 80 if cols <= 4 else 60
+	var ticket_w: int = cols * area_w + (cols - 1) * 6 + 24
+	var ticket_h: int = rows * area_h + (rows - 1) * 6 + 80
+	get_parent().custom_minimum_size = Vector2(0, 0)  # serbest birak
+	custom_minimum_size = Vector2(ticket_w, ticket_h)
 
 	# Semboller
 	symbols = TicketData.get_random_symbols(type)
@@ -37,6 +47,7 @@ func setup(type: String) -> void:
 	# ScratchArea'lari olustur
 	for i in total_areas:
 		var area: Control = ScratchAreaScene.instantiate()
+		area.custom_minimum_size = Vector2(area_w, area_h)
 		grid.add_child(area)
 		area.setup(i, symbols[i])
 		area.area_scratched.connect(_on_area_scratched)
@@ -45,7 +56,7 @@ func setup(type: String) -> void:
 	ticket_footer.text = "Kazi ve eslesmeleri bul!"
 	status_label.visible = false
 
-	print("[Ticket] %s olusturuldu, %d alan" % [config["name"], total_areas])
+	print("[Ticket] %s olusturuldu, %d alan, %dx%d grid" % [config["name"], total_areas, cols, rows])
 
 
 func _on_area_scratched(_area_index: int) -> void:

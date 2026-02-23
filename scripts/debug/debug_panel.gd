@@ -25,6 +25,14 @@ func _ready() -> void:
 	coin1000_btn.pressed.connect(_on_add_coin.bind(1000))
 	end_round_btn.pressed.connect(_on_end_round)
 	close_btn.pressed.connect(_on_close)
+	# Tum Biletleri Ac butonu (dinamik, sahne duzenlemesiz)
+	var unlock_btn := Button.new()
+	unlock_btn.text = "Tum Biletleri Ac"
+	unlock_btn.pressed.connect(_on_unlock_all_tickets)
+	# EndRoundBtn'den once ekle
+	var parent_container: Container = end_round_btn.get_parent()
+	parent_container.add_child(unlock_btn)
+	parent_container.move_child(unlock_btn, end_round_btn.get_index())
 	_update_context()
 	print("[Debug] Panel acildi")
 
@@ -38,11 +46,17 @@ func _update_context() -> void:
 
 
 func _update_info() -> void:
-	info_label.text = "Coin: %s | Enerji: %d/%d\nCharm: %s | Tur: %s" % [
+	var unlocked_list: Array = []
+	for t_type in TicketData.TICKET_ORDER:
+		if TicketData.is_ticket_unlocked(t_type):
+			unlocked_list.append(TicketData.TICKET_CONFIGS[t_type]["name"])
+	var unlocked_text: String = ", ".join(unlocked_list) if unlocked_list.size() > 0 else "Yok"
+	info_label.text = "Coin: %s | Enerji: %d/%d\nCharm: %s | Tur: %s\nAcik biletler: %s" % [
 		GameState.format_number(GameState.coins),
 		GameState.energy, GameState.get_max_energy(),
 		GameState.format_number(GameState.charm_points),
-		"Aktif" if GameState.in_round else "Yok"
+		"Aktif" if GameState.in_round else "Yok",
+		unlocked_text,
 	]
 
 
@@ -75,6 +89,16 @@ func _on_add_charm(amount: int) -> void:
 func _on_add_coin(amount: int) -> void:
 	GameState.add_coins(amount)
 	print("[Debug] +", amount, " coin. Toplam: ", GameState.coins)
+	_update_info()
+
+
+func _on_unlock_all_tickets() -> void:
+	GameState.total_coins_earned = maxi(GameState.total_coins_earned, 500)
+	for key_charm in ["gumus_anahtar", "altin_anahtar", "platin_anahtar"]:
+		if GameState.get_charm_level(key_charm) < 1:
+			GameState.charms[key_charm] = 1
+	SaveManager.save_game()
+	print("[Debug] Tum biletler acildi!")
 	_update_info()
 
 

@@ -57,12 +57,12 @@ scratch-mobil/
 | M2 | Bilet & Kazima | Bilet sahnesi, dokunma ile kazima, sembol atama, bilet tamamlanma | `tamamlandi` `bcdd165` |
 | M3 | Eslesme & Coin | Eslesme kontrolu, coin hesaplama, ust bar, eslesme sonuc ekrani | `tamamlandi` |
 | M4 | Enerji & Tur | Enerji sistemi, tur baslangic/bitis, baslangic parasi, bilet satin alma | `tamamlandi` `263ace3` |
-| M5 | Charm Sistemi | Charm puani kazanma, charm listesi, charm satin alma, seviye artirma | `bekliyor` |
+| M5 | Charm Sistemi | Charm puani kazanma, charm listesi, charm satin alma, seviye artirma, debug araclari | `tamamlandi` `2de28a9` |
 
 ### Faz 2: Icerik & Derinlik
 | Faz | Isim | Kapsam | Durum |
 |-----|------|--------|-------|
-| M6 | Bilet Turleri | Bronz/Gumus/Altin/Platin biletler, anahtar charm'lar, farkli alan+sembol havuzlari | `bekliyor` |
+| M6 | Bilet Turleri | Bronz/Gumus/Altin/Platin biletler, anahtar charm'lar, farkli alan+sembol havuzlari | `tamamlandi` |
 | M7 | Sinerji & Koleksiyon | Sinerjiler, sinerji albumu, koleksiyon sistemi, koleksiyon UI | `bekliyor` |
 | M8 | Olaylar & Basarimlar | Altin bilet, Bull Run, basarim sistemi, istatistikler | `bekliyor` |
 | M9 | Save & Polish | Save/Load, enerji yenilenme, temel animasyonlar, UI duzeni | `bekliyor` |
@@ -95,12 +95,15 @@ scratch-mobil/
 - Compile hatasi varsa kullaniciya sormadan once duzeltilir
 - Her script `print("[ModulAdi] ...")` formatiyla log basar — bu sayede hangi modulun yuklendigi/calismadigi anlasilir
 
-## Yapilacaklar Notu
-- **Debug Tools (sonraki session):** Test icin debug araclar gerekiyor:
-  - Progress sifirlama (save reset)
-  - Belli miktar coin/enerji/charm verme
-  - Hizli tur tamamlama
-  - Bu araclar oyun ici gizli panel veya konsol komutu seklinde olabilir
+## Debug Araclari
+- **Erisim:** Basliga 5 kez tikla (ana menu) veya Enerji labelina 5 kez tikla (oyun ekrani)
+- **Ozellikler:** Save sifirlama, enerji doldurma, +10/+100 charm, +100/+1000 coin, tur bitirme
+- **Dosyalar:** `scripts/debug/debug_panel.gd`, `scenes/debug/DebugPanel.tscn`
+
+## Charm Sistemi Notlari
+- **Aktif efektler:** Sans Tokasi, Zengin/Mega Baslangic, Altinparmak, Kral Dokunusu, YOLO, Enerji Deposu, Hizli Parmak
+- **Ertelenmis efektler:** Keskin Goz (M6-sembol uretimi), Joker Miknatisi (M6-ozel semboller), Carpan Gucu (M6), Sinerji Radari (M7), Anahtar Charm'lar (M6-bilet turleri)
+- **CharmData:** `scripts/systems/charm_data.gd` (preload ile referans, class_name cache sorunu nedeniyle)
 
 ## PC Versiyonu Notu
 - PC versiyonu ayri proje: `D:\godotproject\incremental`

@@ -85,28 +85,11 @@ custom_minimum_size = Vector2(0, 200)
 theme_override_constants/separation = 8
 
 [node name="BiletSecimi" type="HBoxContainer" parent="UILayer/UIRoot/VBox/BottomPanel"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 8
 alignment = 1
-
-[node name="Btn1" type="Button" parent="UILayer/UIRoot/VBox/BottomPanel/BiletSecimi"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Kagit"
-
-[node name="Btn2" type="Button" parent="UILayer/UIRoot/VBox/BottomPanel/BiletSecimi"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Bronz"
-disabled = true
-
-[node name="Btn3" type="Button" parent="UILayer/UIRoot/VBox/BottomPanel/BiletSecimi"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Gumus"
-disabled = true
 
 [node name="ActionButtons" type="HBoxContainer" parent="UILayer/UIRoot/VBox/BottomPanel"]
 layout_mode = 2
