@@ -3,6 +3,8 @@ extends Node
 ## Oyun durumunu tutan global autoload.
 ## Mobil: tur bazlı, enerji sistemi, charm puanları.
 
+const CharmDataRef := preload("res://scripts/systems/charm_data.gd")
+
 # --- Sinyaller ---
 signal coins_changed(new_amount: int)
 signal energy_changed(new_amount: int)
@@ -18,17 +20,6 @@ var coins: int = 0:
 
 var in_round: bool = false
 
-# --- Enerji Sistemi ---
-const MAX_ENERGY: int = 5
-const ENERGY_REGEN_SECONDS: float = 600.0  # 10 dakika
-
-var energy: int = MAX_ENERGY:
-	set(value):
-		energy = clampi(value, 0, MAX_ENERGY)
-		energy_changed.emit(energy)
-
-var _energy_regen_accumulator: float = 0.0
-
 # --- Kalıcı Veriler ---
 var charm_points: int = 0:
 	set(value):
@@ -42,19 +33,36 @@ var total_rounds_played: int = 0
 var best_round_coins: int = 0
 var last_round_earnings: int = 0
 
+# --- Enerji Sistemi ---
+const BASE_MAX_ENERGY: int = 5
+const ENERGY_REGEN_SECONDS: float = 600.0  # 10 dakika
+
+var energy: int = BASE_MAX_ENERGY:
+	set(value):
+		energy = clampi(value, 0, get_max_energy())
+		energy_changed.emit(energy)
+
+var _energy_regen_accumulator: float = 0.0
+
 
 func _ready() -> void:
 	print("[GameState] Initialized — Mobile")
 
 
 func _process(delta: float) -> void:
-	if energy >= MAX_ENERGY:
+	var max_e := get_max_energy()
+	if energy >= max_e:
 		_energy_regen_accumulator = 0.0
 		return
 	_energy_regen_accumulator += delta
-	while _energy_regen_accumulator >= ENERGY_REGEN_SECONDS and energy < MAX_ENERGY:
+	while _energy_regen_accumulator >= ENERGY_REGEN_SECONDS and energy < max_e:
 		_energy_regen_accumulator -= ENERGY_REGEN_SECONDS
 		energy += 1
+
+
+## Max enerji (baz + enerji_deposu charm bonusu)
+func get_max_energy() -> int:
+	return BASE_MAX_ENERGY + get_charm_level("enerji_deposu")
 
 
 ## Tur başlat — enerji yeterliyse
@@ -105,8 +113,9 @@ func spend_coins(amount: int) -> bool:
 ## Başlangıç coin: 50 + charm bonusları
 func get_starting_coins() -> int:
 	var base := 50
-	var bonus: int = charms.get("starting_coins", 0) * 10
-	return base + bonus
+	var bonus: int = get_charm_level("zengin_baslangic") * 10
+	var mega_bonus: int = get_charm_level("mega_baslangic") * 50
+	return base + bonus + mega_bonus
 
 
 ## Coin'den charm puanı hesapla
@@ -117,6 +126,31 @@ func calc_charm_from_coins(earned: int) -> int:
 ## Charm seviyesini al
 func get_charm_level(charm_id: String) -> int:
 	return charms.get(charm_id, 0)
+
+
+## Charm satın al / seviye yükselt
+func buy_charm(charm_id: String) -> bool:
+	var charm_info: Dictionary = CharmDataRef.get_charm(charm_id)
+	if charm_info.is_empty():
+		print("[GameState] Charm bulunamadi: ", charm_id)
+		return false
+
+	var current_level: int = get_charm_level(charm_id)
+	var max_level: int = charm_info["max_level"]
+	if current_level >= max_level:
+		print("[GameState] Charm max seviyede: ", charm_id)
+		return false
+
+	var cost: int = charm_info["cost"]
+	if charm_points < cost:
+		print("[GameState] Charm puani yetersiz: ", charm_points, " < ", cost)
+		return false
+
+	charm_points -= cost
+	charms[charm_id] = current_level + 1
+	SaveManager.save_game()
+	print("[GameState] Charm alindi: ", charm_id, " -> Lv.", current_level + 1)
+	return true
 
 
 ## Büyük sayıları okunabilir formata çevir

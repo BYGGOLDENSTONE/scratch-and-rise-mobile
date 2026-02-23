@@ -1,0 +1,138 @@
+extends Control
+
+## Charm ekrani. Charm listesi, satin alma, seviye yukseltme.
+
+const CharmDataRef := preload("res://scripts/systems/charm_data.gd")
+
+@onready var cp_label: Label = %CPLabel
+@onready var charm_list: VBoxContainer = %CharmList
+@onready var back_btn: Button = %BackBtn
+
+
+func _ready() -> void:
+	back_btn.pressed.connect(_on_back)
+	GameState.charm_points_changed.connect(_on_cp_changed)
+	_build_charm_list()
+	_update_cp()
+	print("[CharmScreen] Ready — CP: ", GameState.charm_points)
+
+
+func _update_cp() -> void:
+	cp_label.text = "%s CP" % GameState.format_number(GameState.charm_points)
+
+
+func _on_cp_changed(_new_amount: int) -> void:
+	_update_cp()
+
+
+func _build_charm_list() -> void:
+	var current_category := ""
+
+	for charm_id in CharmDataRef.CHARM_ORDER:
+		var charm: Dictionary = CharmDataRef.get_charm(charm_id)
+		if charm.is_empty():
+			continue
+
+		# Kategori basligini ekle
+		var category: String = charm["category"]
+		if category != current_category:
+			current_category = category
+			_add_section_header(category)
+
+		# Charm satirini ekle
+		_add_charm_item(charm_id, charm)
+
+
+func _add_section_header(category: String) -> void:
+	var labels := {
+		"basic": "TEMEL CHARM'LAR",
+		"key": "ANAHTAR CHARM'LAR",
+		"power": "GUCLU CHARM'LAR",
+	}
+
+	var sep := HSeparator.new()
+	charm_list.add_child(sep)
+
+	var header := Label.new()
+	header.text = labels.get(category, category.to_upper())
+	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	header.add_theme_color_override("font_color", Color(1.0, 0.85, 0.0))
+	charm_list.add_child(header)
+
+
+func _add_charm_item(charm_id: String, charm: Dictionary) -> void:
+	var level: int = GameState.get_charm_level(charm_id)
+	var max_level: int = charm["max_level"]
+	var cost: int = charm["cost"]
+
+	# Ana konteyner
+	var item := PanelContainer.new()
+	item.custom_minimum_size.y = 70
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 8)
+	margin.add_theme_constant_override("margin_right", 8)
+	margin.add_theme_constant_override("margin_top", 4)
+	margin.add_theme_constant_override("margin_bottom", 4)
+	item.add_child(margin)
+
+	var hbox := HBoxContainer.new()
+	hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	margin.add_child(hbox)
+
+	# Sol: bilgi
+	var info_vbox := VBoxContainer.new()
+	info_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	hbox.add_child(info_vbox)
+
+	# Isim + seviye
+	var name_label := Label.new()
+	if level > 0 and max_level > 1:
+		name_label.text = "%s  Lv.%d" % [charm["name"], level]
+	elif level > 0 and max_level == 1:
+		name_label.text = "%s  AKTIF" % charm["name"]
+	else:
+		name_label.text = charm["name"]
+	info_vbox.add_child(name_label)
+
+	# Efekt aciklamasi
+	var desc_label := Label.new()
+	desc_label.text = CharmDataRef.get_effect_text(charm_id, level)
+	desc_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
+	desc_label.add_theme_font_size_override("font_size", 12)
+	info_vbox.add_child(desc_label)
+
+	# Sag: buton
+	var btn := Button.new()
+	btn.custom_minimum_size = Vector2(110, 40)
+
+	if level >= max_level:
+		btn.text = "MAX"
+		btn.disabled = true
+	elif level > 0:
+		btn.text = "+  %d CP" % cost
+		btn.disabled = GameState.charm_points < cost
+	else:
+		btn.text = "AL  %d CP" % cost
+		btn.disabled = GameState.charm_points < cost
+
+	btn.pressed.connect(_on_charm_buy.bind(charm_id))
+	hbox.add_child(btn)
+
+	charm_list.add_child(item)
+
+
+func _on_charm_buy(charm_id: String) -> void:
+	if GameState.buy_charm(charm_id):
+		_rebuild_list()
+
+
+func _rebuild_list() -> void:
+	for child in charm_list.get_children():
+		charm_list.remove_child(child)
+		child.queue_free()
+	_build_charm_list()
+
+
+func _on_back() -> void:
+	get_tree().change_scene_to_file("res://scenes/screens/MainMenu.tscn")

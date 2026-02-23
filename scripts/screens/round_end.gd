@@ -21,7 +21,7 @@ func _update_ui() -> void:
 	var charm_earned := GameState.calc_charm_from_coins(_round_earnings)
 	charm_earned_label.text = "+%d Charm Puani" % charm_earned
 	total_charm_label.text = "Toplam Charm: %s" % GameState.format_number(GameState.charm_points)
-	energy_label.text = "Enerji: %d / %d" % [GameState.energy, GameState.MAX_ENERGY]
+	energy_label.text = "Enerji: %d / %d" % [GameState.energy, GameState.get_max_energy()]
 
 
 func _on_menu_pressed() -> void:

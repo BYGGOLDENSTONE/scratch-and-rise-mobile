@@ -2,9 +2,11 @@ extends Node2D
 
 ## Ana oyun sahnesi. Portrait layout.
 ## Bilet alani, ust bar, alt panel.
+## Enerji labelina 5 kez tikla -> Debug Panel
 
 const TicketScene := preload("res://scenes/ticket/Ticket.tscn")
 const MatchResultScene := preload("res://scenes/ui/MatchResult.tscn")
+const DebugPanelScene := preload("res://scenes/debug/DebugPanel.tscn")
 
 @onready var coin_label: Label = %CoinLabel
 @onready var energy_label: Label = %EnergyLabel
@@ -17,6 +19,9 @@ const MatchResultScene := preload("res://scenes/ui/MatchResult.tscn")
 var current_ticket: PanelContainer = null
 var match_result_popup: PanelContainer = null
 var tickets_scratched: int = 0
+var _debug_tap_count: int = 0
+var _debug_last_tap_time: float = 0.0
+var _debug_panel: Control = null
 
 
 func _ready() -> void:
@@ -24,6 +29,8 @@ func _ready() -> void:
 	GameState.energy_changed.connect(_on_energy_changed)
 	GameState.round_ended.connect(_on_round_ended)
 	kagit_btn.pressed.connect(_on_kagit_pressed)
+	energy_label.mouse_filter = Control.MOUSE_FILTER_STOP
+	energy_label.gui_input.connect(_on_debug_tap_input)
 	_update_ui()
 	_update_ticket_buttons()
 	print("[Main] Game screen ready")
@@ -31,7 +38,7 @@ func _ready() -> void:
 
 func _update_ui() -> void:
 	coin_label.text = "Coin: %s" % GameState.format_number(GameState.coins)
-	energy_label.text = "Enerji: %d/%d" % [GameState.energy, GameState.MAX_ENERGY]
+	energy_label.text = "Enerji: %d/%d" % [GameState.energy, GameState.get_max_energy()]
 	ticket_count_label.text = "Bilet: %d" % tickets_scratched
 
 
@@ -41,7 +48,7 @@ func _on_coins_changed(_new_amount: int) -> void:
 
 
 func _on_energy_changed(_new_amount: int) -> void:
-	energy_label.text = "Enerji: %d/%d" % [GameState.energy, GameState.MAX_ENERGY]
+	energy_label.text = "Enerji: %d/%d" % [GameState.energy, GameState.get_max_energy()]
 
 
 func _on_round_ended(_total_earned: int) -> void:
@@ -84,10 +91,12 @@ func _on_ticket_completed(symbols: Array) -> void:
 		ticket_type = current_ticket.get_ticket_type()
 	var match_data: Dictionary = MatchSystem.check_match(symbols, ticket_type)
 
-	# Coin ekle (eslesme varsa)
+	# Charm bonuslarini uygula ve coin ekle
 	if match_data["has_match"]:
-		GameState.add_coins(match_data["reward"])
-		print("[Main] Eslesme! +", match_data["reward"], " coin")
+		var reward: int = _apply_charm_bonuses(match_data["reward"], match_data)
+		match_data["reward"] = reward
+		GameState.add_coins(reward)
+		print("[Main] Eslesme! +", reward, " coin")
 	else:
 		print("[Main] Eslesme yok")
 
@@ -138,3 +147,54 @@ func _show_warning(text: String) -> void:
 	tw.tween_interval(1.0)
 	tw.tween_property(warning_label, "modulate:a", 0.0, 0.5)
 	tw.tween_callback(func(): warning_label.visible = false)
+
+
+func _apply_charm_bonuses(base_reward: int, match_data: Dictionary) -> int:
+	var bonus_mult := 1.0
+
+	# Sans Tokasi: +10% eslesme odulu per level
+	bonus_mult += GameState.get_charm_level("sans_tokasi") * 0.10
+
+	# Altinparmak: +15% tum oduller per level
+	bonus_mult += GameState.get_charm_level("altinparmak") * 0.15
+
+	# Kral Dokunusu: 4+ eslesme odulu x(level+1)
+	if match_data["best_count"] >= 4:
+		var kral_level := GameState.get_charm_level("kral_dokunusu")
+		if kral_level > 0:
+			bonus_mult *= (1 + kral_level)
+
+	var reward := int(base_reward * bonus_mult)
+
+	# YOLO: %1 sansla odul x50
+	if GameState.get_charm_level("yolo") > 0:
+		if randf() < 0.01:
+			reward *= 50
+			print("[Main] YOLO! x50!")
+
+	return reward
+
+
+func _on_debug_tap_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed:
+		var now := Time.get_ticks_msec() / 1000.0
+		if now - _debug_last_tap_time > 2.0:
+			_debug_tap_count = 0
+		_debug_last_tap_time = now
+		_debug_tap_count += 1
+		if _debug_tap_count >= 5:
+			_debug_tap_count = 0
+			_open_debug_panel()
+
+
+func _open_debug_panel() -> void:
+	if _debug_panel != null:
+		return
+	_debug_panel = DebugPanelScene.instantiate()
+	get_node("UILayer").add_child(_debug_panel)
+	_debug_panel.panel_closed.connect(_on_debug_closed)
+
+
+func _on_debug_closed() -> void:
+	_debug_panel = null
+	_update_ui()

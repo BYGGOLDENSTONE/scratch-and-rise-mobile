@@ -65,12 +65,13 @@ func load_game() -> bool:
 	GameState.best_round_coins = int(data.get("best_round_coins", 0))
 
 	# Enerji yenilenme hesabı
-	var saved_energy: int = int(data.get("energy", GameState.MAX_ENERGY))
+	var saved_energy: int = int(data.get("energy", GameState.BASE_MAX_ENERGY))
 	var saved_time: float = data.get("timestamp", 0.0)
-	if saved_time > 0.0 and saved_energy < GameState.MAX_ENERGY:
+	var max_e: int = GameState.get_max_energy()
+	if saved_time > 0.0 and saved_energy < max_e:
 		var elapsed := Time.get_unix_time_from_system() - saved_time
 		var regen_count := int(elapsed / GameState.ENERGY_REGEN_SECONDS)
-		saved_energy = mini(saved_energy + regen_count, GameState.MAX_ENERGY)
+		saved_energy = mini(saved_energy + regen_count, max_e)
 	GameState.energy = saved_energy
 
 	print("[SaveManager] Game loaded from ", path)

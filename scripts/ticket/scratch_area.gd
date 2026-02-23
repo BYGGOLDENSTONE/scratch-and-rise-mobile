@@ -67,12 +67,17 @@ func scratch() -> void:
 	symbol_panel.visible = true
 	symbol_panel.pivot_offset = symbol_panel.size / 2.0
 
+	# Hizli Parmak charm: animasyon hizi artisi
+	var speed_mult := 1.0 + GameState.get_charm_level("hizli_parmak") * 0.1
+	var fade_dur := 0.2 / speed_mult
+	var appear_dur := 0.3 / speed_mult
+
 	# Kapak kaybolma animasyonu
 	var tween := create_tween()
 	tween.set_parallel(true)
-	tween.tween_property(cover_panel, "modulate:a", 0.0, 0.2)
-	tween.tween_property(symbol_panel, "modulate:a", 1.0, 0.3)
-	tween.tween_property(symbol_panel, "scale", Vector2.ONE, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(cover_panel, "modulate:a", 0.0, fade_dur)
+	tween.tween_property(symbol_panel, "modulate:a", 1.0, appear_dur)
+	tween.tween_property(symbol_panel, "scale", Vector2.ONE, appear_dur).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 	tween.chain().tween_callback(func():
 		cover_panel.visible = false
