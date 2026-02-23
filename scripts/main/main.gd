@@ -4,6 +4,7 @@ extends Node2D
 ## Bilet alani, ust bar, alt panel.
 
 const TicketScene := preload("res://scenes/ticket/Ticket.tscn")
+const MatchResultScene := preload("res://scenes/ui/MatchResult.tscn")
 
 @onready var coin_label: Label = %CoinLabel
 @onready var energy_label: Label = %EnergyLabel
@@ -12,6 +13,7 @@ const TicketScene := preload("res://scenes/ticket/Ticket.tscn")
 @onready var kagit_btn: Button = %Btn1
 
 var current_ticket: PanelContainer = null
+var match_result_popup: PanelContainer = null
 
 
 func _ready() -> void:
@@ -70,9 +72,35 @@ func _on_kagit_pressed() -> void:
 
 func _on_ticket_completed(symbols: Array) -> void:
 	print("[Main] Bilet tamamlandi! Semboller: ", symbols)
-	# TODO: M3'te eslesme kontrolu burada yapilacak
-	# 1.5 saniye bekle, sonra bileti kaldir
-	await get_tree().create_timer(1.5).timeout
+
+	# Eslesme kontrolu
+	var ticket_type: String = "paper"
+	if current_ticket and current_ticket.has_method("get_ticket_type"):
+		ticket_type = current_ticket.get_ticket_type()
+	var match_data: Dictionary = MatchSystem.check_match(symbols, ticket_type)
+
+	# Coin ekle (eslesme varsa)
+	if match_data["has_match"]:
+		GameState.add_coins(match_data["reward"])
+		print("[Main] Eslesme! +", match_data["reward"], " coin")
+	else:
+		print("[Main] Eslesme yok")
+
+	# Sonuc popup'ini goster
+	_show_match_result(match_data)
+
+
+func _show_match_result(match_data: Dictionary) -> void:
+	match_result_popup = MatchResultScene.instantiate()
+	get_node("UILayer").add_child(match_result_popup)
+	match_result_popup.show_result(match_data)
+	match_result_popup.result_dismissed.connect(_on_match_result_dismissed)
+
+
+func _on_match_result_dismissed() -> void:
+	if match_result_popup:
+		match_result_popup.queue_free()
+		match_result_popup = null
 	_remove_current_ticket()
 
 

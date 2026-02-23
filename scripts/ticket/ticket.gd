@@ -63,3 +63,7 @@ func _complete() -> void:
 	ticket_footer.visible = false
 	ticket_completed.emit(symbols)
 	print("[Ticket] Tamamlandi! Semboller: ", symbols)
+
+
+func get_ticket_type() -> String:
+	return ticket_type

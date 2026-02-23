@@ -55,7 +55,7 @@ scratch-mobil/
 |-----|------|--------|-------|
 | M1 | Proje Altyapisi | Godot ayarlari, klasor yapisi, autoload iskeletleri, portrait layout, placeholder UI | `tamamlandi` `cddfe39` |
 | M2 | Bilet & Kazima | Bilet sahnesi, dokunma ile kazima, sembol atama, bilet tamamlanma | `tamamlandi` `bcdd165` |
-| M3 | Eslesme & Coin | Eslesme kontrolu, coin hesaplama, ust bar, eslesme sonuc ekrani | `bekliyor` |
+| M3 | Eslesme & Coin | Eslesme kontrolu, coin hesaplama, ust bar, eslesme sonuc ekrani | `tamamlandi` |
 | M4 | Enerji & Tur | Enerji sistemi, tur baslangic/bitis, baslangic parasi, bilet satin alma | `bekliyor` |
 | M5 | Charm Sistemi | Charm puani kazanma, charm listesi, charm satin alma, seviye artirma | `bekliyor` |
 
