@@ -40,6 +40,7 @@ var charms: Dictionary = {}  # { "charm_id": level }
 var total_coins_earned: int = 0
 var total_rounds_played: int = 0
 var best_round_coins: int = 0
+var last_round_earnings: int = 0
 
 
 func _ready() -> void:
@@ -79,6 +80,7 @@ func end_round() -> void:
 		return
 	in_round = false
 	var earned := coins
+	last_round_earnings = earned
 	total_coins_earned += earned
 	if earned > best_round_coins:
 		best_round_coins = earned

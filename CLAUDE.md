@@ -56,7 +56,7 @@ scratch-mobil/
 | M1 | Proje Altyapisi | Godot ayarlari, klasor yapisi, autoload iskeletleri, portrait layout, placeholder UI | `tamamlandi` `cddfe39` |
 | M2 | Bilet & Kazima | Bilet sahnesi, dokunma ile kazima, sembol atama, bilet tamamlanma | `tamamlandi` `bcdd165` |
 | M3 | Eslesme & Coin | Eslesme kontrolu, coin hesaplama, ust bar, eslesme sonuc ekrani | `tamamlandi` |
-| M4 | Enerji & Tur | Enerji sistemi, tur baslangic/bitis, baslangic parasi, bilet satin alma | `bekliyor` |
+| M4 | Enerji & Tur | Enerji sistemi, tur baslangic/bitis, baslangic parasi, bilet satin alma | `tamamlandi` `263ace3` |
 | M5 | Charm Sistemi | Charm puani kazanma, charm listesi, charm satin alma, seviye artirma | `bekliyor` |
 
 ### Faz 2: Icerik & Derinlik
@@ -94,6 +94,13 @@ scratch-mobil/
 - `ERROR`, `WARNING`, `Parse Error`, `Invalid` gibi hata kelimeleri aranir
 - Compile hatasi varsa kullaniciya sormadan once duzeltilir
 - Her script `print("[ModulAdi] ...")` formatiyla log basar — bu sayede hangi modulun yuklendigi/calismadigi anlasilir
+
+## Yapilacaklar Notu
+- **Debug Tools (sonraki session):** Test icin debug araclar gerekiyor:
+  - Progress sifirlama (save reset)
+  - Belli miktar coin/enerji/charm verme
+  - Hizli tur tamamlama
+  - Bu araclar oyun ici gizli panel veya konsol komutu seklinde olabilir
 
 ## PC Versiyonu Notu
 - PC versiyonu ayri proje: `D:\godotproject\incremental`

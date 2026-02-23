@@ -11,9 +11,7 @@ var _round_earnings: int = 0
 
 
 func _ready() -> void:
-	# GameState.round_ended sinyali Main'den tetiklenir,
-	# burada sadece sonuçları gösteriyoruz
-	_round_earnings = GameState.total_coins_earned  # Son turdan
+	_round_earnings = GameState.last_round_earnings
 	_update_ui()
 	print("[RoundEnd] Ready")
 

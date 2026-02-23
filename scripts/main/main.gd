@@ -8,12 +8,15 @@ const MatchResultScene := preload("res://scenes/ui/MatchResult.tscn")
 
 @onready var coin_label: Label = %CoinLabel
 @onready var energy_label: Label = %EnergyLabel
+@onready var ticket_count_label: Label = %TicketCountLabel
 @onready var ticket_area: CenterContainer = %TicketArea
 @onready var ticket_placeholder: Label = %TicketPlaceholder
 @onready var kagit_btn: Button = %Btn1
+@onready var warning_label: Label = %WarningLabel
 
 var current_ticket: PanelContainer = null
 var match_result_popup: PanelContainer = null
+var tickets_scratched: int = 0
 
 
 func _ready() -> void:
@@ -29,6 +32,7 @@ func _ready() -> void:
 func _update_ui() -> void:
 	coin_label.text = "Coin: %s" % GameState.format_number(GameState.coins)
 	energy_label.text = "Enerji: %d/%d" % [GameState.energy, GameState.MAX_ENERGY]
+	ticket_count_label.text = "Bilet: %d" % tickets_scratched
 
 
 func _on_coins_changed(_new_amount: int) -> void:
@@ -58,6 +62,7 @@ func _on_kagit_pressed() -> void:
 	var price: int = TicketData.TICKET_CONFIGS["paper"]["price"]
 	if not GameState.spend_coins(price):
 		print("[Main] Coin yetersiz!")
+		_show_warning("Coin yetersiz!")
 		return
 
 	# Placeholder'i gizle, bilet olustur
@@ -101,6 +106,8 @@ func _on_match_result_dismissed() -> void:
 	if match_result_popup:
 		match_result_popup.queue_free()
 		match_result_popup = null
+	tickets_scratched += 1
+	ticket_count_label.text = "Bilet: %d" % tickets_scratched
 	_remove_current_ticket()
 
 
@@ -121,3 +128,13 @@ func _remove_current_ticket() -> void:
 func _update_ticket_buttons() -> void:
 	var price: int = TicketData.TICKET_CONFIGS["paper"]["price"]
 	kagit_btn.disabled = (current_ticket != null) or (GameState.coins < price)
+
+
+func _show_warning(text: String) -> void:
+	warning_label.text = text
+	warning_label.visible = true
+	warning_label.modulate.a = 1.0
+	var tw := create_tween()
+	tw.tween_interval(1.0)
+	tw.tween_property(warning_label, "modulate:a", 0.0, 0.5)
+	tw.tween_callback(func(): warning_label.visible = false)

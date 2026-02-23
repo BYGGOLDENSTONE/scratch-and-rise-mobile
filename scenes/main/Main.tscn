@@ -43,6 +43,14 @@ text = "Coin: 0"
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="TicketCountLabel" type="Label" parent="UILayer/UIRoot/VBox/TopBar/HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Bilet: 0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="EnergyLabel" type="Label" parent="UILayer/UIRoot/VBox/TopBar/HBox"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -63,6 +71,13 @@ text = "[ BILET ALANI ]
 Burada kazı kazan bileti olacak"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="WarningLabel" type="Label" parent="UILayer/UIRoot/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+visible = false
+text = "Coin yetersiz!"
+horizontal_alignment = 1
 
 [node name="BottomPanel" type="VBoxContainer" parent="UILayer/UIRoot/VBox"]
 layout_mode = 2
