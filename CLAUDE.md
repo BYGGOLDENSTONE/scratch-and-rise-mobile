@@ -146,6 +146,83 @@ scratch-mobil/
 - **Animasyonlar:** Eslesen semboller pulse, kapak dissolve, bilet tier border/gradient
 - **Tum ekranlar:** `_apply_theme()` fonksiyonu ile runtime'da stillendirilir
 
+## Test Harness Sistemi
+- **Dosya:** `scripts/autoload/test_harness.gd` (autoload: TestHarness, en son sirada)
+- **Protokol:** Dosya-bazli iletisim, proje kokunde 3 dosya:
+  - `_test_command.json` — Claude yazar, Godot okur ve siler
+  - `_test_state.json` — Godot yazar, Claude okur
+  - `_test_screenshot.png` — Godot viewport'tan kaydeder
+- **Polling:** 0.5 sn aralikla `_test_command.json` kontrol eder
+- **Release guard:** `OS.has_feature("release")` ise devre disi
+- **Komutlar:** `state`, `click`, `click_button`, `scratch_all`, `screenshot`, `wait`, `drag`
+- **State export:** scene, game_state (coins/energy/charms/stats/ticket bilgisi), ui_elements (Button/Label), result
+
+### Test Akisi
+1. Oyunu pencereli baslat: `"D:/godot/Godot_v4.6-stable_win64_console.exe" --path "D:/godotproject/scratch-mobil"` (background)
+2. 5 sn bekle (yukleme)
+3. Komut gonder: `_test_command.json` dosyasina JSON yaz (`{"command": "state", "id": "1"}`)
+4. 1-2 sn bekle (polling + islem)
+5. Cevap oku: `_test_state.json` oku, `id` eslesmesini kontrol et
+6. Tekrarla
+
+### Ornek Komutlar
+```json
+{"command": "state", "id": "1"}
+{"command": "click_button", "text": "OYNA", "id": "2"}
+{"command": "click_button", "text": "Kagit", "id": "3"}
+{"command": "scratch_all", "delay": 0.15, "id": "4"}
+{"command": "click_button", "text": "DEVAM", "id": "5"}
+{"command": "screenshot", "id": "6"}
+{"command": "wait", "seconds": 1, "id": "7"}
+{"command": "click", "x": 360, "y": 640, "id": "8"}
+```
+
+### Otomatik Test (Subagent ile)
+- Sonnet model subagent ile coklu tur test yapilabilir
+- Agent komut gonder → state oku → veri topla dongusunu calistirir
+- Sonuc `_test_report.json` dosyasina yazilir
+- **Kisitlama:** Tek Godot instance, tek dosya seti — paralel agent calismaz
+- **Debug panel:** 5 hizli tiklamayla acilir ama test harness polling (0.5sn) ile zamanlama zor, save dosyasi dogrudan silinebilir
+
+### Son Test Sonuclari (2026-02-23, balans duzeltmesi sonrasi, 89 bilet)
+- Paper eslesme orani: %44.9 (GDD hedefi: %55) — **DUZELTILDI** (onceki: %92.3)
+- Paper ROI (normal turlar): x0.80-1.00 — **DUZELTILDI** (onceki: x19.7)
+- Paper ROI (jackpotlu turlar): x1.74 — jackpot varyansı yüksek ama kabul edilebilir
+- Carpanlar: %72 x1, %16 x2, %12 x3-5 — istenen dagılım
+- Detayli rapor: `_test_report.json`
+
+## Balans Sistemi Notlari
+- **Bilet bazli carpan tablosu:** `match_system.gd` MULTIPLIER_RANGES sabiti
+  - Paper: 3-eslesme x1, 4-eslesme x1-2, jackpot x3-5
+  - Bronze: x1 / x2-3 / x5-10
+  - Silver: x1 / x2-4 / x8-15
+  - Gold: x1 / x3-5 / x10-25
+  - Platinum: x1 / x3-8 / x15-50
+- **Sinerji carpanlari (dusuruldu):** Meyve x2, Gece x2, Lucky7 x5, Kraliyet x3, Ejderha x4, Full House x10, Gokkusagi x2, Festivali x5
+- **Paper sembol havuzu:** 5 sembol (cherry, lemon, grape, star, moon) — onceki 3'ten artirildi
+- **Mega Bilet:** Bilet bazli jackpot araligini kullaniyor (eski sabit x20-100 kaldirildi)
+
+---
+
+## Bekleyen Gorevler (Sonraki Session)
+
+### Gorev 1: Gorsel Tema Yenileme
+**Oncelik:** Yuksek — Mevcut neon casino teması tutarsiz ve mobilde kotu okuyor
+
+**Sorun:** Tek karanlik tema, neon renkler birbiriyle catisiyor, profesyonel gorunmuyor
+
+**Cozum plani:**
+- 2 renk paleti tasarla: **Aydinlik (Light)** ve **Karanlik (Dark)** mod
+- Premium/sik tarz hedefle (casino salakligi degil, modern mobil uygulama hissi)
+- ThemeHelper'i palet-bazli sisteme cevir (tek dosyadan tum renkler yonetilsin)
+- Tum ekranlardaki `_apply_theme()` fonksiyonlarini guncelle
+- Kullanici ayarlardan tema secebilsin
+- **Not:** Bilet tier renkleri (paper/bronze/silver/gold/platinum) korunabilir ama neon glow yerine daha subtle tonlar
+
+**Etkilenen dosyalar:** `scripts/ui/theme_helper.gd`, tum ekran/UI scriptleri, `settings_popup.gd`
+
+---
+
 ## PC Versiyonu Notu
 - PC versiyonu ayri proje: `D:\godotproject\incremental`
 - PC'de: Buildings, oto-kazima, prestige, yatay layout, $4.99 premium

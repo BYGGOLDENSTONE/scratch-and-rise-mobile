@@ -196,9 +196,10 @@ func _on_ticket_completed(symbols: Array) -> void:
 		GameState._mega_ticket_active = false
 		if not match_data["has_match"] or match_data["tier"] != "jackpot":
 			var price: int = TicketData.TICKET_CONFIGS.get(ticket_type, TicketData.TICKET_CONFIGS["paper"])["price"]
+			var jackpot_range: Array = MatchSystem.MULTIPLIER_RANGES.get(ticket_type, MatchSystem.MULTIPLIER_RANGES["paper"])["jackpot"]
 			match_data["has_match"] = true
 			match_data["best_count"] = 5
-			match_data["multiplier"] = randi_range(20, 100)
+			match_data["multiplier"] = randi_range(jackpot_range[0], jackpot_range[1])
 			match_data["tier"] = "jackpot"
 			match_data["reward"] = price * match_data["multiplier"]
 			print("[Main] MEGA BILET! Garanti jackpot!")

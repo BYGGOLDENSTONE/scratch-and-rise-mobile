@@ -2,10 +2,39 @@ class_name MatchSystem
 extends RefCounted
 
 ## Eslesme kontrolu ve odul hesaplama.
-## GDD kurallari:
-##   3 ayni sembol = eslesme (bilet fiyati x 1-5)
-##   4 ayni sembol = buyuk eslesme (bilet fiyati x 5-20)
-##   5+ ayni sembol = JACKPOT (bilet fiyati x 20-100)
+## Bilet bazli carpan sistemi:
+##   3 ayni sembol = eslesme (genelde x1 = paranı geri al)
+##   4 ayni sembol = buyuk eslesme (bilete gore x1-8)
+##   5+ ayni sembol = JACKPOT (bilete gore x3-50)
+
+## Bilet bazli carpan aralik tablosu: [min, max]
+const MULTIPLIER_RANGES := {
+	"paper": {
+		"normal": [1, 1],    # 3 eslesme: x1 (paranı geri al)
+		"big": [1, 2],       # 4 eslesme: x1-2
+		"jackpot": [3, 5],   # 5+ eslesme: x3-5
+	},
+	"bronze": {
+		"normal": [1, 1],    # 3 eslesme: x1
+		"big": [2, 3],       # 4 eslesme: x2-3
+		"jackpot": [5, 10],  # 5+ eslesme: x5-10
+	},
+	"silver": {
+		"normal": [1, 1],    # 3 eslesme: x1
+		"big": [2, 4],       # 4 eslesme: x2-4
+		"jackpot": [8, 15],  # 5+ eslesme: x8-15
+	},
+	"gold": {
+		"normal": [1, 1],    # 3 eslesme: x1
+		"big": [3, 5],       # 4 eslesme: x3-5
+		"jackpot": [10, 25], # 5+ eslesme: x10-25
+	},
+	"platinum": {
+		"normal": [1, 1],    # 3 eslesme: x1
+		"big": [3, 8],       # 4 eslesme: x3-8
+		"jackpot": [15, 50], # 5+ eslesme: x15-50
+	},
+}
 
 
 ## Eslesme sonucunu dondurur
@@ -38,22 +67,20 @@ static func check_match(symbols: Array, ticket_type: String) -> Dictionary:
 			"tier": "none",
 		}
 
-	# Carpan ve tier hesapla
+	# Carpan ve tier hesapla (bilet bazli)
 	var multiplier: int = 0
 	var tier: String = ""
+	var ranges: Dictionary = MULTIPLIER_RANGES.get(ticket_type, MULTIPLIER_RANGES["paper"])
 
 	if best_count >= 5:
-		# JACKPOT: x20-100
-		multiplier = randi_range(20, 100)
 		tier = "jackpot"
+		multiplier = randi_range(ranges["jackpot"][0], ranges["jackpot"][1])
 	elif best_count == 4:
-		# Buyuk eslesme: x5-20
-		multiplier = randi_range(5, 20)
 		tier = "big"
+		multiplier = randi_range(ranges["big"][0], ranges["big"][1])
 	else:
-		# Normal eslesme (3): x1-5
-		multiplier = randi_range(1, 5)
 		tier = "normal"
+		multiplier = randi_range(ranges["normal"][0], ranges["normal"][1])
 
 	var reward: int = price * multiplier
 

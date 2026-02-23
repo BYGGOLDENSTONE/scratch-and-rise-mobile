@@ -41,7 +41,7 @@ const TICKET_CONFIGS := {
 		"price": 5,
 		"area_count": 6,
 		"columns": 3,
-		"symbol_pool": ["cherry", "lemon", "grape"],
+		"symbol_pool": ["cherry", "lemon", "grape", "star", "moon"],
 	},
 	"bronze": {
 		"name": "Bronz Bilet",
