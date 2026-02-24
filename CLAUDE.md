@@ -148,7 +148,8 @@ scratch-mobil/
 - **Viewport sync:** `RenderingServer.set_default_clear_color()` ile viewport arka plani tema ile senkron
 - **Bilet tier renkleri:** paper=gri, bronze=bakir, silver=gumus, gold=altin, platinum=mor (tema-bagimsiz)
 - **Efektler:** Ekran flash, screen shake, konfeti (GPUParticles2D), coin ucma, YOLO x50 efekti, sinerji efekti
-- **Animasyonlar:** Eslesen semboller pulse, kapak dissolve, bilet tier border/gradient
+- **Animasyonlar:** Kapak dissolve, bilet tier border/gradient
+- **Eslesme kutlamasi:** BAM BAM BAM slam pop (bilet uzerinde, popup yok), carpan gosterimi, odul bilgisi
 - **Tum ekranlar:** `_apply_theme()` fonksiyonu ile runtime'da stillendirilir, `theme_changed` sinyali ile canli guncelleme
 - **Stil fonksiyonlari:** make_button, make_panel, make_card, style_title, style_label, style_warning, style_top_bar, style_background
 
@@ -211,6 +212,18 @@ scratch-mobil/
 ---
 
 ## Tamamlanan Gorevler
+
+### Eslesme Gorselligi Iyilestirme (2026-02-24) `b446c48`
+- MatchResult popup kaldirildi (`match_result.gd`, `MatchResult.tscn` silindi)
+- Eslesme sonucu bilet uzerinde gosteriliyor (kutlama orkestratoru: `ticket.gd`)
+- Eslesen semboller tek tek patliyor (staggered slam pop, escalating screen shake)
+- Her pop'ta carpan degeri gosteriliyor (x1, x1, x1!! kumar tarzi)
+- Eslesmeyenler soluklasiyor (%30 alpha), eslesenler parlak border + shadow glow
+- 4+ eslesmelerde final slam (ekstra shake + ekran flash)
+- Odul bilgisi: tier basligi (JACKPOT/BUYUK ESLESME/ESLESME), detay, coin animasyonu, DEVAM butonu
+- Eslesme yoksa: tum semboller soluk + "Eslesme yok..." + 1.5s otomatik devam
+- Yeni fonksiyonlar: `scratch_area.gd` → `play_slam_pop()`, `dim()`, `reset_celebration()`
+- Yeni sinyal: `ticket.gd` → `celebration_finished`
 
 ### Gorsel Tema Yenileme (2026-02-23)
 - Neon casino temasi kaldirildi, dual palet sistemi (Dark + Light) eklendi
