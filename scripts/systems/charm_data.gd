@@ -38,29 +38,93 @@ const CHARMS := {
 		"category": "basic",
 		"effect_per_level": 10,
 	},
-	# --- Anahtar Charm'lar ---
-	"gumus_anahtar": {
-		"name": "Gumus Anahtar",
-		"description": "Gumus bileti acar",
+	# --- Orta Charm'lar ---
+	"sansli_yildiz": {
+		"name": "Sansli Yildiz",
+		"description": "Ozel sembol sansi +%{value}",
+		"cost": 8,
+		"max_level": 5,
+		"category": "mid",
+		"effect_per_level": 4,
+	},
+	"ikinci_sans": {
+		"name": "Ikinci Sans",
+		"description": "Eslesme yoksa tekrar cekme %{value}",
+		"cost": 12,
+		"max_level": 5,
+		"category": "mid",
+		"effect_per_level": 10,
+	},
+	"hazine_avcisi": {
+		"name": "Hazine Avcisi",
+		"description": "Koleksiyon dusme sansi +%{value}",
+		"cost": 10,
+		"max_level": 5,
+		"category": "mid",
+		"effect_per_level": 20,
+	},
+	"cifte_sans": {
+		"name": "Cifte Sans",
+		"description": "4+ eslesmede ekstra +%{value} coin",
+		"cost": 8,
+		"max_level": 5,
+		"category": "mid",
+		"effect_per_level": 8,
+	},
+	"miknatis": {
+		"name": "Miknatis",
+		"description": "Sinerji sansi +%{value}",
+		"cost": 12,
+		"max_level": 5,
+		"category": "mid",
+		"effect_per_level": 6,
+	},
+	"erken_kus": {
+		"name": "Erken Kus",
+		"description": "Ilk bilet %{value} indirimli",
+		"cost": 6,
+		"max_level": 10,
+		"category": "mid",
+		"effect_per_level": 15,
+	},
+	"sans_carki": {
+		"name": "Sans Carki",
+		"description": "Her 5. bilette bonus olay +%{value}",
 		"cost": 15,
-		"max_level": 1,
-		"category": "key",
+		"max_level": 3,
+		"category": "mid",
+		"effect_per_level": 10,
+	},
+	"koleksiyoncu_ruhu": {
+		"name": "Koleksiyoncu Ruhu",
+		"description": "Koleksiyon dusunce +{value} CP",
+		"cost": 10,
+		"max_level": 5,
+		"category": "mid",
 		"effect_per_level": 1,
 	},
-	"altin_anahtar": {
-		"name": "Altin Anahtar",
-		"description": "Altin bileti acar",
-		"cost": 30,
-		"max_level": 1,
-		"category": "key",
-		"effect_per_level": 1,
+	"combo_ustasi": {
+		"name": "Combo Ustasi",
+		"description": "Ardisik eslesme bonusu +%{value}",
+		"cost": 15,
+		"max_level": 5,
+		"category": "mid",
+		"effect_per_level": 5,
 	},
-	"platin_anahtar": {
-		"name": "Platin Anahtar",
-		"description": "Platin bileti acar",
-		"cost": 60,
-		"max_level": 1,
-		"category": "key",
+	"dayaniklilik": {
+		"name": "Dayaniklilik",
+		"description": "Enerji yenilenme hizi +%{value}",
+		"cost": 10,
+		"max_level": 3,
+		"category": "mid",
+		"effect_per_level": 15,
+	},
+	"son_hamle": {
+		"name": "Son Hamle",
+		"description": "Coin < 20 ise bedava Paper bilet (tur basi {value}x)",
+		"cost": 20,
+		"max_level": 3,
+		"category": "mid",
 		"effect_per_level": 1,
 	},
 	# --- Guclu Charm'lar ---
@@ -132,8 +196,13 @@ const CHARMS := {
 
 ## Charm gosterim sirasi
 const CHARM_ORDER := [
+	# Temel
 	"sans_tokasi", "zengin_baslangic", "keskin_goz", "hizli_parmak",
-	"gumus_anahtar", "altin_anahtar", "platin_anahtar",
+	# Orta
+	"sansli_yildiz", "ikinci_sans", "hazine_avcisi", "cifte_sans",
+	"miknatis", "erken_kus", "sans_carki", "koleksiyoncu_ruhu",
+	"combo_ustasi", "dayaniklilik", "son_hamle",
+	# Guclu
 	"joker_miknatisi", "carpan_gucu", "enerji_deposu", "sinerji_radari",
 	"altinparmak", "kral_dokunusu", "yolo", "mega_baslangic",
 ]

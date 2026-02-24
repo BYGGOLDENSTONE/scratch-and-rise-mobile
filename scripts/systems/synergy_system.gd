@@ -60,12 +60,65 @@ const SYNERGIES := {
 		"check_type": "custom_meyve_festivali",
 		"hidden": true,
 	},
+	# --- Yeni Sinerjiler ---
+	"joker_partisi": {
+		"name": "Joker Partisi",
+		"condition_text": "2+ Joker",
+		"multiplier": 3,
+		"check_type": "special_count",
+		"required_symbol": "joker",
+		"required_count": 2,
+	},
+	"bomba_firtinasi": {
+		"name": "Bomba Firtinasi",
+		"condition_text": "Bomba + 4-eslesme",
+		"multiplier": 4,
+		"check_type": "custom_bomba_firtinasi",
+	},
+	"tas_koleksiyonu": {
+		"name": "Tas Koleksiyonu",
+		"condition_text": "Elmas + Kalp + Tac",
+		"multiplier": 3,
+		"check_type": "all_present",
+		"required_symbols": ["diamond", "heart", "crown"],
+	},
+	"kozmik_guc": {
+		"name": "Kozmik Guc",
+		"condition_text": "Yildiz + Ay + Anka",
+		"multiplier": 4,
+		"check_type": "all_present",
+		"required_symbols": ["star", "moon", "phoenix"],
+	},
+	"kripto_madenci": {
+		"name": "Kripto Madenci",
+		"condition_text": "3+ ayni + x2 sembol",
+		"multiplier": 5,
+		"check_type": "custom_kripto_madenci",
+	},
+	"cicek_bahcesi": {
+		"name": "Cicek Bahcesi",
+		"condition_text": "Kiraz + Limon + Uzum + Yildiz",
+		"multiplier": 3,
+		"check_type": "all_present",
+		"required_symbols": ["cherry", "lemon", "grape", "star"],
+	},
+	"efsane": {
+		"name": "???",
+		"condition_text": "???",
+		"multiplier": 6,
+		"check_type": "all_present",
+		"required_symbols": ["dragon", "phoenix", "crown"],
+		"hidden": true,
+	},
 }
 
 ## Gosterim sirasi
 const SYNERGY_ORDER := [
 	"meyve_kokteyli", "gece_gokyuzu", "lucky_seven", "kraliyet",
-	"ejderha_atesi", "full_house", "gokkusagi", "meyve_festivali",
+	"ejderha_atesi", "full_house", "gokkusagi",
+	"joker_partisi", "bomba_firtinasi", "tas_koleksiyonu",
+	"kozmik_guc", "kripto_madenci", "cicek_bahcesi",
+	"meyve_festivali", "efsane",
 ]
 
 
@@ -94,13 +147,38 @@ static func check_synergies(symbols: Array) -> Array:
 				var req_sym: String = synergy["required_symbol"]
 				var req_count: int = synergy["required_count"]
 				matched = counts.get(req_sym, 0) >= req_count
+			"special_count":
+				var req_sym: String = synergy["required_symbol"]
+				var req_count: int = synergy["required_count"]
+				matched = counts.get(req_sym, 0) >= req_count
 			"all_same":
-				matched = unique_count == 1 and symbols.size() > 0
+				# Joker haric tum semboller ayni mi (joker wildcard oldugu icin)
+				var non_special := {}
+				for s in symbols:
+					if s != "joker" and s != "x2_multiplier" and s != "bomb":
+						non_special[s] = true
+				matched = non_special.size() <= 1 and symbols.size() > 0
 			"unique_count":
 				matched = unique_count >= synergy["required_count"]
 			"custom_meyve_festivali":
-				# Gizli sinerji: cherry x3 + lemon x3 (6 meyve)
 				matched = counts.get("cherry", 0) >= 3 and counts.get("lemon", 0) >= 3
+			"custom_bomba_firtinasi":
+				# Bomba + herhangi bir sembolden 4+ eslesme
+				if counts.has("bomb"):
+					for s in counts:
+						if s != "bomb" and s != "joker" and s != "x2_multiplier":
+							var effective: int = counts[s] + counts.get("joker", 0)
+							if effective >= 4:
+								matched = true
+								break
+			"custom_kripto_madenci":
+				# x2 sembol + herhangi 3+ ayni sembol
+				if counts.has("x2_multiplier"):
+					for s in counts:
+						if s != "x2_multiplier" and s != "joker" and s != "bomb":
+							if counts[s] >= 3:
+								matched = true
+								break
 
 		if matched:
 			found.append({

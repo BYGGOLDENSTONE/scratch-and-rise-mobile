@@ -57,7 +57,7 @@ func _build_charm_list() -> void:
 func _add_section_header(category: String) -> void:
 	var labels := {
 		"basic": "TEMEL CHARM'LAR",
-		"key": "ANAHTAR CHARM'LAR",
+		"mid": "ORTA CHARM'LAR",
 		"power": "GUCLU CHARM'LAR",
 	}
 

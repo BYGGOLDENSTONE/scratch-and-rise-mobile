@@ -14,6 +14,7 @@ const AchievementToastScene := preload("res://scenes/ui/AchievementToast.tscn")
 const EventBannerScene := preload("res://scenes/ui/EventBanner.tscn")
 const GoldenTicketScene := preload("res://scenes/ui/GoldenTicketPopup.tscn")
 const ThemeHelper := preload("res://scripts/ui/theme_helper.gd")
+const DailyQuestRef := preload("res://scripts/systems/daily_quest_system.gd")
 
 @onready var coin_label: Label = %CoinLabel
 @onready var energy_label: Label = %EnergyLabel
@@ -38,6 +39,8 @@ var _selected_ticket_type: String = ""  # Son secilen bilet turu (otomatik tekra
 var _ticket_paid: bool = false  # Mevcut bilet icin coin odendi mi
 var _pending_ticket_price: int = 0  # Ilk kazimada cekilecek fiyat (0 = bedava/odendi)
 var _coin_delta_label: Label = null  # Coin yaninda +/- gosterimi
+var _is_first_ticket_of_round: bool = true  # Erken Kus charm icin
+var _no_match_count: int = 0  # Sanssiz Sansli basarimi icin
 
 
 func _ready() -> void:
@@ -51,6 +54,9 @@ func _ready() -> void:
 	_build_ticket_buttons()
 	_update_ui()
 	_update_ticket_buttons()
+	DailyQuestRef.check_and_refresh_quests()
+	_is_first_ticket_of_round = true
+	_no_match_count = 0
 	print("[Main] Game screen ready")
 
 
@@ -74,7 +80,7 @@ func _apply_theme() -> void:
 
 func _process(_delta: float) -> void:
 	if GameState.energy < GameState.get_max_energy():
-		var remaining: float = GameState.ENERGY_REGEN_SECONDS - GameState._energy_regen_accumulator
+		var remaining: float = GameState.get_energy_regen_time() - GameState._energy_regen_accumulator
 		var mins: int = int(remaining) / 60
 		var secs: int = int(remaining) % 60
 		energy_timer_label.text = "%d:%02d" % [mins, secs]
@@ -144,6 +150,11 @@ func _on_ticket_buy(type: String) -> void:
 	if current_ticket != null:
 		if current_ticket.has_started_scratching:
 			return  # Kazima basladiysa degistirilemez
+		# Coin yeterliligi kontrol et (swap icin de)
+		var swap_config: Dictionary = TicketData.TICKET_CONFIGS.get(type, TicketData.TICKET_CONFIGS["paper"])
+		if GameState.coins < swap_config["price"]:
+			_show_warning("Coin yetersiz!")
+			return
 		# Kazilmamis bilet: sil, yeni turu sec (coin henuz cekilmemis)
 		current_ticket.queue_free()
 		current_ticket = null
@@ -153,6 +164,20 @@ func _on_ticket_buy(type: String) -> void:
 
 	var config: Dictionary = TicketData.TICKET_CONFIGS.get(type, TicketData.TICKET_CONFIGS["paper"])
 	var price: int = config["price"]
+
+	# Erken Kus charm: ilk bilet indirimli
+	if _is_first_ticket_of_round:
+		var erken_kus_level: int = GameState.get_charm_level("erken_kus")
+		if erken_kus_level > 0:
+			var discount: float = erken_kus_level * 0.15
+			price = int(price * (1.0 - minf(discount, 0.90)))
+			print("[Main] Erken Kus indirimi: -%d%%" % int(discount * 100))
+
+	# Ejderha Hazinesi koleksiyon bonusu: Platinum indirim
+	if type == "platinum":
+		var ticket_discount: float = CollectionRef.get_ticket_discount_bonus()
+		if ticket_discount > 0:
+			price = int(price * (1.0 - ticket_discount))
 
 	# Bedava bilet kontrolu
 	var is_free := false
@@ -233,13 +258,14 @@ func _on_ticket_completed(symbols: Array) -> void:
 	if GameState._mega_ticket_active:
 		GameState._mega_ticket_active = false
 		if not match_data["has_match"] or match_data["tier"] != "jackpot":
-			var price: int = TicketData.TICKET_CONFIGS.get(ticket_type, TicketData.TICKET_CONFIGS["paper"])["price"]
+			var t_config: Dictionary = TicketData.TICKET_CONFIGS.get(ticket_type, TicketData.TICKET_CONFIGS["paper"])
+			var base_rw: int = t_config.get("base_reward", t_config["price"])
 			var jackpot_range: Array = MatchSystem.MULTIPLIER_RANGES.get(ticket_type, MatchSystem.MULTIPLIER_RANGES["paper"])["jackpot"]
 			match_data["has_match"] = true
 			match_data["best_count"] = 5
 			match_data["multiplier"] = randi_range(jackpot_range[0], jackpot_range[1])
 			match_data["tier"] = "jackpot"
-			match_data["reward"] = price * match_data["multiplier"]
+			match_data["reward"] = base_rw * match_data["multiplier"]
 			print("[Main] MEGA BILET! Garanti jackpot!")
 
 	# Sinerji kontrolu
@@ -259,6 +285,36 @@ func _on_ticket_completed(symbols: Array) -> void:
 		if syn["multiplier"] > synergy_mult:
 			synergy_mult = syn["multiplier"]
 	match_data["synergy_multiplier"] = synergy_mult
+
+	# Ikinci Sans charm: eslesme yoksa tekrar cekme sansi
+	if not match_data["has_match"]:
+		var ikinci_sans_level: int = GameState.get_charm_level("ikinci_sans")
+		if ikinci_sans_level > 0:
+			var reroll_chance: float = ikinci_sans_level * 0.10
+			if randf() < reroll_chance:
+				print("[Main] Ikinci Sans! Semboller tekrar cekildi!")
+				symbols = TicketData.get_random_symbols(ticket_type)
+				match_data = MatchSystem.check_match(symbols, ticket_type)
+				# Mega Bilet override tekrar
+				if GameState._mega_ticket_active:
+					GameState._mega_ticket_active = false
+					match_data["has_match"] = true
+					match_data["best_count"] = 5
+					match_data["tier"] = "jackpot"
+				# Sinerjileri tekrar kontrol et
+				synergies = SynergyRef.check_synergies(symbols)
+				match_data["synergies"] = synergies
+				match_data["new_synergies"] = []
+				for syn in synergies:
+					if GameState.discover_synergy(syn["id"]):
+						match_data["new_synergies"].append(syn["id"])
+						GameState.stats["total_synergies_found"] += 1
+				synergy_mult = 1
+				for syn in synergies:
+					if syn["multiplier"] > synergy_mult:
+						synergy_mult = syn["multiplier"]
+				match_data["synergy_multiplier"] = synergy_mult
+				_last_symbols = symbols
 
 	# Charm bonuslarini uygula ve coin ekle
 	if match_data["has_match"]:
@@ -283,7 +339,21 @@ func _on_ticket_completed(symbols: Array) -> void:
 	# --- Stats guncelle ---
 	GameState.stats["total_tickets"] += 1
 	GameState.round_stats["tickets"] = GameState.round_stats.get("tickets", 0) + 1
+	_is_first_ticket_of_round = false
+
+	# Bilet turu takibi
+	var types_played: Array = GameState.stats.get("ticket_types_played", [])
+	if ticket_type not in types_played:
+		types_played.append(ticket_type)
+		GameState.stats["ticket_types_played"] = types_played
+
+	# Ozel sembol sayaci
+	for s in symbols:
+		if s in ["joker", "x2_multiplier", "bomb"]:
+			GameState.stats["total_special_symbols"] = GameState.stats.get("total_special_symbols", 0) + 1
+
 	if match_data["has_match"]:
+		var was_on_loss_streak: bool = GameState.stats.get("loss_streak", 0) >= 5
 		GameState.stats["total_matches"] += 1
 		GameState.round_stats["matches"] = GameState.round_stats.get("matches", 0) + 1
 		GameState.round_stats["coins_earned"] = GameState.round_stats.get("coins_earned", 0) + match_data["reward"]
@@ -293,8 +363,14 @@ func _on_ticket_completed(symbols: Array) -> void:
 		if match_data["tier"] == "jackpot":
 			GameState.stats["total_jackpots"] += 1
 			GameState.round_stats["jackpots"] = GameState.round_stats.get("jackpots", 0) + 1
+		GameState.stats["loss_streak"] = 0
+		_no_match_count = 0
+		match_data["was_on_loss_streak"] = was_on_loss_streak
 	else:
 		GameState._current_match_streak = 0
+		GameState.stats["loss_streak"] = GameState.stats.get("loss_streak", 0) + 1
+		_no_match_count += 1
+		match_data["was_on_loss_streak"] = false
 	if synergies.size() > 0:
 		GameState.round_stats["synergies"] = GameState.round_stats.get("synergies", 0) + synergies.size()
 
@@ -305,6 +381,11 @@ func _on_ticket_completed(symbols: Array) -> void:
 	if not drop.is_empty():
 		GameState.add_collection_piece(drop["set_id"], drop["piece_id"])
 		print("[Main] Koleksiyon parcasi dustu: %s / %s" % [drop["set_id"], drop["piece_id"]])
+		# Koleksiyoncu Ruhu charm: parca dusunce +CP
+		var kol_ruhu_level: int = GameState.get_charm_level("koleksiyoncu_ruhu")
+		if kol_ruhu_level > 0:
+			GameState.charm_points += kol_ruhu_level
+			print("[Main] Koleksiyoncu Ruhu: +%d CP" % kol_ruhu_level)
 		if CollectionRef.is_set_complete(drop["set_id"]):
 			match_data["set_completed"] = drop["set_id"]
 			print("[Main] SET TAMAMLANDI: ", drop["set_id"])
@@ -355,13 +436,35 @@ func _on_match_result_dismissed() -> void:
 		"symbols": _last_symbols,
 		"match_data": _last_match_data,
 		"synergies": _last_match_data.get("synergies", []),
+		"ticket_type": _selected_ticket_type,
+		"was_on_loss_streak": _last_match_data.get("was_on_loss_streak", false),
 	}
 	var new_achievements: Array = AchievementRef.check_achievements(context)
 	for ach_id in new_achievements:
 		_unlock_achievement(ach_id)
 
+	# Gunluk gorev ilerlemesi
+	var quest_ctx := {
+		"tickets": 1,
+		"matches": 1 if _last_match_data.get("has_match", false) else 0,
+		"jackpots": 1 if _last_match_data.get("tier", "") == "jackpot" else 0,
+		"coins_earned": _last_match_data.get("reward", 0),
+		"synergies": _last_match_data.get("synergies", []).size(),
+		"streak": GameState._current_match_streak,
+		"collection_drops": 1 if not _last_match_data.get("collection_drop", {}).is_empty() else 0,
+		"ticket_type": _selected_ticket_type,
+	}
+	DailyQuestRef.update_progress(quest_ctx)
+
 	# Olay kontrolu
 	var event_id: String = EventRef.roll_event(tickets_scratched, GameState._tickets_since_golden)
+	# Sans Carki charm: her 5. bilette ekstra olay sansi
+	if event_id == "" and tickets_scratched > 0 and tickets_scratched % 5 == 0:
+		var sans_carki_level: int = GameState.get_charm_level("sans_carki")
+		if sans_carki_level > 0 and randf() < sans_carki_level * 0.10:
+			event_id = EventRef.roll_event(tickets_scratched + 100, GameState._tickets_since_golden + 10)
+			if event_id != "":
+				print("[Main] Sans Carki! Bonus olay!")
 	if event_id != "":
 		_trigger_event(event_id)
 
@@ -376,12 +479,20 @@ func _remove_current_ticket() -> void:
 	ticket_placeholder.visible = true
 	_update_ticket_buttons()
 
-	# Coin yetersizse turu otomatik bitir
+	# Coin yetersizse: Son Hamle charm kontrolu
 	var cheapest_price: int = TicketData.get_cheapest_unlocked_price()
 	if GameState.coins < cheapest_price and GameState.in_round:
-		print("[Main] Coin bitti, tur otomatik bitiyor!")
-		GameState.end_round()
-		return
+		var son_hamle_level: int = GameState.get_charm_level("son_hamle")
+		if son_hamle_level > 0 and GameState._son_hamle_used < son_hamle_level and GameState.coins < 20:
+			GameState._son_hamle_used += 1
+			GameState._free_ticket_active = true
+			_selected_ticket_type = "paper"
+			print("[Main] Son Hamle! Bedava Paper bilet (%d/%d)" % [GameState._son_hamle_used, son_hamle_level])
+			_show_event_banner("Son Hamle!", "Bedava Paper bilet!")
+		else:
+			print("[Main] Coin bitti, tur otomatik bitiyor!")
+			GameState.end_round()
+			return
 
 	# Otomatik bilet: son secilen tur icin coin yetiyorsa otomatik al
 	if _selected_ticket_type != "" and GameState.in_round:
@@ -409,9 +520,9 @@ func _update_ticket_buttons() -> void:
 			btn.text = "%s\nKilitli" % config["name"]
 			btn.disabled = true
 		elif can_swap:
-			# Kazimadan degistirme: tum acik biletler secilir (ucret alinmayacak)
+			# Kazimadan degistirme: coin yeten biletlere gecis yapilabilir
 			btn.text = "%s\n%d C" % [config["name"], config["price"]]
-			btn.disabled = (t_type == _selected_ticket_type)  # Zaten secili olani devre disi birak
+			btn.disabled = (t_type == _selected_ticket_type) or (GameState.coins < config["price"])
 		else:
 			btn.text = "%s\n%d C" % [config["name"], config["price"]]
 			btn.disabled = (current_ticket != null and current_ticket.has_started_scratching) or (GameState.coins < config["price"])
@@ -479,6 +590,15 @@ func _apply_charm_bonuses(base_reward: int, match_data: Dictionary) -> int:
 	# Altinparmak: +15% tum oduller per level
 	bonus_mult += GameState.get_charm_level("altinparmak") * 0.15
 
+	# Cifte Sans: 4+ eslesmede ekstra +8% per level
+	if match_data["best_count"] >= 4:
+		bonus_mult += GameState.get_charm_level("cifte_sans") * 0.08
+
+	# Combo Ustasi: ardisik eslesme bonusu +5% per level x streak
+	var combo_level: int = GameState.get_charm_level("combo_ustasi")
+	if combo_level > 0 and GameState._current_match_streak > 1:
+		bonus_mult += combo_level * 0.05 * (GameState._current_match_streak - 1)
+
 	# Koleksiyon bonuslari
 	bonus_mult += CollectionRef.get_match_reward_bonus()
 	bonus_mult += CollectionRef.get_all_rewards_bonus()
@@ -492,6 +612,11 @@ func _apply_charm_bonuses(base_reward: int, match_data: Dictionary) -> int:
 		var kral_level := GameState.get_charm_level("kral_dokunusu")
 		if kral_level > 0:
 			bonus_mult *= (1 + kral_level)
+
+	# Antik Hazine koleksiyon: minimum carpan +1
+	var min_mult_bonus: int = CollectionRef.get_min_multiplier_bonus()
+	if min_mult_bonus > 0 and match_data["multiplier"] > 0:
+		base_reward += match_data.get("multiplier", 1) * min_mult_bonus
 
 	var reward := int(base_reward * bonus_mult)
 

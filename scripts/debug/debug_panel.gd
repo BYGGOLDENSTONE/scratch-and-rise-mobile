@@ -158,12 +158,10 @@ func _on_add_coin(amount: int) -> void:
 
 
 func _on_unlock_all_tickets() -> void:
-	GameState.total_coins_earned = maxi(GameState.total_coins_earned, 500)
-	for key_charm in ["gumus_anahtar", "altin_anahtar", "platin_anahtar"]:
-		if GameState.get_charm_level(key_charm) < 1:
-			GameState.charms[key_charm] = 1
+	# Tum biletler artik bastan acik — bu buton +1000 coin verir
+	GameState.add_coins(1000)
 	SaveManager.save_game()
-	print("[Debug] Tum biletler acildi!")
+	print("[Debug] +1000 coin (tum biletler zaten acik)")
 	_update_info()
 
 

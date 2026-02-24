@@ -51,10 +51,21 @@ var stats: Dictionary = {
 	"total_jackpots": 0,
 	"total_synergies_found": 0,
 	"best_streak": 0,
+	"ticket_types_played": [],
+	"total_special_symbols": 0,
+	"loss_streak": 0,
 }
 
 # --- Başarımlar (Kalıcı) ---
 var unlocked_achievements: Array = []  # ["ilk_kazima", "ilk_eslesme", ...]
+
+# --- Günlük Görevler ---
+var daily_quests: Array = []  # [{"id", "progress", "target", "completed"}]
+var daily_quest_date: String = ""  # "YYYY-MM-DD" formatinda
+var daily_bonus_claimed: bool = false
+
+# --- Son Hamle state ---
+var _son_hamle_used: int = 0  # Bu turda kac kez kullanildi
 
 # --- Tur İçi Olay & İstatistik ---
 var round_stats: Dictionary = {}
@@ -106,9 +117,19 @@ func _process(delta: float) -> void:
 		_energy_regen_accumulator = 0.0
 		return
 	_energy_regen_accumulator += delta
-	while _energy_regen_accumulator >= ENERGY_REGEN_SECONDS and energy < max_e:
-		_energy_regen_accumulator -= ENERGY_REGEN_SECONDS
+	var regen_time := get_energy_regen_time()
+	while _energy_regen_accumulator >= regen_time and energy < max_e:
+		_energy_regen_accumulator -= regen_time
 		energy += 1
+
+
+## Enerji yenilenme suresi (Dayaniklilik charm + Uzay Kasifi koleksiyon bonusu)
+func get_energy_regen_time() -> float:
+	var base := ENERGY_REGEN_SECONDS
+	var dayaniklilik_level: int = get_charm_level("dayaniklilik")
+	var speed_bonus: float = dayaniklilik_level * 0.15
+	speed_bonus += CollectionRef.get_energy_regen_bonus()
+	return base / (1.0 + speed_bonus)
 
 
 ## Max enerji (baz + enerji_deposu charm bonusu)
@@ -142,6 +163,7 @@ func start_round() -> bool:
 	_mega_ticket_active = false
 	_free_ticket_active = false
 	_current_match_streak = 0
+	_son_hamle_used = 0
 	round_started.emit()
 	print("[GameState] Tur başladı — Başlangıç coin: ", coins)
 	return true

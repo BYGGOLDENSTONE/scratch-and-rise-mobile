@@ -26,6 +26,9 @@ func save_game() -> void:
 		"stats": GameState.stats,
 		"unlocked_achievements": GameState.unlocked_achievements,
 		"user_theme": GameState.user_theme,
+		"daily_quests": GameState.daily_quests,
+		"daily_quest_date": GameState.daily_quest_date,
+		"daily_bonus_claimed": GameState.daily_bonus_claimed,
 		"timestamp": Time.get_unix_time_from_system(),
 	}
 	# Mevcut save'i backup'a kopyala
@@ -79,20 +82,29 @@ func load_game() -> bool:
 		"total_jackpots": int(saved_stats.get("total_jackpots", 0)),
 		"total_synergies_found": int(saved_stats.get("total_synergies_found", 0)),
 		"best_streak": int(saved_stats.get("best_streak", 0)),
+		"ticket_types_played": saved_stats.get("ticket_types_played", []),
+		"total_special_symbols": int(saved_stats.get("total_special_symbols", 0)),
+		"loss_streak": int(saved_stats.get("loss_streak", 0)),
 	}
 	GameState.unlocked_achievements = data.get("unlocked_achievements", [])
+
+	# Gunluk gorevler
+	GameState.daily_quests = data.get("daily_quests", [])
+	GameState.daily_quest_date = data.get("daily_quest_date", "")
+	GameState.daily_bonus_claimed = data.get("daily_bonus_claimed", false)
 
 	# Tema tercihi
 	GameState.user_theme = int(data.get("user_theme", 0))
 	GameState._apply_saved_theme()
 
-	# Enerji yenilenme hesabı
+	# Enerji yenilenme hesabı (dayanıklılık charm etkisi dahil)
 	var saved_energy: int = int(data.get("energy", GameState.BASE_MAX_ENERGY))
 	var saved_time: float = data.get("timestamp", 0.0)
 	var max_e: int = GameState.get_max_energy()
 	if saved_time > 0.0 and saved_energy < max_e:
 		var elapsed := Time.get_unix_time_from_system() - saved_time
-		var regen_count := int(elapsed / GameState.ENERGY_REGEN_SECONDS)
+		var regen_time: float = GameState.get_energy_regen_time()
+		var regen_count := int(elapsed / regen_time)
 		saved_energy = mini(saved_energy + regen_count, max_e)
 	GameState.energy = saved_energy
 

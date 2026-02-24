@@ -81,9 +81,65 @@ const COLLECTION_SETS := {
 		"bonus_value": 0.25,
 		"bonus_text": "Altin bilet sansi +%25",
 	},
+	# --- Yeni Setler ---
+	"ejderha_hazinesi": {
+		"name": "Ejderha Hazinesi",
+		"pieces": ["dragon_scale", "dragon_eye", "dragon_claw", "dragon_heart"],
+		"piece_names": {
+			"dragon_scale": "Pul",
+			"dragon_eye": "Goz",
+			"dragon_claw": "Pence",
+			"dragon_heart": "Kalp",
+		},
+		"bonus_type": "ticket_discount",
+		"bonus_value": 0.10,
+		"bonus_text": "Platinum bilet %10 indirim",
+	},
+	"sans_tanricasi": {
+		"name": "Sans Tanricasi",
+		"pieces": ["clover_col", "horseshoe_col", "rainbow_col", "wishbone_col"],
+		"piece_names": {
+			"clover_col": "Yonca",
+			"horseshoe_col": "Nal",
+			"rainbow_col": "Gokkusagi",
+			"wishbone_col": "Dilek",
+		},
+		"bonus_type": "joker_chance",
+		"bonus_value": 0.05,
+		"bonus_text": "Joker dusme sansi +%5",
+	},
+	"uzay_kasifi": {
+		"name": "Uzay Kasifi",
+		"pieces": ["rocket_uzay", "asteroid_col", "planet_col", "blackhole_col"],
+		"piece_names": {
+			"rocket_uzay": "Roket",
+			"asteroid_col": "Asteroit",
+			"planet_col": "Gezegen",
+			"blackhole_col": "Karadelik",
+		},
+		"bonus_type": "energy_regen",
+		"bonus_value": 0.10,
+		"bonus_text": "Enerji yenilenme +%10",
+	},
+	"antik_hazine": {
+		"name": "Antik Hazine",
+		"pieces": ["pharaoh_col", "sphinx_col", "pyramid_col", "scarab_col"],
+		"piece_names": {
+			"pharaoh_col": "Firavun",
+			"sphinx_col": "Sfenks",
+			"pyramid_col": "Piramit",
+			"scarab_col": "Bok Bocegi",
+		},
+		"bonus_type": "min_multiplier",
+		"bonus_value": 1,
+		"bonus_text": "Tum carpanlar +1 minimum",
+	},
 }
 
-const SET_ORDER := ["meyve", "degerli_taslar", "sansli_7ler", "kripto", "kozmik", "meme_lords"]
+const SET_ORDER := [
+	"meyve", "degerli_taslar", "sansli_7ler", "kripto", "kozmik", "meme_lords",
+	"ejderha_hazinesi", "sans_tanricasi", "uzay_kasifi", "antik_hazine",
+]
 
 ## Bilet turune gore dusme sanslari
 const DROP_CHANCES := {
@@ -96,9 +152,14 @@ const DROP_CHANCES := {
 
 
 ## Bilet tamamlaninca koleksiyon parcasi dusme kontrolu.
+## Hazine Avcisi charm etkisi dahil.
 ## Doner: { "set_id": String, "piece_id": String } veya bos Dictionary
 static func roll_collection_drop(ticket_type: String) -> Dictionary:
 	var chance: float = DROP_CHANCES.get(ticket_type, 0.03)
+	# Hazine Avcisi charm: +%20 per level (carpan olarak)
+	var hazine_level: int = GameState.get_charm_level("hazine_avcisi")
+	if hazine_level > 0:
+		chance *= (1.0 + hazine_level * 0.20)
 	if randf() > chance:
 		return {}
 
@@ -177,6 +238,50 @@ static func get_piece_name(set_id: String, piece_id: String) -> String:
 	if set_data.is_empty():
 		return piece_id
 	return set_data["piece_names"].get(piece_id, piece_id)
+
+
+## Bilet indirim bonusu (ticket_discount seti)
+static func get_ticket_discount_bonus() -> float:
+	var bonus := 0.0
+	for set_id in SET_ORDER:
+		if is_set_complete(set_id):
+			var set_data: Dictionary = COLLECTION_SETS[set_id]
+			if set_data["bonus_type"] == "ticket_discount":
+				bonus += set_data["bonus_value"]
+	return bonus
+
+
+## Joker dusme sansi bonusu
+static func get_joker_chance_bonus() -> float:
+	var bonus := 0.0
+	for set_id in SET_ORDER:
+		if is_set_complete(set_id):
+			var set_data: Dictionary = COLLECTION_SETS[set_id]
+			if set_data["bonus_type"] == "joker_chance":
+				bonus += set_data["bonus_value"]
+	return bonus
+
+
+## Enerji yenilenme bonusu
+static func get_energy_regen_bonus() -> float:
+	var bonus := 0.0
+	for set_id in SET_ORDER:
+		if is_set_complete(set_id):
+			var set_data: Dictionary = COLLECTION_SETS[set_id]
+			if set_data["bonus_type"] == "energy_regen":
+				bonus += set_data["bonus_value"]
+	return bonus
+
+
+## Minimum carpan bonusu
+static func get_min_multiplier_bonus() -> int:
+	var bonus := 0
+	for set_id in SET_ORDER:
+		if is_set_complete(set_id):
+			var set_data: Dictionary = COLLECTION_SETS[set_id]
+			if set_data["bonus_type"] == "min_multiplier":
+				bonus += int(set_data["bonus_value"])
+	return bonus
 
 
 ## Set bilgisini getir
