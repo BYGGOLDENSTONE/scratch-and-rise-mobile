@@ -197,9 +197,9 @@ func spend_coins(amount: int) -> bool:
 	return false
 
 
-## Başlangıç coin: 50 + charm bonusları + koleksiyon bonusu
+## Başlangıç coin: 20 + charm bonusları + koleksiyon bonusu
 func get_starting_coins() -> int:
-	var base := 50
+	var base := 20
 	var bonus: int = get_charm_level("zengin_baslangic") * 10
 	var mega_bonus: int = get_charm_level("mega_baslangic") * 50
 	var col_bonus: int = CollectionRef.get_starting_coins_bonus()

@@ -30,6 +30,11 @@ const DARK_PALETTE := {
 	"tier_bg_silver": Color(0.14, 0.16, 0.19),
 	"tier_bg_gold": Color(0.18, 0.16, 0.08),
 	"tier_bg_platinum": Color(0.16, 0.12, 0.22),
+	"tier_bg_diamond_tier": Color(0.08, 0.16, 0.20),
+	"tier_bg_emerald_tier": Color(0.08, 0.18, 0.10),
+	"tier_bg_ruby_tier": Color(0.20, 0.08, 0.10),
+	"tier_bg_obsidian": Color(0.10, 0.08, 0.14),
+	"tier_bg_legendary": Color(0.20, 0.15, 0.06),
 }
 
 # --- LIGHT PALET ---
@@ -55,6 +60,11 @@ const LIGHT_PALETTE := {
 	"tier_bg_silver": Color(0.90, 0.91, 0.94),
 	"tier_bg_gold": Color(0.96, 0.93, 0.82),
 	"tier_bg_platinum": Color(0.92, 0.88, 0.96),
+	"tier_bg_diamond_tier": Color(0.85, 0.94, 0.97),
+	"tier_bg_emerald_tier": Color(0.85, 0.96, 0.88),
+	"tier_bg_ruby_tier": Color(0.97, 0.85, 0.87),
+	"tier_bg_obsidian": Color(0.88, 0.86, 0.92),
+	"tier_bg_legendary": Color(0.97, 0.93, 0.82),
 }
 
 # Bilet tier aksanlari (tema-bagimsiz)
@@ -64,6 +74,11 @@ const TIER_COLORS := {
 	"silver": Color(0.75, 0.80, 0.85),    # Daha mavi-buzlu gümüş
 	"gold": Color(1.0, 0.82, 0.10),       # Daha canlı, klasik casino altını
 	"platinum": Color(0.70, 0.40, 1.0),   # Yoğun, doymuş platin moru
+	"diamond_tier": Color(0.40, 0.85, 0.95),  # Parlak turkuaz elmas
+	"emerald_tier": Color(0.15, 0.80, 0.35),  # Canli zumrut yesili
+	"ruby_tier": Color(0.90, 0.15, 0.20),     # Derin yakut kirmizisi
+	"obsidian": Color(0.35, 0.30, 0.40),      # Koyu obsidyen moru
+	"legendary": Color(1.0, 0.65, 0.0),       # Efsanevi altin-turuncu
 }
 
 

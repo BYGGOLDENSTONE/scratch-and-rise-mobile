@@ -219,6 +219,47 @@ func play_slam_pop(intensity: float = 1.0) -> void:
 	tw.tween_callback(func(): symbol_label.add_theme_color_override("font_color", color))
 
 
+## Ozel sembol slam: joker/bomba icin farkli glow + pulse border
+func play_special_slam_pop(intensity: float = 1.0) -> void:
+	if not is_scratched:
+		return
+
+	symbol_panel.pivot_offset = symbol_panel.size / 2.0
+	var color: Color = TicketData.get_color(symbol_type)
+
+	# Parlak kesikli border (ozel sembol oldugunu belli et)
+	var style: StyleBoxFlat = symbol_panel.get_theme_stylebox("panel").duplicate() as StyleBoxFlat
+	if style:
+		style.border_color = Color(color.r, color.g, color.b, 0.95)
+		style.set_border_width_all(3)
+		style.shadow_color = Color(color.r, color.g, color.b, 0.6)
+		style.shadow_size = int(8 + intensity * 4)
+		symbol_panel.add_theme_stylebox_override("panel", style)
+
+	symbol_label.add_theme_color_override("font_color", Color.WHITE)
+
+	# Radial glow — ozel sembolun kendi rengiyle
+	if _glow_rect and _glow_shader_mat:
+		_glow_rect.visible = true
+		_glow_rect.modulate.a = 0.85
+		var glow_alpha := 0.70 if ThemeHelper.is_dark() else 0.55
+		_glow_shader_mat.set_shader_parameter("glow_color", Color(color.r, color.g, color.b, glow_alpha))
+		_glow_rect.scale = Vector2(0.3, 0.3)
+		_glow_rect.pivot_offset = _glow_rect.size / 2.0
+		var glow_tw := create_tween()
+		var glow_target := 1.3 + intensity * 0.25
+		glow_tw.tween_property(_glow_rect, "scale", Vector2(glow_target, glow_target), 0.2).set_ease(Tween.EASE_OUT)
+		glow_tw.tween_property(_glow_rect, "modulate:a", 0.0, 0.6).set_delay(0.15)
+
+	# Farkli animasyon: hizli double-bounce (ozel hissettir)
+	var slam_scale := 1.4 + (intensity - 1.0) * 0.12
+	var tw := create_tween()
+	tw.tween_property(symbol_panel, "scale", Vector2(slam_scale, slam_scale), 0.05).set_ease(Tween.EASE_OUT)
+	tw.tween_property(symbol_panel, "scale", Vector2(0.9, 0.9), 0.06)
+	tw.tween_property(symbol_panel, "scale", Vector2(1.15, 1.15), 0.08).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
+	tw.tween_callback(func(): symbol_label.add_theme_color_override("font_color", color))
+
+
 ## Eslesmeyenleri soluktur (%30 alpha)
 func dim() -> void:
 	if not is_scratched:

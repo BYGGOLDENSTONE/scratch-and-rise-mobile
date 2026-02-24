@@ -148,6 +148,11 @@ const DROP_CHANCES := {
 	"silver": 0.08,
 	"gold": 0.12,
 	"platinum": 0.18,
+	"diamond_tier": 0.22,
+	"emerald_tier": 0.26,
+	"ruby_tier": 0.30,
+	"obsidian": 0.35,
+	"legendary": 0.40,
 }
 
 

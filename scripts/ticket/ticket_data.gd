@@ -22,6 +22,16 @@ const SYMBOL_NAMES := {
 	"phoenix": "Anka",
 	"dragon": "Ejderha",
 	"dice": "Zar",
+	"ruby_gem": "Yakut",
+	"sapphire": "Safir",
+	"emerald_gem": "Zumrut",
+	"pearl": "Inci",
+	"fire": "Ates",
+	"skull": "Kurukafa",
+	"unicorn": "Tekboynuz",
+	"lightning": "Yildirim",
+	"anchor": "Capa",
+	"crystal": "Kristal",
 	# Ozel semboller
 	"joker": "Joker",
 	"x2_multiplier": "x2",
@@ -44,6 +54,16 @@ const SYMBOL_COLORS := {
 	"phoenix": Color(1.0, 0.45, 0.1),
 	"dragon": Color(0.2, 0.8, 0.3),
 	"dice": Color(0.85, 0.85, 0.9),
+	"ruby_gem": Color(0.85, 0.1, 0.15),
+	"sapphire": Color(0.15, 0.25, 0.85),
+	"emerald_gem": Color(0.1, 0.7, 0.2),
+	"pearl": Color(0.95, 0.93, 0.88),
+	"fire": Color(1.0, 0.35, 0.05),
+	"skull": Color(0.6, 0.6, 0.65),
+	"unicorn": Color(0.85, 0.45, 0.85),
+	"lightning": Color(1.0, 0.95, 0.2),
+	"anchor": Color(0.2, 0.3, 0.6),
+	"crystal": Color(0.5, 0.9, 0.95),
 	# Ozel semboller
 	"joker": Color(0.9, 0.2, 0.9),
 	"x2_multiplier": Color(0.1, 0.95, 0.5),
@@ -94,10 +114,50 @@ const TICKET_CONFIGS := {
 		"columns": 4,
 		"symbol_pool": ["cherry", "lemon", "grape", "star", "moon", "clover", "bell", "diamond", "heart", "seven", "crown", "horseshoe", "phoenix", "dragon", "dice"],
 	},
+	"diamond_tier": {
+		"name": "Elmas",
+		"price": 7500,
+		"base_reward": 450,     # x1 = kayip 7050 (%94), ROI ~x0.15
+		"area_count": 12,
+		"columns": 4,
+		"symbol_pool": ["cherry", "lemon", "grape", "star", "moon", "clover", "bell", "diamond", "heart", "seven", "crown", "horseshoe", "phoenix", "dragon", "dice", "ruby_gem", "sapphire"],
+	},
+	"emerald_tier": {
+		"name": "Zumrut",
+		"price": 20000,
+		"base_reward": 1000,    # x1 = kayip 19000 (%95), ROI ~x0.12
+		"area_count": 14,
+		"columns": 7,
+		"symbol_pool": ["cherry", "lemon", "grape", "star", "moon", "clover", "bell", "diamond", "heart", "seven", "crown", "horseshoe", "phoenix", "dragon", "dice", "ruby_gem", "sapphire", "emerald_gem", "pearl"],
+	},
+	"ruby_tier": {
+		"name": "Yakut",
+		"price": 50000,
+		"base_reward": 2000,    # x1 = kayip 48000 (%96), ROI ~x0.10
+		"area_count": 15,
+		"columns": 5,
+		"symbol_pool": ["cherry", "lemon", "grape", "star", "moon", "clover", "bell", "diamond", "heart", "seven", "crown", "horseshoe", "phoenix", "dragon", "dice", "ruby_gem", "sapphire", "emerald_gem", "pearl", "fire", "skull"],
+	},
+	"obsidian": {
+		"name": "Obsidyen",
+		"price": 125000,
+		"base_reward": 4000,    # x1 = kayip 121000 (%97), ROI ~x0.08
+		"area_count": 16,
+		"columns": 4,
+		"symbol_pool": ["cherry", "lemon", "grape", "star", "moon", "clover", "bell", "diamond", "heart", "seven", "crown", "horseshoe", "phoenix", "dragon", "dice", "ruby_gem", "sapphire", "emerald_gem", "pearl", "fire", "skull", "unicorn", "lightning"],
+	},
+	"legendary": {
+		"name": "Efsane",
+		"price": 300000,
+		"base_reward": 7500,    # x1 = kayip 292500 (%98), ROI ~x0.06
+		"area_count": 18,
+		"columns": 6,
+		"symbol_pool": ["cherry", "lemon", "grape", "star", "moon", "clover", "bell", "diamond", "heart", "seven", "crown", "horseshoe", "phoenix", "dragon", "dice", "ruby_gem", "sapphire", "emerald_gem", "pearl", "fire", "skull", "unicorn", "lightning", "anchor", "crystal"],
+	},
 }
 
 ## Bilet siralamasi (UI'da gosterim icin)
-const TICKET_ORDER := ["paper", "bronze", "silver", "gold", "platinum"]
+const TICKET_ORDER := ["paper", "bronze", "silver", "gold", "platinum", "diamond_tier", "emerald_tier", "ruby_tier", "obsidian", "legendary"]
 
 ## Tum biletler bastan acik — oyuncu parasina gore risk alir
 static func is_ticket_unlocked(_ticket_type: String) -> bool:
@@ -116,6 +176,11 @@ const SPECIAL_SYMBOL_CHANCES := {
 	"silver": {"joker": 0.05},
 	"gold": {"joker": 0.06, "x2_multiplier": 0.04},
 	"platinum": {"joker": 0.07, "x2_multiplier": 0.05, "bomb": 0.04},
+	"diamond_tier": {"joker": 0.08, "x2_multiplier": 0.06, "bomb": 0.05},
+	"emerald_tier": {"joker": 0.09, "x2_multiplier": 0.07, "bomb": 0.06},
+	"ruby_tier": {"joker": 0.10, "x2_multiplier": 0.08, "bomb": 0.07},
+	"obsidian": {"joker": 0.11, "x2_multiplier": 0.09, "bomb": 0.08},
+	"legendary": {"joker": 0.12, "x2_multiplier": 0.10, "bomb": 0.09},
 }
 
 

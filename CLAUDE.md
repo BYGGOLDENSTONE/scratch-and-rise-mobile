@@ -223,21 +223,37 @@ scratch-mobil/
 - **Mega Bilet:** Bilet bazli jackpot araligini kullaniyor
 
 ## Balans Durumu (2026-02-24, matematik analizi sonrasi)
-- **ROI egrisi:** Paper x1.15, Bronze x0.95, Silver x0.65, Gold x0.35, Platinum x0.20
-- **Hedef akis:** Paper buildup → Bronze eglence → Silver drain baslangici → Gold/Platinum hizli drain → tur biter → tekrar oyna
-- **base_reward degerleri:** Paper=5, Bronze=12, Silver=45, Gold=105, Platinum=200
+- **ROI egrisi:** Paper x1.15, Bronze x0.95, Silver x0.65, Gold x0.35, Platinum x0.20, Diamond x0.15, Emerald x0.12, Ruby x0.10, Obsidian x0.08, Legendary x0.06
+- **Hedef akis:** Paper buildup → Bronze eglence → Silver drain baslangici → Gold/Platinum hizli drain → Diamond+ ultra-risk → tur biter → tekrar oyna
+- **base_reward degerleri:** Paper=5, Bronze=12, Silver=45, Gold=105, Platinum=200, Diamond=450, Emerald=1K, Ruby=2K, Obsidian=4K, Legendary=7.5K
+- **Fiyatlar:** Paper=5, Bronze=25, Silver=100, Gold=500, Platinum=2.5K, Diamond=7.5K, Emerald=20K, Ruby=50K, Obsidian=125K, Legendary=300K
 - **Paper normal carpan:** [1,3] (buildup icin hafif pozitif)
+- **Baslangic parasi:** 20 coin (Paper ile buildup zorunlu)
 
 ## SONRAKI SESSION GOREVLERI
-1. **Baslangic parasi 20 coin:** Oyuncu direkt 25'lik Bronze alamamali, once Paper ile buildup yapmali
-2. **5 yeni bilet turu (Platinum sonrasi):** Scale-up fiyatlarla ek tierler — isimler, fiyatlar, alan/sembol/base_reward tasarlanacak
-3. **Altin bilet duzeltmesi:** Su an sonraki bileti bedava yapiyor ama oyuncu o anki bileti bedava bekliyor — kafa karistirici. Altin bilet yakalandiginda mevcut biletin ucreti iade edilmeli veya popup metni netlesmeli
-4. **Bilet gecis hizi:** Kutlama bittikten sonra 0.75s bekleme var (`main.gd:503`), eski bilet kalktigi an yeni bilet gelmeli (delay=0). Hizli oynamayi destekle
-5. **Cikis butonu:** Main sahnesindeki "Geri" butonu "Cikis" olarak duzeltildi (bu sessionda yapildi)
+(Tum gorevler tamamlandi)
 
 ---
 
 ## Tamamlanan Gorevler
+
+### Session Gorevleri Duzeltme (2026-02-24)
+- **Baslangic parasi 20 coin:** `game_state.gd` base 50→20 (Paper ile buildup zorunlu)
+- **5 yeni bilet turu:** Diamond(7.5K), Emerald(20K), Ruby(50K), Obsidian(125K), Legendary(300K)
+  - 10 yeni sembol: Yakut, Safir, Zumrut, Inci, Ates, Kurukafa, Tekboynuz, Yildirim, Capa, Kristal
+  - Her tier: artan alan sayisi (12→18), artan sembol havuzu (17→25), artan ozel sembol sanslari
+  - Carpan aralikları: Diamond jackpot x40-100, Legendary jackpot x100-300
+  - Koleksiyon dusme sanslari: Diamond %22, Legendary %40
+  - Tema renkleri: tier_bg + tier_color 5 yeni tier icin (dark+light)
+  - Bilet butonlari: ScrollContainer ile yatay kaydirma (10 buton)
+  - Fiyat gosterimi: format_number ile (7.5K, 20K, vb.)
+- **Altin bilet duzeltmesi:** Yakalandiginda mevcut bilet ucreti iade ediliyor (onceden sonraki bilet bedavaydi)
+- **Bilet gecis hizi:** 0.75s bekleme kaldirildi, aninda yeni bilet geliyor
+- **Ozel sembol kutlama gorseli:** Joker/Bomba eslesmeye katildiginda farkli gosteriliyor
+  - Joker: mor "JOKER!" popup, mor glow, double-bounce animasyonu, 3px kalin border
+  - Bomba: turuncu "BOMBA +1!" popup, turuncu glow, ayni ozel animasyon
+  - Siralama: once normal semboller patlar, sonra ozel semboller sonda parlak giris yapar
+  - Yeni fonksiyonlar: `scratch_area.gd` → `play_special_slam_pop()`, `ticket.gd` → `_show_special_pop()`
 
 ### Eslesme Gorselligi Iyilestirme (2026-02-24) `b446c48`
 - MatchResult popup kaldirildi (`match_result.gd`, `MatchResult.tscn` silindi)

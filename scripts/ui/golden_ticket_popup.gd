@@ -75,7 +75,7 @@ func _on_catch() -> void:
 	_active = false
 	golden_ticket_caught.emit()
 	title_label.text = "YAKALADIN!"
-	timer_label.text = "Sonraki bilet ucretsiz!"
+	timer_label.text = "Bu bilet bedava!"
 	catch_btn.visible = false
 	var tw := create_tween()
 	tw.tween_interval(1.5)

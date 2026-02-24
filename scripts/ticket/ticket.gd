@@ -203,38 +203,54 @@ func _play_match_celebration(match_data: Dictionary) -> void:
 	_celebration_overlay.z_index = 10
 	add_child(_celebration_overlay)
 
-	# Eslesmeyenleri hemen soluktur
-	for area in _scratch_areas:
-		if area.symbol_type != best_symbol:
-			area.dim()
-
-	# Eslesen alanlari topla
+	# Eslesen alanlari topla (joker + bomba dahil)
 	var matched_areas := []
 	for area in _scratch_areas:
-		if area.symbol_type == best_symbol:
+		if area.symbol_type == best_symbol or area.symbol_type == "joker" or (area.symbol_type == "bomb" and match_data.get("has_bomb", false)):
 			matched_areas.append(area)
 
+	# Eslesmeyenleri hemen soluktur
+	for area in _scratch_areas:
+		if area not in matched_areas:
+			area.dim()
+
 	# === FAZ 1: BAM BAM BAM! Tek tek patlat ===
+	# Once normal semboller, sonra ozel semboller (joker/bomba sonda parlak giris)
+	var normal_areas := []
+	var special_areas := []
+	for area in matched_areas:
+		if area.symbol_type == "joker" or area.symbol_type == "bomb":
+			special_areas.append(area)
+		else:
+			normal_areas.append(area)
+	var ordered_areas: Array = normal_areas + special_areas
+
 	var punch_dirs := [Vector2.LEFT, Vector2.RIGHT, Vector2.UP, Vector2.DOWN]
 	var combo := 0
-	for area in matched_areas:
+	for area in ordered_areas:
 		combo += 1
-		var intensity := 0.7 + combo * 0.3  # 1.0 → 1.3 → 1.6 → 1.9...
+		var intensity := 0.7 + combo * 0.3
 
-		# Sembol SLAM! (z_index arttir ki sonraki hep ustte olsun)
 		area.z_index = combo
-		area.play_slam_pop(intensity)
+		var is_special := area.symbol_type == "joker" or area.symbol_type == "bomb"
+		if is_special:
+			area.play_special_slam_pop(intensity)
+		else:
+			area.play_slam_pop(intensity)
 
-		# Soft escalating punch + vibration
 		ScreenEffects.vibrate_heavy()
 		var punch_dir: Vector2 = punch_dirs[(combo - 1) % punch_dirs.size()]
 		ScreenEffects.screen_punch(punch_dir, 2.0 + combo * 1.5, 0.12)
 
-		# Combo popup: "x1" "x1" "x1!!" (carpan gosterimi)
-		_show_combo_pop(combo, matched_areas.size(), area, match_data["multiplier"])
+		# Popup: normal semboller "x1", joker → "JOKER!", bomba → "BOMBA +1!"
+		if area.symbol_type == "joker":
+			_show_special_pop(area, "JOKER!", TicketData.get_color("joker"))
+		elif area.symbol_type == "bomb":
+			_show_special_pop(area, "BOMBA +1!", TicketData.get_color("bomb"))
+		else:
+			_show_combo_pop(combo, ordered_areas.size(), area, match_data["multiplier"])
 
-		# Sonraki pop icin bekle (son pop icin bekleme)
-		if combo < matched_areas.size():
+		if combo < ordered_areas.size():
 			await get_tree().create_timer(0.22).timeout
 			if not is_inside_tree():
 				return
@@ -251,6 +267,30 @@ func _play_match_celebration(match_data: Dictionary) -> void:
 	if not is_inside_tree():
 		return
 	_show_reward_on_ticket(match_data)
+
+
+## Ozel sembol popup: "JOKER!" veya "BOMBA +1!" sembolun ustunde renkli gosterim
+func _show_special_pop(area: Control, text: String, color: Color) -> void:
+	var pop := Label.new()
+	pop.text = text
+	pop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	pop.add_theme_font_size_override("font_size", 20)
+	pop.add_theme_color_override("font_color", color)
+	pop.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.7))
+	pop.add_theme_constant_override("shadow_offset_x", 2)
+	pop.add_theme_constant_override("shadow_offset_y", 2)
+
+	var center: Vector2 = area.global_position - global_position + area.size / 2.0
+	pop.position = center - Vector2(25, 35)
+	_celebration_overlay.add_child(pop)
+
+	pop.scale = Vector2(0.2, 0.2)
+	pop.pivot_offset = Vector2(25, 15)
+	var tw := create_tween().set_parallel(true)
+	tw.tween_property(pop, "scale", Vector2(1.5, 1.5), 0.12).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	tw.tween_property(pop, "position:y", pop.position.y - 35, 0.5).set_ease(Tween.EASE_OUT)
+	tw.tween_property(pop, "modulate:a", 0.0, 0.3).set_delay(0.3)
+	tw.chain().tween_callback(pop.queue_free)
 
 
 ## Carpan popup: sembolun ustunde "x1" "x1" "x1!!" seklinde (kumar tarzi)

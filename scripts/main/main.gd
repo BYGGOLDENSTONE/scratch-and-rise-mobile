@@ -99,13 +99,29 @@ func _build_ticket_buttons() -> void:
 		child.queue_free()
 	_ticket_buttons.clear()
 
+	# ScrollContainer'i bilet_secimi'nin parent'ina ekle (ilk seferde)
+	if not bilet_secimi.get_parent() is ScrollContainer:
+		var parent := bilet_secimi.get_parent()
+		var idx := bilet_secimi.get_index()
+		parent.remove_child(bilet_secimi)
+		var scroll := ScrollContainer.new()
+		scroll.layout_mode = 2
+		scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+		scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+		parent.add_child(scroll)
+		parent.move_child(scroll, idx)
+		scroll.add_child(bilet_secimi)
+		bilet_secimi.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+
 	# Her bilet turu icin buton olustur
 	for t_type in TicketData.TICKET_ORDER:
 		var config: Dictionary = TicketData.TICKET_CONFIGS[t_type]
 		var btn := Button.new()
-		btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		btn.custom_minimum_size.x = 120
+		btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 		btn.pressed.connect(_on_ticket_buy.bind(t_type))
-		ThemeHelper.make_button(btn, ThemeHelper.get_tier_color(t_type), 22)
+		ThemeHelper.make_button(btn, ThemeHelper.get_tier_color(t_type), 15)
 		bilet_secimi.add_child(btn)
 		_ticket_buttons[t_type] = btn
 
@@ -520,10 +536,9 @@ func _remove_current_ticket() -> void:
 		var price: int = config.get("price", 0)
 		if TicketData.is_ticket_unlocked(_selected_ticket_type) and GameState.coins >= price:
 			# Kisa gecikme ile otomatik bilet al (UX icin)
-			get_tree().create_timer(0.75).timeout.connect(func():
-				if current_ticket == null and GameState.in_round:
-					_on_ticket_buy(_selected_ticket_type)
-			)
+			# Aninda yeni bilet (bekleme yok)
+			if current_ticket == null and GameState.in_round:
+				_on_ticket_buy(_selected_ticket_type)
 
 
 func _update_ticket_buttons() -> void:
@@ -536,15 +551,16 @@ func _update_ticket_buttons() -> void:
 		var config: Dictionary = TicketData.TICKET_CONFIGS[t_type]
 		var unlocked: bool = TicketData.is_ticket_unlocked(t_type)
 
+		var price_text: String = GameState.format_number(config["price"])
 		if not unlocked:
 			btn.text = "%s\nKilitli" % config["name"]
 			btn.disabled = true
 		elif can_swap:
 			# Kazimadan degistirme: coin yeten biletlere gecis yapilabilir
-			btn.text = "%s\n%d C" % [config["name"], config["price"]]
+			btn.text = "%s\n%s C" % [config["name"], price_text]
 			btn.disabled = (t_type == _selected_ticket_type) or (GameState.coins < config["price"])
 		else:
-			btn.text = "%s\n%d C" % [config["name"], config["price"]]
+			btn.text = "%s\n%s C" % [config["name"], price_text]
 			btn.disabled = (current_ticket != null and current_ticket.has_started_scratching) or (GameState.coins < config["price"])
 
 
@@ -721,8 +737,16 @@ func _show_golden_ticket_popup() -> void:
 
 
 func _on_golden_caught() -> void:
-	GameState._free_ticket_active = true
-	print("[Main] Altin bilet yakalandi! Sonraki bilet ucretsiz!")
+	# Mevcut biletin ucretini iade et (oyuncu zaten odedi ise)
+	if _ticket_paid and _pending_ticket_price > 0:
+		GameState.coins += _pending_ticket_price
+		print("[Main] Altin bilet yakalandi! Mevcut bilet ucreti iade: %d coin" % _pending_ticket_price)
+		_show_coin_delta(_pending_ticket_price)
+		_pending_ticket_price = 0
+	else:
+		# Henuz odenmemisse sonraki bilet bedava
+		GameState._free_ticket_active = true
+		print("[Main] Altin bilet yakalandi! Sonraki bilet ucretsiz!")
 	_golden_ticket_popup = null
 	if current_ticket:
 		current_ticket.input_blocked = false
