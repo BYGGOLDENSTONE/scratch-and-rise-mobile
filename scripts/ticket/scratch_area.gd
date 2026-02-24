@@ -30,15 +30,15 @@ func setup(idx: int, symbol: String) -> void:
 	symbol_label.text = TicketData.get_display_name(symbol)
 	var color: Color = TicketData.get_color(symbol)
 
-	# Sembol panelini renklendir
+	# Sembol panelini renklendir — belirgin ve okunur
 	var style := StyleBoxFlat.new()
 	if ThemeHelper.is_dark():
-		style.bg_color = Color(color.r * 0.20, color.g * 0.20, color.b * 0.20, 0.9)
+		style.bg_color = Color(color.r * 0.18 + 0.05, color.g * 0.18 + 0.05, color.b * 0.18 + 0.05, 0.92)
 	else:
-		style.bg_color = Color(color.r * 0.08 + 0.90, color.g * 0.08 + 0.90, color.b * 0.08 + 0.90, 1.0)
-	style.border_color = Color(color.r, color.g, color.b, ThemeHelper.pf("border_alpha") + 0.15)
-	style.set_border_width_all(1)
-	style.set_corner_radius_all(6)
+		style.bg_color = Color(color.r * 0.10 + 0.87, color.g * 0.10 + 0.87, color.b * 0.10 + 0.87, 1.0)
+	style.border_color = Color(color.r, color.g, color.b, ThemeHelper.pf("border_alpha") + 0.18)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(8)
 	symbol_panel.add_theme_stylebox_override("panel", style)
 
 	# Sembol label stili: parlak, kalin (alan boyutuna oranli)
@@ -174,43 +174,42 @@ func play_slam_pop(intensity: float = 1.0) -> void:
 	symbol_panel.pivot_offset = symbol_panel.size / 2.0
 	var color: Color = TicketData.get_color(symbol_type)
 
-	# Isikli border + artan shadow glow (acik modda daha belirgin)
+	# Soft border + hafif shadow glow
 	var style: StyleBoxFlat = symbol_panel.get_theme_stylebox("panel").duplicate() as StyleBoxFlat
 	if style:
-		style.border_color = Color(color.r, color.g, color.b, 0.95)
-		style.set_border_width_all(3)
-		var shadow_alpha := 0.8 if not ThemeHelper.is_dark() else 0.6
+		style.border_color = Color(color.r, color.g, color.b, 0.80)
+		style.set_border_width_all(2)
+		var shadow_alpha := 0.45 if not ThemeHelper.is_dark() else 0.35
 		style.shadow_color = Color(color.r, color.g, color.b, shadow_alpha)
-		style.shadow_size = int(8 + intensity * 5)
+		style.shadow_size = int(5 + intensity * 3)
 		symbol_panel.add_theme_stylebox_override("panel", style)
 
 	# Label flash: anlik beyaz, sonra sembol rengine don
 	symbol_label.add_theme_color_override("font_color", Color.WHITE)
 
-	# Radial glow patlamasi
+	# Soft radial glow patlamasi
 	if _glow_rect and _glow_shader_mat:
 		_glow_rect.visible = true
-		_glow_rect.modulate.a = 1.0
-		# Acik modda daha koyu/doygun glow, karanlikta daha parlak
-		var glow_alpha := 1.0 if not ThemeHelper.is_dark() else 0.85
+		_glow_rect.modulate.a = 0.7
+		# Her iki modda yumusak glow
+		var glow_alpha := 0.55 if ThemeHelper.is_dark() else 0.45
 		var glow_col: Color
 		if ThemeHelper.is_dark():
 			glow_col = Color(color.r, color.g, color.b, glow_alpha)
 		else:
-			# Acik modda rengi doygunlastir (daha koyu ton)
-			glow_col = Color(color.r * 0.7, color.g * 0.7, color.b * 0.7, glow_alpha)
+			glow_col = Color(color.r * 0.75, color.g * 0.75, color.b * 0.75, glow_alpha)
 		_glow_shader_mat.set_shader_parameter("glow_color", glow_col)
 		_glow_rect.scale = Vector2(0.3, 0.3)
 		_glow_rect.pivot_offset = _glow_rect.size / 2.0
 		var glow_tw := create_tween()
-		var glow_target_scale := 1.2 + intensity * 0.3
-		glow_tw.tween_property(_glow_rect, "scale", Vector2(glow_target_scale, glow_target_scale), 0.15).set_ease(Tween.EASE_OUT)
-		glow_tw.tween_property(_glow_rect, "modulate:a", 0.0, 0.45).set_delay(0.1)
+		var glow_target_scale := 1.0 + intensity * 0.2
+		glow_tw.tween_property(_glow_rect, "scale", Vector2(glow_target_scale, glow_target_scale), 0.18).set_ease(Tween.EASE_OUT)
+		glow_tw.tween_property(_glow_rect, "modulate:a", 0.0, 0.50).set_delay(0.1)
 
-	# SLAM! Hizli buyutme + rotation punch
-	var slam_scale := 1.5 + (intensity - 1.0) * 0.15
-	var final_scale := 1.08 + (intensity - 1.0) * 0.04  # Kucuk kal, yan yana overlap olmasin
-	var rot := randf_range(-10.0, 10.0) * intensity
+	# Soft slam: hafif buyutme + minimal rotasyon
+	var slam_scale := 1.30 + (intensity - 1.0) * 0.10
+	var final_scale := 1.05 + (intensity - 1.0) * 0.03
+	var rot := randf_range(-6.0, 6.0) * intensity
 
 	var tw := create_tween()
 	tw.tween_property(symbol_panel, "scale", Vector2(slam_scale, slam_scale), 0.06).set_ease(Tween.EASE_OUT)

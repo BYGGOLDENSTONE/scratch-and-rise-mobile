@@ -19,9 +19,9 @@ func _ready() -> void:
 func _apply_theme() -> void:
 	$Background.color = ThemeHelper.p("bg_main")
 	var title: Label = $VBox/TopBar/Title
-	ThemeHelper.style_title(title, ThemeHelper.p("secondary"), 24)
-	ThemeHelper.style_label(count_label, ThemeHelper.p("text_secondary"), 16)
-	ThemeHelper.make_button(back_btn, ThemeHelper.p("danger"), 16)
+	ThemeHelper.style_title(title, ThemeHelper.p("secondary"), 26)
+	ThemeHelper.style_label(count_label, ThemeHelper.p("text_secondary"), 17)
+	ThemeHelper.make_button(back_btn, ThemeHelper.p("danger"), 17)
 
 
 func _build_synergy_list() -> void:
@@ -68,9 +68,9 @@ func _add_synergy_item(synergy_id: String, synergy: Dictionary, discovered: bool
 		if is_hidden:
 			display_name = synergy["name"]
 		name_label.text = "%s  x%d" % [display_name, synergy["multiplier"]]
-		ThemeHelper.style_label(name_label, ThemeHelper.p("success"), 16)
+		ThemeHelper.style_label(name_label, ThemeHelper.p("success"), 17)
 		desc_label.text = synergy.get("condition_text", "")
-		ThemeHelper.style_label(desc_label, ThemeHelper.p("text_primary"), 12)
+		ThemeHelper.style_label(desc_label, ThemeHelper.p("text_primary"), 13)
 	else:
 		if is_hidden:
 			name_label.text = "???"
@@ -78,8 +78,8 @@ func _add_synergy_item(synergy_id: String, synergy: Dictionary, discovered: bool
 		else:
 			name_label.text = "%s  x%d" % [synergy["name"], synergy["multiplier"]]
 			desc_label.text = "Henuz kesfedilmedi"
-		ThemeHelper.style_label(name_label, ThemeHelper.p("text_muted"), 16)
-		ThemeHelper.style_label(desc_label, ThemeHelper.p("text_muted"), 12)
+		ThemeHelper.style_label(name_label, ThemeHelper.p("text_muted"), 17)
+		ThemeHelper.style_label(desc_label, ThemeHelper.p("text_muted"), 13)
 
 	vbox.add_child(name_label)
 	vbox.add_child(desc_label)

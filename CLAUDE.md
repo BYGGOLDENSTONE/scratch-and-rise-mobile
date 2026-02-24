@@ -161,14 +161,18 @@ scratch-mobil/
   - `_test_screenshot.png` — Godot viewport'tan kaydeder
 - **Polling:** 0.5 sn aralikla `_test_command.json` kontrol eder
 - **Release guard:** `OS.has_feature("release")` ise devre disi
-- **Komutlar:** `state`, `click`, `click_button`, `scratch_all`, `screenshot`, `wait`, `drag`
+- **Komutlar:** `state`, `click`, `click_button`, `scratch_all`, `screenshot`, `wait`, `drag`, `change_scene`, `set_theme`, `set_coins`, `set_energy`, `list_buttons`
+- **click_button:** `emit_signal("pressed")` ile dogrudan sinyal gonderir (sim_click yerine) + 0.8s sahne gecis beklemesi
+- **change_scene:** Alias destegi: menu, game, charm, synergy, collection, achievement
+- **set_theme:** 0=dark, 1=light — `GameState.set_user_theme()` cagirir
+- **set_coins/set_energy:** Dogrudan deger ata
 - **State export:** scene, game_state (coins/energy/charms/stats/ticket bilgisi), ui_elements (Button/Label), result
 
 ### Test Akisi
 1. Oyunu pencereli baslat: `"D:/godot/Godot_v4.6-stable_win64_console.exe" --path "D:/godotproject/scratch-mobil"` (background)
-2. 5 sn bekle (yukleme)
+2. 7 sn bekle (yukleme)
 3. Komut gonder: `_test_command.json` dosyasina JSON yaz (`{"command": "state", "id": "1"}`)
-4. 1-2 sn bekle (polling + islem)
+4. 2 sn bekle (polling + islem + sahne gecis)
 5. Cevap oku: `_test_state.json` oku, `id` eslesmesini kontrol et
 6. Tekrarla
 
@@ -178,10 +182,14 @@ scratch-mobil/
 {"command": "click_button", "text": "OYNA", "id": "2"}
 {"command": "click_button", "text": "Kagit", "id": "3"}
 {"command": "scratch_all", "delay": 0.15, "id": "4"}
-{"command": "click_button", "text": "DEVAM", "id": "5"}
 {"command": "screenshot", "id": "6"}
 {"command": "wait", "seconds": 1, "id": "7"}
 {"command": "click", "x": 360, "y": 640, "id": "8"}
+{"command": "change_scene", "path": "charm", "id": "9"}
+{"command": "set_theme", "theme": 0, "id": "10"}
+{"command": "set_coins", "amount": 1000, "id": "11"}
+{"command": "set_energy", "amount": 5, "id": "12"}
+{"command": "list_buttons", "id": "13"}
 ```
 
 ### Otomatik Test (Subagent ile)
@@ -256,6 +264,20 @@ scratch-mobil/
 - Glow scale artisi: 1.2+0.3i (buyuk bilette daha genis)
 - Sembol font boyutu alan boyutuna oranli (14-32px)
 - Yeni bilet gecikme: 0.75s (kutlama sonrasi)
+
+### Gorsel Readability + Test Harness Iyilestirmesi (2026-02-24)
+- **Tema renkleri yenilendi:** Her iki modda goz dostu, soft renkler
+  - Dark: bg (0.08,0.08,0.11) → daha belirgin panel ayrimlari, soft aksanlar (neon yerine yumusak tonlar)
+  - Light: Kontrast artirildi — buton bg tint x2 guclendirildi, border kalinligi 2px, border alpha artirildi
+- **Buton stilleri:** 2px border, 12px radius, daha belirgin arka plan (light modda accent*0.18+0.78)
+- **Panel/kart stilleri:** 2px border, shadow eklendi (top bar golge efekti)
+- **Efektler yumusatildi:** Flash alpha 0.7→0.35, shake intensity %40 azaltildi, konfeti 100→60 parcacik
+- **Kenar isigi:** 40→24px genislik, alpha 0.6→0.4
+- **Slam pop:** Shadow 8+5i→5+3i, glow alpha 0.85→0.55, slam scale 1.5→1.3, rotation ±10→±6
+- **Font boyutlari artirildi:** Alt butonlar 13→15px, enerji/charm 20→22px, kart isimleri 15→16px, aciklamalar 12→13px
+- **Test Harness v2:** click_button artik `emit_signal("pressed")` kullanir (sim_click yerine)
+  - Yeni komutlar: `change_scene` (alias destegi), `set_theme`, `set_coins`, `set_energy`, `list_buttons`
+  - click_button sonrasi 0.8s bekleme (sahne gecis animasyonu icin)
 
 ---
 

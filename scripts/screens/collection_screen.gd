@@ -18,8 +18,8 @@ func _ready() -> void:
 func _apply_theme() -> void:
 	$Background.color = ThemeHelper.p("bg_main")
 	var title: Label = $VBox/TopBar/Title
-	ThemeHelper.style_title(title, ThemeHelper.p("success"), 24)
-	ThemeHelper.make_button(back_btn, ThemeHelper.p("danger"), 16)
+	ThemeHelper.style_title(title, ThemeHelper.p("success"), 26)
+	ThemeHelper.make_button(back_btn, ThemeHelper.p("danger"), 17)
 
 
 func _build_collection_list() -> void:
@@ -54,9 +54,9 @@ func _add_set_card(set_id: String, set_data: Dictionary) -> void:
 	var name_label := Label.new()
 	name_label.text = set_data["name"]
 	if is_complete:
-		ThemeHelper.style_label(name_label, ThemeHelper.p("warning"), 17)
+		ThemeHelper.style_label(name_label, ThemeHelper.p("warning"), 18)
 	else:
-		ThemeHelper.style_label(name_label, ThemeHelper.p("text_primary"), 17)
+		ThemeHelper.style_label(name_label, ThemeHelper.p("text_primary"), 18)
 	vbox.add_child(name_label)
 
 	# Parcalar satiri
@@ -71,9 +71,9 @@ func _add_set_card(set_id: String, set_data: Dictionary) -> void:
 		var piece_label := Label.new()
 		piece_label.text = piece_names.get(piece_id, piece_id)
 		if has_piece:
-			ThemeHelper.style_label(piece_label, ThemeHelper.p("success"), 12)
+			ThemeHelper.style_label(piece_label, ThemeHelper.p("success"), 14)
 		else:
-			ThemeHelper.style_label(piece_label, ThemeHelper.p("text_muted"), 12)
+			ThemeHelper.style_label(piece_label, ThemeHelper.p("text_muted"), 14)
 		pieces_hbox.add_child(piece_label)
 
 	# Bonus bilgisi
@@ -81,14 +81,14 @@ func _add_set_card(set_id: String, set_data: Dictionary) -> void:
 	bonus_label.add_theme_font_size_override("font_size", 12)
 	if is_complete:
 		bonus_label.text = "TAMAMLANDI! %s" % set_data["bonus_text"]
-		ThemeHelper.style_label(bonus_label, ThemeHelper.p("warning"), 12)
+		ThemeHelper.style_label(bonus_label, ThemeHelper.p("warning"), 13)
 	else:
 		var collected_count := 0
 		for p_id in pieces:
 			if GameState.has_collection_piece(set_id, p_id):
 				collected_count += 1
 		bonus_label.text = "%d / %d — Bonus: %s" % [collected_count, pieces.size(), set_data["bonus_text"]]
-		ThemeHelper.style_label(bonus_label, ThemeHelper.p("text_secondary"), 12)
+		ThemeHelper.style_label(bonus_label, ThemeHelper.p("text_secondary"), 13)
 	vbox.add_child(bonus_label)
 
 	collection_list.add_child(card)

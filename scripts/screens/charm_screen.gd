@@ -23,9 +23,9 @@ func _ready() -> void:
 func _apply_theme() -> void:
 	$Background.color = ThemeHelper.p("bg_main")
 	var title: Label = $VBox/TopBar/Title
-	ThemeHelper.style_title(title, ThemeHelper.p("info"), 24)
-	ThemeHelper.style_label(cp_label, ThemeHelper.p("warning"), 18)
-	ThemeHelper.make_button(back_btn, ThemeHelper.p("danger"), 16)
+	ThemeHelper.style_title(title, ThemeHelper.p("info"), 26)
+	ThemeHelper.style_label(cp_label, ThemeHelper.p("warning"), 20)
+	ThemeHelper.make_button(back_btn, ThemeHelper.p("danger"), 17)
 
 
 func _update_cp() -> void:
@@ -106,13 +106,13 @@ func _add_charm_item(charm_id: String, charm: Dictionary) -> void:
 		name_label.text = "%s  AKTIF" % charm["name"]
 	else:
 		name_label.text = charm["name"]
-	ThemeHelper.style_label(name_label, ThemeHelper.p("text_primary"), 15)
+	ThemeHelper.style_label(name_label, ThemeHelper.p("text_primary"), 16)
 	info_vbox.add_child(name_label)
 
 	# Efekt aciklamasi
 	var desc_label := Label.new()
 	desc_label.text = CharmDataRef.get_effect_text(charm_id, level)
-	ThemeHelper.style_label(desc_label, ThemeHelper.p("text_secondary"), 12)
+	ThemeHelper.style_label(desc_label, ThemeHelper.p("text_secondary"), 13)
 	info_vbox.add_child(desc_label)
 
 	# Sag: buton
@@ -129,7 +129,7 @@ func _add_charm_item(charm_id: String, charm: Dictionary) -> void:
 		btn.text = "AL  %d CP" % cost
 		btn.disabled = GameState.charm_points < cost
 
-	ThemeHelper.make_button(btn, ThemeHelper.p("success"), 13)
+	ThemeHelper.make_button(btn, ThemeHelper.p("success"), 14)
 	btn.pressed.connect(_on_charm_buy.bind(charm_id))
 	hbox.add_child(btn)
 

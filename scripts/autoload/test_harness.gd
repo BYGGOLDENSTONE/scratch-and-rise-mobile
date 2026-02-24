@@ -97,6 +97,22 @@ func _run_command(cmd: Dictionary) -> void:
 			_wait_remaining = float(cmd.get("seconds", 1.0))
 			_busy = false
 			return
+		"change_scene":
+			result = await _cmd_change_scene(cmd)
+		"set_theme":
+			result = _cmd_set_theme(cmd)
+		"set_coins":
+			var amount: int = cmd.get("amount", 100)
+			GameState.coins = amount
+			GameState.coins_changed.emit(amount)
+			result = {"coins": GameState.coins}
+		"set_energy":
+			var amount: int = cmd.get("amount", 5)
+			GameState.energy = amount
+			GameState.energy_changed.emit(amount)
+			result = {"energy": GameState.energy}
+		"list_buttons":
+			result = _cmd_list_buttons()
 		_:
 			result = {"error": "Bilinmeyen komut: %s" % cmd["command"]}
 	_write_state(result)
@@ -117,9 +133,13 @@ func _cmd_click_button(cmd: Dictionary) -> Dictionary:
 		return {"error": "Buton gorunur degil", "name": str(btn.name)}
 	if btn.disabled:
 		return {"error": "Buton devre disi", "name": str(btn.name)}
-	var center := btn.get_global_rect().get_center()
-	await _sim_click(center)
-	return {"clicked_button": str(btn.name), "at": [center.x, center.y]}
+	var btn_name_str := str(btn.name)
+	# Dogrudan pressed sinyali gonder — en guvenilir yontem
+	btn.emit_signal("pressed")
+	print("[TestHarness] Buton pressed: %s" % btn_name_str)
+	# SceneTransition fade suresi (0.3s fade out + 0.3s fade in + marj)
+	await get_tree().create_timer(0.8).timeout
+	return {"clicked_button": btn_name_str}
 
 
 func _cmd_scratch_all(cmd: Dictionary) -> Dictionary:
@@ -147,13 +167,80 @@ func _cmd_scratch_all(cmd: Dictionary) -> Dictionary:
 
 
 func _cmd_screenshot() -> Dictionary:
-	await get_tree().process_frame
-	await get_tree().process_frame
+	# Birden fazla frame bekle — animasyonlar tamamlansin
+	for i in 4:
+		await get_tree().process_frame
 	var img := get_viewport().get_texture().get_image()
 	if img == null:
 		return {"error": "Viewport yakalanamadi"}
 	img.save_png(_screenshot_path)
 	return {"saved": _screenshot_path}
+
+
+func _cmd_change_scene(cmd: Dictionary) -> Dictionary:
+	var scene_path: String = cmd.get("path", "")
+	# Kisa isimlerle sahne gecisi
+	var aliases := {
+		"main_menu": "res://scenes/screens/MainMenu.tscn",
+		"menu": "res://scenes/screens/MainMenu.tscn",
+		"game": "res://scenes/main/Main.tscn",
+		"charm": "res://scenes/screens/CharmScreen.tscn",
+		"synergy": "res://scenes/screens/SynergyAlbum.tscn",
+		"collection": "res://scenes/screens/CollectionScreen.tscn",
+		"achievement": "res://scenes/screens/AchievementScreen.tscn",
+	}
+	if scene_path in aliases:
+		scene_path = aliases[scene_path]
+	if scene_path == "":
+		return {"error": "path gerekli", "aliases": aliases.keys()}
+	if not ResourceLoader.exists(scene_path):
+		return {"error": "Sahne bulunamadi: %s" % scene_path, "aliases": aliases.keys()}
+	# game sahnesine gecerken round baslat
+	if scene_path == "res://scenes/main/Main.tscn" and not GameState.in_round:
+		GameState.start_round()
+	get_tree().change_scene_to_file(scene_path)
+	print("[TestHarness] Sahne degistirildi: %s" % scene_path)
+	# Sahne yuklenene kadar bekle
+	await get_tree().create_timer(0.5).timeout
+	return {"changed_to": scene_path}
+
+
+func _cmd_set_theme(cmd: Dictionary) -> Dictionary:
+	var theme_id: int = cmd.get("theme", 0)  # 0=dark, 1=light
+	GameState.set_user_theme(theme_id)
+	var name := "dark" if theme_id == 0 else "light"
+	print("[TestHarness] Tema degistirildi: %s" % name)
+	return {"theme": name}
+
+
+func _cmd_list_buttons() -> Dictionary:
+	var buttons := []
+	_collect_buttons(get_tree().root, buttons)
+	return {"buttons": buttons}
+
+
+func _collect_buttons(node: Node, out: Array) -> void:
+	if node is CanvasItem and not (node as CanvasItem).is_visible_in_tree():
+		return
+	if node is Button:
+		var b := node as Button
+		out.append({
+			"name": str(b.name),
+			"text": b.text,
+			"disabled": b.disabled,
+			"visible": b.is_visible_in_tree(),
+			"rect": _r2a(b.get_global_rect()),
+		})
+	elif node is BaseButton:
+		var bb := node as BaseButton
+		out.append({
+			"name": str(bb.name),
+			"disabled": bb.disabled,
+			"visible": bb.is_visible_in_tree(),
+			"rect": _r2a(bb.get_global_rect()),
+		})
+	for child in node.get_children():
+		_collect_buttons(child, out)
 
 
 # ────────────────────────────────────────────
@@ -162,21 +249,25 @@ func _cmd_screenshot() -> Dictionary:
 
 func _sim_click(pos: Vector2) -> void:
 	var vp := get_viewport()
-	# Button down
+	# Button down — button_mask eklendi
 	var down := InputEventMouseButton.new()
 	down.button_index = MOUSE_BUTTON_LEFT
 	down.pressed = true
+	down.button_mask = MOUSE_BUTTON_MASK_LEFT
 	down.position = pos
 	down.global_position = pos
 	vp.push_input(down)
+	await get_tree().process_frame
 	await get_tree().process_frame
 	# Button up
 	var up := InputEventMouseButton.new()
 	up.button_index = MOUSE_BUTTON_LEFT
 	up.pressed = false
+	up.button_mask = 0
 	up.position = pos
 	up.global_position = pos
 	vp.push_input(up)
+	await get_tree().process_frame
 
 
 func _sim_drag(from: Vector2, to: Vector2, steps: int) -> void:
@@ -185,6 +276,7 @@ func _sim_drag(from: Vector2, to: Vector2, steps: int) -> void:
 	var down := InputEventMouseButton.new()
 	down.button_index = MOUSE_BUTTON_LEFT
 	down.pressed = true
+	down.button_mask = MOUSE_BUTTON_MASK_LEFT
 	down.position = from
 	down.global_position = from
 	vp.push_input(down)
@@ -194,6 +286,7 @@ func _sim_drag(from: Vector2, to: Vector2, steps: int) -> void:
 		var t := float(i + 1) / float(steps)
 		var pos := from.lerp(to, t)
 		var motion := InputEventMouseMotion.new()
+		motion.button_mask = MOUSE_BUTTON_MASK_LEFT
 		motion.position = pos
 		motion.global_position = pos
 		vp.push_input(motion)
@@ -202,6 +295,7 @@ func _sim_drag(from: Vector2, to: Vector2, steps: int) -> void:
 	var up := InputEventMouseButton.new()
 	up.button_index = MOUSE_BUTTON_LEFT
 	up.pressed = false
+	up.button_mask = 0
 	up.position = to
 	up.global_position = to
 	vp.push_input(up)

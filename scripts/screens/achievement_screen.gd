@@ -20,9 +20,9 @@ func _ready() -> void:
 func _apply_theme() -> void:
 	$Background.color = ThemeHelper.p("bg_main")
 	var title: Label = $VBox/TopBar/Title
-	ThemeHelper.style_title(title, ThemeHelper.p("warning"), 24)
-	ThemeHelper.style_label(counter_label, ThemeHelper.p("text_secondary"), 16)
-	ThemeHelper.make_button(back_btn, ThemeHelper.p("danger"), 16)
+	ThemeHelper.style_title(title, ThemeHelper.p("warning"), 26)
+	ThemeHelper.style_label(counter_label, ThemeHelper.p("text_secondary"), 17)
+	ThemeHelper.make_button(back_btn, ThemeHelper.p("danger"), 17)
 
 
 func _update_counter() -> void:
@@ -88,15 +88,15 @@ func _add_achievement_item(ach_id: String, ach: Dictionary) -> void:
 	var name_label := Label.new()
 	name_label.text = AchievementRef.get_display_name(ach_id)
 	if is_unlocked:
-		ThemeHelper.style_label(name_label, ThemeHelper.p("success"), 15)
+		ThemeHelper.style_label(name_label, ThemeHelper.p("success"), 16)
 	else:
-		ThemeHelper.style_label(name_label, ThemeHelper.p("text_muted"), 15)
+		ThemeHelper.style_label(name_label, ThemeHelper.p("text_muted"), 16)
 	info_vbox.add_child(name_label)
 
 	# Aciklama
 	var desc_label := Label.new()
 	desc_label.text = AchievementRef.get_display_description(ach_id)
-	ThemeHelper.style_label(desc_label, ThemeHelper.p("text_secondary"), 12)
+	ThemeHelper.style_label(desc_label, ThemeHelper.p("text_secondary"), 13)
 	info_vbox.add_child(desc_label)
 
 	# Sag: odul

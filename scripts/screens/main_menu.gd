@@ -41,18 +41,18 @@ func _ready() -> void:
 
 func _apply_theme() -> void:
 	$Background.color = ThemeHelper.p("bg_main")
-	ThemeHelper.style_title(title_label, ThemeHelper.p("warning"), 36)
+	ThemeHelper.style_title(title_label, ThemeHelper.p("warning"), 38)
 	var subtitle: Label = $VBox/Subtitle
-	ThemeHelper.style_label(subtitle, ThemeHelper.p("text_secondary"), 18)
-	ThemeHelper.style_label(energy_label, ThemeHelper.p("success"), 20)
-	ThemeHelper.style_label(charm_label, ThemeHelper.p("info"), 20)
-	ThemeHelper.style_label(status_label, ThemeHelper.p("text_secondary"), 14)
-	ThemeHelper.make_button(play_button, ThemeHelper.p("warning"), 28)
-	ThemeHelper.make_button(charm_btn, ThemeHelper.p("info"), 13)
-	ThemeHelper.make_button(sinerji_btn, ThemeHelper.p("secondary"), 13)
-	ThemeHelper.make_button(koleksiyon_btn, ThemeHelper.p("success"), 13)
-	ThemeHelper.make_button(basarim_btn, ThemeHelper.p("warning"), 13)
-	ThemeHelper.make_button(ayarlar_btn, ThemeHelper.p("text_secondary"), 13)
+	ThemeHelper.style_label(subtitle, ThemeHelper.p("text_secondary"), 20)
+	ThemeHelper.style_label(energy_label, ThemeHelper.p("success"), 22)
+	ThemeHelper.style_label(charm_label, ThemeHelper.p("info"), 22)
+	ThemeHelper.style_label(status_label, ThemeHelper.p("text_muted"), 15)
+	ThemeHelper.make_button(play_button, ThemeHelper.p("warning"), 30)
+	ThemeHelper.make_button(charm_btn, ThemeHelper.p("info"), 15)
+	ThemeHelper.make_button(sinerji_btn, ThemeHelper.p("secondary"), 15)
+	ThemeHelper.make_button(koleksiyon_btn, ThemeHelper.p("success"), 15)
+	ThemeHelper.make_button(basarim_btn, ThemeHelper.p("warning"), 15)
+	ThemeHelper.make_button(ayarlar_btn, ThemeHelper.p("text_secondary"), 15)
 
 
 func _on_title_input(event: InputEvent) -> void:

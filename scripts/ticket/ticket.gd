@@ -222,10 +222,10 @@ func _play_match_celebration(match_data: Dictionary) -> void:
 		area.z_index = combo
 		area.play_slam_pop(intensity)
 
-		# Escalating screen punch + vibration (yonlu itme)
+		# Soft escalating punch + vibration
 		ScreenEffects.vibrate_heavy()
 		var punch_dir: Vector2 = punch_dirs[(combo - 1) % punch_dirs.size()]
-		ScreenEffects.screen_punch(punch_dir, 3.0 + combo * 2.0, 0.12)
+		ScreenEffects.screen_punch(punch_dir, 2.0 + combo * 1.5, 0.12)
 
 		# Combo popup: "x1" "x1" "x1!!" (carpan gosterimi)
 		_show_combo_pop(combo, matched_areas.size(), area, match_data["multiplier"])
@@ -236,9 +236,9 @@ func _play_match_celebration(match_data: Dictionary) -> void:
 			if not is_inside_tree():
 				return
 
-	# 4+ eslesme: final slam + mini konfeti!
+	# 4+ eslesme: soft final slam + mini konfeti
 	if matched_areas.size() >= 4:
-		ScreenEffects.screen_shake(14.0, 0.35)
+		ScreenEffects.screen_shake(9.0, 0.28)
 		ScreenEffects.flash_screen(sym_color, 0.3)
 		var ticket_center := global_position + size / 2.0
 		ScreenEffects.play_mini_confetti(ticket_center)
@@ -259,10 +259,10 @@ func _show_combo_pop(combo: int, total: int, area: Control, multiplier: int) -> 
 		pop.text = "x%d" % multiplier
 	pop.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
-	var font_size := 18 + combo * 5  # Giderek buyuyen: 23, 28, 33...
+	var font_size := 16 + combo * 4  # Soft artis: 20, 24, 28...
 	pop.add_theme_font_size_override("font_size", font_size)
 	pop.add_theme_color_override("font_color", Color.WHITE)
-	pop.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.7))
+	pop.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.55))
 	pop.add_theme_constant_override("shadow_offset_x", 2)
 	pop.add_theme_constant_override("shadow_offset_y", 2)
 
