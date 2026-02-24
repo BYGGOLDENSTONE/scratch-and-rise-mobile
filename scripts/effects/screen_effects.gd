@@ -6,6 +6,7 @@ extends CanvasLayer
 var _flash_rect: ColorRect
 var _coin_fly_container: Control
 var _confetti_particles: GPUParticles2D
+var _mini_confetti: GPUParticles2D
 var _shake_tween: Tween
 
 # Pool for scratch particles
@@ -16,6 +17,7 @@ func _ready() -> void:
 	_setup_flash()
 	_setup_coin_fly_container()
 	_setup_confetti()
+	_setup_mini_confetti()
 	_setup_scratch_particles()
 	print("[ScreenEffects] Initialized")
 
@@ -70,6 +72,45 @@ func _shake_node(node: Node, property: String, original: Vector2, intensity: flo
 		_shake_tween.tween_property(node, property, original + offset, 0.02)
 		intensity *= 0.85 # Decay the shake quickly
 	_shake_tween.tween_property(node, property, original, 0.02)
+
+
+## --- SCREEN PUNCH (yonlu itme) ---
+func screen_punch(direction: Vector2, intensity: float = 8.0, duration: float = 0.15) -> void:
+	var viewport := get_viewport()
+	if viewport == null:
+		return
+	var camera := viewport.get_camera_2d()
+	var node: Node = null
+	var property: String
+	var original: Vector2
+
+	if camera:
+		node = camera
+		property = "offset"
+		original = Vector2.ZERO
+	else:
+		var root := get_tree().current_scene
+		if root:
+			node = root
+			property = "position"
+			original = root.position
+
+	if node == null:
+		return
+
+	var punch_offset := direction.normalized() * intensity
+
+	if _shake_tween and _shake_tween.is_valid():
+		_shake_tween.kill()
+		node.set(property, original)
+
+	_shake_tween = create_tween()
+	# Hizli ileri itme
+	_shake_tween.tween_property(node, property, original + punch_offset, duration * 0.25).set_ease(Tween.EASE_OUT)
+	# Geri sekmeli overshoot
+	_shake_tween.tween_property(node, property, original - punch_offset * 0.35, duration * 0.4).set_ease(Tween.EASE_IN_OUT)
+	# Orijinal pozisyona yerles
+	_shake_tween.tween_property(node, property, original, duration * 0.35).set_ease(Tween.EASE_IN)
 
 
 ## --- COIN UCMA ---
@@ -138,31 +179,72 @@ func play_confetti() -> void:
 	_confetti_particles.restart()
 	_confetti_particles.emitting = true
 
+
+## --- MINI KONFETI ---
+func _setup_mini_confetti() -> void:
+	_mini_confetti = GPUParticles2D.new()
+	_mini_confetti.emitting = false
+	_mini_confetti.one_shot = true
+	_mini_confetti.amount = 25
+	_mini_confetti.lifetime = 0.8
+	_mini_confetti.z_index = 100
+
+	var mat := ParticleProcessMaterial.new()
+	mat.direction = Vector3(0, 1, 0)
+	mat.spread = 45.0
+	mat.initial_velocity_min = 120.0
+	mat.initial_velocity_max = 300.0
+	mat.gravity = Vector3(0, 400, 0)
+	mat.angular_velocity_min = -180.0
+	mat.angular_velocity_max = 180.0
+	mat.scale_min = 2.0
+	mat.scale_max = 4.0
+
+	var color_ramp := GradientTexture1D.new()
+	var gradient := Gradient.new()
+	gradient.set_color(0, Color(1.0, 0.3, 0.3))
+	gradient.add_point(0.25, Color(1.0, 0.85, 0.1))
+	gradient.add_point(0.5, Color(0.3, 1.0, 0.5))
+	gradient.add_point(0.75, Color(0.3, 0.5, 1.0))
+	gradient.set_color(1, Color(1.0, 0.3, 1.0))
+	color_ramp.gradient = gradient
+	mat.color_initial_ramp = color_ramp
+
+	_mini_confetti.process_material = mat
+	add_child(_mini_confetti)
+
+
+func play_mini_confetti(pos: Vector2 = Vector2(360, 400)) -> void:
+	_mini_confetti.position = pos
+	_mini_confetti.restart()
+	_mini_confetti.emitting = true
+
+
 ## --- SCRATCH PARTICLES ---
 func _setup_scratch_particles() -> void:
 	for i in range(5): # Create a small pool of 5 emitters
 		var p := GPUParticles2D.new()
 		p.emitting = false
 		p.one_shot = true
-		p.amount = 15
-		p.lifetime = 0.4
-		p.explosiveness = 0.8
+		p.amount = 20
+		p.lifetime = 0.5
+		p.explosiveness = 0.9
 		p.z_index = 80
 		
 		var mat := ParticleProcessMaterial.new()
 		mat.direction = Vector3(0, -1, 0)
-		mat.spread = 90.0
-		mat.initial_velocity_min = 100.0
-		mat.initial_velocity_max = 250.0
+		mat.spread = 120.0
+		mat.initial_velocity_min = 120.0
+		mat.initial_velocity_max = 300.0
 		mat.gravity = Vector3(0, 500, 0)
 		mat.scale_min = 2.0
-		mat.scale_max = 4.0
-		mat.color = Color(0.8, 0.8, 0.8, 0.8) # Silver metallic dust color
+		mat.scale_max = 5.0
+		mat.color = Color(0.95, 0.9, 0.75, 0.9) # Warm metallic gold-white
 		
 		var alpha_ramp := GradientTexture1D.new()
 		var gradient := Gradient.new()
-		gradient.set_color(0, Color(1, 1, 1, 1))
-		gradient.set_color(1, Color(1, 1, 1, 0))
+		gradient.set_color(0, Color(1.0, 0.95, 0.8, 1))
+		gradient.set_color(1, Color(0.9, 0.8, 0.5, 0))
 		alpha_ramp.gradient = gradient
 		mat.color_ramp = alpha_ramp
 		

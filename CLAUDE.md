@@ -232,6 +232,36 @@ scratch-mobil/
 - Viewport clear color tema ile senkronize edildi
 - Tum ekranlar her iki temada test edildi ve onaylandi
 
+### Gorsel Efekt + Surukle Kazima + Otomatik Bilet (2026-02-24)
+- Surukleyerek kazima: `_gui_input` kaldirildi, `ticket.gd:_input()` ile drag koordinatoru eklendi
+- Radial glow: Slam pop sirasinda sembol arkasinda shader-bazli isik patlamasi
+- Mini-konfeti: 4+ eslesmede kucuk konfeti (25 parcacik)
+- Screen punch: Yonlu itme efekti (sol/sag/yukari/asagi dongusel)
+- Scratch parcaciklari guclendi: 20 parcacik, sicak altin-metalik renk, genis yayilma
+- Otomatik bilet: Son secilen tur hatirlanir, bilet bitince otomatik ayni turden yeni bilet gelir
+- Kazimadan degistirme: Ilk kazimaya kadar bilet ucretsiz degistirilebilir (coin ilk kazimada cekilir)
+- Coin delta gostergesi: Kirmizi `-tutar` (para cekildiginde), yesil `+tutar` (kazanildiginda) coin yaninda
+
+---
+
+## Yapilacaklar (Sonraki Session)
+
+### UX Hiz Iyilestirmesi (ONCELIKLI)
+- **Odul gosterimi zamanlama:** Kazanilan para BAM BAM BAM efektinden hemen sonra gosterilmeli (simdi DEVAM'a bastiktan sonra gosteriyor)
+- **DEVAM butonu kaldirilacak:** Oyuncu DEVAM'a basmak zorunda kalmamali. 1.5sn bekle → otomatik yeni bilete gec
+- **Hizli dopamin dongusu:** Oyuncu sadece arka arkaya kazima yapmali, minimum bekleme/tiklamayla
+- **Eslesme yoksa:** Zaten 1.5sn otomatik devam var, dokunuldu
+
+### Bilet Boyutu (ONCELIKLI)
+- Bilet ekranda cok kucuk alan kapliyor, mobilde daha da kucuk gorunecek
+- Bilet alani buyutulmeli — ekranin buyuk bolumunu kaplamali
+- Kazima alanlari daha buyuk olmali (touch-friendly)
+
+### Parcacik & Efekt Alani (ONCELIKLI)
+- Efektler sadece biletin kucuk alaninda oluyor, etrafindaki bos alan kullanilmiyor
+- Isildama, aydinlanma, parcaciklar, konfeti biletin etrafindaki bos alani da doldurmali
+- Ekranin tamami efekt alani olarak kullanilmali (ozellikle jackpot/buyuk eslesmede)
+
 ---
 
 ## PC Versiyonu Notu

@@ -18,6 +18,8 @@ var is_complete: bool = false
 var _scratch_areas: Array = []
 var _celebration_overlay: Node2D = null
 var _celebration_container: VBoxContainer = null
+var _drag_active: bool = false
+var has_started_scratching: bool = false
 
 @onready var ticket_header: Label = $VBox/TicketHeader
 @onready var grid: GridContainer = $VBox/GridContainer
@@ -102,8 +104,45 @@ func _apply_ticket_style(type: String) -> void:
 	add_theme_stylebox_override("panel", style)
 
 
+## --- Surukleyerek Kazima ---
+
+func _input(event: InputEvent) -> void:
+	if is_complete:
+		return
+
+	if event is InputEventMouseButton:
+		if event.button_index == MOUSE_BUTTON_LEFT:
+			if event.pressed:
+				_drag_active = true
+				_try_scratch_at(event.global_position)
+			else:
+				_drag_active = false
+	elif event is InputEventMouseMotion:
+		if _drag_active:
+			_try_scratch_at(event.global_position)
+	elif event is InputEventScreenTouch:
+		if event.pressed:
+			_drag_active = true
+			_try_scratch_at(event.position)
+		else:
+			_drag_active = false
+	elif event is InputEventScreenDrag:
+		if _drag_active:
+			_try_scratch_at(event.position)
+
+
+func _try_scratch_at(global_pos: Vector2) -> void:
+	for area in _scratch_areas:
+		if area.is_scratched:
+			continue
+		if area.get_global_rect().has_point(global_pos):
+			area.scratch()
+
+
 func _on_area_scratched(_area_index: int) -> void:
 	scratched_count += 1
+	if not has_started_scratching:
+		has_started_scratching = true
 	if scratched_count >= total_areas:
 		_complete()
 
@@ -154,6 +193,7 @@ func _play_match_celebration(match_data: Dictionary) -> void:
 			matched_areas.append(area)
 
 	# === FAZ 1: BAM BAM BAM! Tek tek patlat ===
+	var punch_dirs := [Vector2.LEFT, Vector2.RIGHT, Vector2.UP, Vector2.DOWN]
 	var combo := 0
 	for area in matched_areas:
 		combo += 1
@@ -163,9 +203,10 @@ func _play_match_celebration(match_data: Dictionary) -> void:
 		area.z_index = combo
 		area.play_slam_pop(intensity)
 
-		# Escalating screen shake + vibration
+		# Escalating screen punch + vibration (yonlu itme)
 		ScreenEffects.vibrate_heavy()
-		ScreenEffects.screen_shake(3.0 + combo * 3.0, 0.12)
+		var punch_dir: Vector2 = punch_dirs[(combo - 1) % punch_dirs.size()]
+		ScreenEffects.screen_punch(punch_dir, 3.0 + combo * 2.0, 0.12)
 
 		# Combo popup: "x1" "x1" "x1!!" (carpan gosterimi)
 		_show_combo_pop(combo, matched_areas.size(), area, match_data["multiplier"])
@@ -176,10 +217,11 @@ func _play_match_celebration(match_data: Dictionary) -> void:
 			if not is_inside_tree():
 				return
 
-	# 4+ eslesme: final slam!
+	# 4+ eslesme: final slam + mini konfeti!
 	if matched_areas.size() >= 4:
 		ScreenEffects.screen_shake(14.0, 0.35)
 		ScreenEffects.flash_screen(sym_color, 0.3)
+		ScreenEffects.play_mini_confetti()
 
 	# === FAZ 2: Odul gosterimi (kisa bekleme sonrasi) ===
 	await get_tree().create_timer(0.5).timeout

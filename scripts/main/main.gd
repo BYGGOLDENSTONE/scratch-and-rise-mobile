@@ -34,6 +34,10 @@ var _last_symbols: Array = []
 var _last_match_data: Dictionary = {}
 var _golden_ticket_popup: PanelContainer = null
 var _yolo_triggered: bool = false
+var _selected_ticket_type: String = ""  # Son secilen bilet turu (otomatik tekrar icin)
+var _ticket_paid: bool = false  # Mevcut bilet icin coin odendi mi
+var _pending_ticket_price: int = 0  # Ilk kazimada cekilecek fiyat (0 = bedava/odendi)
+var _coin_delta_label: Label = null  # Coin yaninda +/- gosterimi
 
 
 func _ready() -> void:
@@ -136,8 +140,17 @@ func _on_back_pressed() -> void:
 
 
 func _on_ticket_buy(type: String) -> void:
+	# Kazimadan degistirme: mevcut bilet var ama kazilmamis → ucretsiz degistir
 	if current_ticket != null:
+		if current_ticket.has_started_scratching:
+			return  # Kazima basladiysa degistirilemez
+		# Kazilmamis bilet: sil, yeni turu sec (coin henuz cekilmemis)
+		current_ticket.queue_free()
+		current_ticket = null
+		print("[Main] Bilet degistirildi (kazilmamis, ucret alinmadi)")
+		_create_ticket(type, true)  # is_swap = true
 		return
+
 	var config: Dictionary = TicketData.TICKET_CONFIGS.get(type, TicketData.TICKET_CONFIGS["paper"])
 	var price: int = config["price"]
 
@@ -146,13 +159,26 @@ func _on_ticket_buy(type: String) -> void:
 	if GameState._free_ticket_active:
 		is_free = true
 		GameState._free_ticket_active = false
+		_pending_ticket_price = 0
 		print("[Main] Bedava bilet kullanildi!")
 	else:
-		if not GameState.spend_coins(price):
+		# Coin yeterliligi kontrol et (henuz cekme, ilk kazimada cekilecek)
+		if GameState.coins < price:
 			print("[Main] Coin yetersiz!")
 			_show_warning("Coin yetersiz!")
 			return
+		_pending_ticket_price = price
 
+	_selected_ticket_type = type
+	_ticket_paid = false
+	_create_ticket(type, false)
+	if is_free:
+		print("[Main] %s (UCRETSIZ)" % config["name"])
+	else:
+		print("[Main] %s secildi (%d coin, kazimada cekilecek)" % [config["name"], price])
+
+
+func _create_ticket(type: String, is_swap: bool) -> void:
 	# Placeholder'i gizle, bilet olustur
 	ticket_placeholder.visible = false
 	current_ticket = TicketScene.instantiate()
@@ -160,18 +186,37 @@ func _on_ticket_buy(type: String) -> void:
 
 	# Joker Yagmuru: tum semboller joker
 	var symbol_override := ""
-	if GameState._joker_rain_active:
+	if GameState._joker_rain_active and not is_swap:
 		symbol_override = "joker"
 		GameState._joker_rain_active = false
 		print("[Main] Joker Yagmuru aktif! Tum semboller Joker!")
 
+	# Swap durumunda yeni biletin fiyatini guncelle
+	if is_swap:
+		var config: Dictionary = TicketData.TICKET_CONFIGS.get(type, TicketData.TICKET_CONFIGS["paper"])
+		_pending_ticket_price = config["price"]
+
+	_selected_ticket_type = type
 	current_ticket.setup(type, symbol_override)
 	current_ticket.ticket_completed.connect(_on_ticket_completed)
+	# Ilk kazima olayinda coin cek + butonlari kilitle
+	for area in current_ticket._scratch_areas:
+		area.area_scratched.connect(_on_first_scratch, CONNECT_ONE_SHOT)
 	_update_ticket_buttons()
-	if is_free:
-		print("[Main] %s (UCRETSIZ), kalan: %d" % [config["name"], GameState.coins])
-	else:
-		print("[Main] %s satin alindi (%d coin), kalan: %d" % [config["name"], price, GameState.coins])
+
+
+func _on_first_scratch(_area_index: int) -> void:
+	# Ilk kazimada coin cek
+	if not _ticket_paid and _pending_ticket_price > 0:
+		GameState.spend_coins(_pending_ticket_price)
+		_show_coin_delta(-_pending_ticket_price)
+		print("[Main] Bilet ucreti cekildi: -%d coin" % _pending_ticket_price)
+		_ticket_paid = true
+		_pending_ticket_price = 0
+	elif not _ticket_paid:
+		_ticket_paid = true  # Bedava bilet
+	# Kazima basladiginda butonlari kilitle (degistirme artik yapilamaz)
+	_update_ticket_buttons()
 
 
 func _on_ticket_completed(symbols: Array) -> void:
@@ -304,6 +349,12 @@ func _on_match_result_dismissed() -> void:
 	GameState._tickets_since_golden += 1
 	ticket_count_label.text = "Bilet: %d" % tickets_scratched
 
+	# Kazanc gostergesi (kutlama bittikten sonra)
+	if _last_match_data.get("has_match", false):
+		var reward: int = _last_match_data.get("reward", 0)
+		if reward > 0:
+			_show_coin_delta(reward)
+
 	# Basarim kontrolu
 	var context := {
 		"symbols": _last_symbols,
@@ -326,6 +377,7 @@ func _remove_current_ticket() -> void:
 	if current_ticket != null:
 		current_ticket.queue_free()
 		current_ticket = null
+	_ticket_paid = false
 	ticket_placeholder.visible = true
 	_update_ticket_buttons()
 
@@ -334,9 +386,23 @@ func _remove_current_ticket() -> void:
 	if GameState.coins < cheapest_price and GameState.in_round:
 		print("[Main] Coin bitti, tur otomatik bitiyor!")
 		GameState.end_round()
+		return
+
+	# Otomatik bilet: son secilen tur icin coin yetiyorsa otomatik al
+	if _selected_ticket_type != "" and GameState.in_round:
+		var config: Dictionary = TicketData.TICKET_CONFIGS.get(_selected_ticket_type, {})
+		var price: int = config.get("price", 0)
+		if TicketData.is_ticket_unlocked(_selected_ticket_type) and GameState.coins >= price:
+			# Kisa gecikme ile otomatik bilet al (UX icin)
+			get_tree().create_timer(0.3).timeout.connect(func():
+				if current_ticket == null and GameState.in_round:
+					_on_ticket_buy(_selected_ticket_type)
+			)
 
 
 func _update_ticket_buttons() -> void:
+	# Kazimadan once butonlar aktif (degistirme icin), kazima basladiysa kilitli
+	var can_swap: bool = current_ticket != null and not current_ticket.has_started_scratching
 	for t_type in TicketData.TICKET_ORDER:
 		var btn: Button = _ticket_buttons.get(t_type)
 		if btn == null:
@@ -347,9 +413,53 @@ func _update_ticket_buttons() -> void:
 		if not unlocked:
 			btn.text = "%s\nKilitli" % config["name"]
 			btn.disabled = true
+		elif can_swap:
+			# Kazimadan degistirme: tum acik biletler secilir (ucret alinmayacak)
+			btn.text = "%s\n%d C" % [config["name"], config["price"]]
+			btn.disabled = (t_type == _selected_ticket_type)  # Zaten secili olani devre disi birak
 		else:
 			btn.text = "%s\n%d C" % [config["name"], config["price"]]
-			btn.disabled = (current_ticket != null) or (GameState.coins < config["price"])
+			btn.disabled = (current_ticket != null and current_ticket.has_started_scratching) or (GameState.coins < config["price"])
+
+
+func _show_coin_delta(amount: int) -> void:
+	# Onceki delta label varsa temizle
+	if _coin_delta_label and is_instance_valid(_coin_delta_label):
+		_coin_delta_label.queue_free()
+
+	_coin_delta_label = Label.new()
+	_coin_delta_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	if amount >= 0:
+		_coin_delta_label.text = "+%s" % GameState.format_number(amount)
+		_coin_delta_label.add_theme_color_override("font_color", Color(0.2, 0.9, 0.3))
+	else:
+		_coin_delta_label.text = "%s" % GameState.format_number(amount)
+		_coin_delta_label.add_theme_color_override("font_color", Color(0.95, 0.25, 0.25))
+
+	_coin_delta_label.add_theme_font_size_override("font_size", 14)
+	_coin_delta_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.5))
+	_coin_delta_label.add_theme_constant_override("shadow_offset_x", 1)
+	_coin_delta_label.add_theme_constant_override("shadow_offset_y", 1)
+
+	# Coin label'in hemen yanina konumlandir (solda)
+	var parent := coin_label.get_parent()
+	parent.add_child(_coin_delta_label)
+	parent.move_child(_coin_delta_label, coin_label.get_index() + 1)
+
+	# Animasyon: belir → yukari kayarak kaybol
+	_coin_delta_label.modulate.a = 1.0
+	_coin_delta_label.pivot_offset = Vector2(20, 10)
+	_coin_delta_label.scale = Vector2(0.5, 0.5)
+	var tw := create_tween().set_parallel(true)
+	tw.tween_property(_coin_delta_label, "scale", Vector2(1.2, 1.2), 0.15).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	tw.chain().tween_interval(0.8)
+	tw.chain().tween_property(_coin_delta_label, "modulate:a", 0.0, 0.4)
+	tw.chain().tween_callback(func():
+		if is_instance_valid(_coin_delta_label):
+			_coin_delta_label.queue_free()
+			_coin_delta_label = null
+	)
 
 
 func _show_warning(text: String) -> void:

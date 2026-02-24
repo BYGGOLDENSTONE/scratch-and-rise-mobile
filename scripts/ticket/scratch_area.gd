@@ -17,6 +17,8 @@ var is_scratched: bool = false
 @onready var symbol_label: Label = $SymbolPanel/SymbolLabel
 
 var _cover_shader_mat: ShaderMaterial
+var _glow_rect: ColorRect = null
+var _glow_shader_mat: ShaderMaterial = null
 
 
 func setup(idx: int, symbol: String) -> void:
@@ -56,6 +58,9 @@ func setup(idx: int, symbol: String) -> void:
 	symbol_panel.modulate.a = 0.0
 	symbol_panel.scale = Vector2(0.5, 0.5)
 
+	# Radial glow (slam pop icin)
+	_create_glow_node()
+
 
 func _setup_cover_shader() -> void:
 	var shader := load("res://assets/shaders/scratch_cover.gdshader") as Shader
@@ -70,22 +75,34 @@ func _setup_cover_shader() -> void:
 	cover_panel.material = _cover_shader_mat
 
 
-func _gui_input(event: InputEvent) -> void:
-	if is_scratched:
-		return
+func _create_glow_node() -> void:
+	if _glow_rect:
+		_glow_rect.queue_free()
+	_glow_rect = ColorRect.new()
+	_glow_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_glow_rect.visible = false
 
-	var should_scratch := false
+	# Alan boyutunun 1.8 kati
+	var glow_size := size * 1.8
+	_glow_rect.size = glow_size
+	_glow_rect.position = (size - glow_size) / 2.0
 
-	if event is InputEventMouseButton:
-		if event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-			should_scratch = true
-	elif event is InputEventScreenTouch:
-		if event.pressed:
-			should_scratch = true
+	# Radial gradient shader (genis merkez + yumusak kenar)
+	var shader := Shader.new()
+	shader.code = """shader_type canvas_item;
+uniform vec4 glow_color : source_color = vec4(1.0, 1.0, 1.0, 0.8);
+void fragment() {
+	float dist = distance(UV, vec2(0.5));
+	float alpha = smoothstep(0.5, 0.05, dist) * glow_color.a;
+	COLOR = vec4(glow_color.rgb, alpha);
+}
+"""
+	_glow_shader_mat = ShaderMaterial.new()
+	_glow_shader_mat.shader = shader
+	_glow_rect.material = _glow_shader_mat
 
-	if should_scratch:
-		scratch()
-		accept_event()
+	add_child(_glow_rect)
+	move_child(_glow_rect, 0)
 
 
 func scratch() -> void:
@@ -156,17 +173,38 @@ func play_slam_pop(intensity: float = 1.0) -> void:
 	symbol_panel.pivot_offset = symbol_panel.size / 2.0
 	var color: Color = TicketData.get_color(symbol_type)
 
-	# Isikli border + artan shadow glow
+	# Isikli border + artan shadow glow (acik modda daha belirgin)
 	var style: StyleBoxFlat = symbol_panel.get_theme_stylebox("panel").duplicate() as StyleBoxFlat
 	if style:
 		style.border_color = Color(color.r, color.g, color.b, 0.95)
 		style.set_border_width_all(3)
-		style.shadow_color = Color(color.r, color.g, color.b, 0.6)
-		style.shadow_size = int(6 + intensity * 4)
+		var shadow_alpha := 0.8 if not ThemeHelper.is_dark() else 0.6
+		style.shadow_color = Color(color.r, color.g, color.b, shadow_alpha)
+		style.shadow_size = int(8 + intensity * 5)
 		symbol_panel.add_theme_stylebox_override("panel", style)
 
 	# Label flash: anlik beyaz, sonra sembol rengine don
 	symbol_label.add_theme_color_override("font_color", Color.WHITE)
+
+	# Radial glow patlamasi
+	if _glow_rect and _glow_shader_mat:
+		_glow_rect.visible = true
+		_glow_rect.modulate.a = 1.0
+		# Acik modda daha koyu/doygun glow, karanlikta daha parlak
+		var glow_alpha := 1.0 if not ThemeHelper.is_dark() else 0.85
+		var glow_col: Color
+		if ThemeHelper.is_dark():
+			glow_col = Color(color.r, color.g, color.b, glow_alpha)
+		else:
+			# Acik modda rengi doygunlastir (daha koyu ton)
+			glow_col = Color(color.r * 0.7, color.g * 0.7, color.b * 0.7, glow_alpha)
+		_glow_shader_mat.set_shader_parameter("glow_color", glow_col)
+		_glow_rect.scale = Vector2(0.3, 0.3)
+		_glow_rect.pivot_offset = _glow_rect.size / 2.0
+		var glow_tw := create_tween()
+		var glow_target_scale := 1.0 + intensity * 0.25
+		glow_tw.tween_property(_glow_rect, "scale", Vector2(glow_target_scale, glow_target_scale), 0.15).set_ease(Tween.EASE_OUT)
+		glow_tw.tween_property(_glow_rect, "modulate:a", 0.0, 0.45).set_delay(0.1)
 
 	# SLAM! Hizli buyutme + rotation punch
 	var slam_scale := 1.5 + (intensity - 1.0) * 0.15
@@ -195,3 +233,6 @@ func reset_celebration() -> void:
 	symbol_panel.scale = Vector2.ONE
 	symbol_panel.modulate.a = 1.0
 	symbol_panel.rotation_degrees = 0.0
+	if _glow_rect:
+		_glow_rect.visible = false
+		_glow_rect.modulate.a = 1.0
