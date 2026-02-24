@@ -220,7 +220,7 @@ scratch-mobil/
 - Her pop'ta carpan degeri gosteriliyor (x1, x1, x1!! kumar tarzi)
 - Eslesmeyenler soluklasiyor (%30 alpha), eslesenler parlak border + shadow glow
 - 4+ eslesmelerde final slam (ekstra shake + ekran flash)
-- Odul bilgisi: tier basligi (JACKPOT/BUYUK ESLESME/ESLESME), detay, coin animasyonu, DEVAM butonu
+- Odul bilgisi: tier basligi (JACKPOT/BUYUK ESLESME/ESLESME), detay, coin animasyonu, otomatik gecis (1.5-2.5s)
 - Eslesme yoksa: tum semboller soluk + "Eslesme yok..." + 1.5s otomatik devam
 - Yeni fonksiyonlar: `scratch_area.gd` → `play_slam_pop()`, `dim()`, `reset_celebration()`
 - Yeni sinyal: `ticket.gd` → `celebration_finished`
@@ -240,27 +240,22 @@ scratch-mobil/
 - Scratch parcaciklari guclendi: 20 parcacik, sicak altin-metalik renk, genis yayilma
 - Otomatik bilet: Son secilen tur hatirlanir, bilet bitince otomatik ayni turden yeni bilet gelir
 - Kazimadan degistirme: Ilk kazimaya kadar bilet ucretsiz degistirilebilir (coin ilk kazimada cekilir)
-- Coin delta gostergesi: Kirmizi `-tutar` (para cekildiginde), yesil `+tutar` (kazanildiginda) coin yaninda
+- Coin delta gostergesi: Kirmizi `-tutar` (para cekildiginde), yesil `+tutar` (kazanildiginda) coin altinda overlay (28px, 2.5s kalicilik)
 
----
-
-## Yapilacaklar (Sonraki Session)
-
-### UX Hiz Iyilestirmesi (ONCELIKLI)
-- **Odul gosterimi zamanlama:** Kazanilan para BAM BAM BAM efektinden hemen sonra gosterilmeli (simdi DEVAM'a bastiktan sonra gosteriyor)
-- **DEVAM butonu kaldirilacak:** Oyuncu DEVAM'a basmak zorunda kalmamali. 1.5sn bekle → otomatik yeni bilete gec
-- **Hizli dopamin dongusu:** Oyuncu sadece arka arkaya kazima yapmali, minimum bekleme/tiklamayla
-- **Eslesme yoksa:** Zaten 1.5sn otomatik devam var, dokunuldu
-
-### Bilet Boyutu (ONCELIKLI)
-- Bilet ekranda cok kucuk alan kapliyor, mobilde daha da kucuk gorunecek
-- Bilet alani buyutulmeli — ekranin buyuk bolumunu kaplamali
-- Kazima alanlari daha buyuk olmali (touch-friendly)
-
-### Parcacik & Efekt Alani (ONCELIKLI)
-- Efektler sadece biletin kucuk alaninda oluyor, etrafindaki bos alan kullanilmiyor
-- Isildama, aydinlanma, parcaciklar, konfeti biletin etrafindaki bos alani da doldurmali
-- Ekranin tamami efekt alani olarak kullanilmali (ozellikle jackpot/buyuk eslesmede)
+### UX Hiz + Buyuk Panel Iyilestirmesi (2026-02-24) `95fdb5f`
+- DEVAM butonu kaldirildi, otomatik timer ile gecis (jackpot: 2.5s, big: 2.0s, normal: 1.5s)
+- Dokunmayla hizli gecis: kutlama sirasinda dokunma → aninda yeni bilete gec
+- Bilet boyutu viewport oranli dinamik hesaplama (ekranin %42'si bilete)
+- TopBar: 60→160px, coin fontu 32px, bilet/enerji fontu 28px, padding 16/20
+- BottomPanel: 200→300px, buton fontlari 22-24px
+- Coin delta: overlay pozisyon (coin altinda), 28px font, 2.5s kalicilik, parlak renkler
+- Konfeti: 60→100 parcacik, 85 derece spread, 4-8 boyut
+- Kenar isigi efekti: jackpot/YOLO'da sol/sag kenar flash
+- Jackpot: ikinci mini konfeti dalgasi (0.4s sonra)
+- Big win: mini konfeti eklendi
+- Glow scale artisi: 1.2+0.3i (buyuk bilette daha genis)
+- Sembol font boyutu alan boyutuna oranli (14-32px)
+- Yeni bilet gecikme: 0.75s (kutlama sonrasi)
 
 ---
 
