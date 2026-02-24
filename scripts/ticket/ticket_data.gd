@@ -65,7 +65,7 @@ const TICKET_CONFIGS := {
 	"bronze": {
 		"name": "Bronz",
 		"price": 25,
-		"base_reward": 10,      # x1 = kayip 15 (%60)
+		"base_reward": 12,      # x1 = kayip 13 (%52), ROI ~x0.95
 		"area_count": 8,
 		"columns": 4,
 		"symbol_pool": ["cherry", "lemon", "grape", "star", "moon", "clover", "bell"],
@@ -73,7 +73,7 @@ const TICKET_CONFIGS := {
 	"silver": {
 		"name": "Gumus",
 		"price": 100,
-		"base_reward": 20,      # x1 = kayip 80 (%80)
+		"base_reward": 45,      # x1 = kayip 55 (%55), ROI ~x0.65
 		"area_count": 9,
 		"columns": 3,
 		"symbol_pool": ["cherry", "lemon", "grape", "star", "moon", "clover", "bell", "diamond", "heart"],
@@ -81,7 +81,7 @@ const TICKET_CONFIGS := {
 	"gold": {
 		"name": "Altin",
 		"price": 500,
-		"base_reward": 40,      # x1 = kayip 460 (%92)
+		"base_reward": 105,     # x1 = kayip 395 (%79), ROI ~x0.35
 		"area_count": 10,
 		"columns": 5,
 		"symbol_pool": ["cherry", "lemon", "grape", "star", "moon", "clover", "bell", "diamond", "heart", "seven", "crown", "horseshoe"],
@@ -89,7 +89,7 @@ const TICKET_CONFIGS := {
 	"platinum": {
 		"name": "Platin",
 		"price": 2500,
-		"base_reward": 80,      # x1 = kayip 2420 (%97)
+		"base_reward": 200,     # x1 = kayip 2300 (%92), ROI ~x0.20
 		"area_count": 12,
 		"columns": 4,
 		"symbol_pool": ["cherry", "lemon", "grape", "star", "moon", "clover", "bell", "diamond", "heart", "seven", "crown", "horseshoe", "phoenix", "dragon", "dice"],

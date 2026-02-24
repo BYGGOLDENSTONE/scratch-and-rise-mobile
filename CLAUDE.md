@@ -207,15 +207,33 @@ scratch-mobil/
 - Detayli rapor: `_test_report.json`
 
 ## Balans Sistemi Notlari
-- **Bilet bazli carpan tablosu:** `match_system.gd` MULTIPLIER_RANGES sabiti
-  - Paper: 3-eslesme x1, 4-eslesme x1-2, jackpot x3-5
-  - Bronze: x1 / x2-3 / x5-10
-  - Silver: x1 / x2-4 / x8-15
-  - Gold: x1 / x3-5 / x10-25
-  - Platinum: x1 / x3-8 / x15-50
-- **Sinerji carpanlari (dusuruldu):** Meyve x2, Gece x2, Lucky7 x5, Kraliyet x3, Ejderha x4, Full House x10, Gokkusagi x2, Festivali x5
-- **Paper sembol havuzu:** 5 sembol (cherry, lemon, grape, star, moon) — onceki 3'ten artirildi
-- **Mega Bilet:** Bilet bazli jackpot araligini kullaniyor (eski sabit x20-100 kaldirildi)
+- **base_reward sistemi:** Odul = base_reward x carpan (base_reward << fiyat = dogal kayip)
+- **Fiyatlar:** Paper=5, Bronze=25, Silver=100, Gold=500, Platinum=2500
+- **Base reward:** Paper=5, Bronze=10, Silver=20, Gold=40, Platinum=80
+- **Kayip orani (normal eslesme):** Paper=%0, Bronze=%60, Silver=%80, Gold=%92, Platinum=%97
+- **Carpan tablosu:** `match_system.gd` MULTIPLIER_RANGES
+  - Paper: normal x1, big x2-3, jackpot x5-10
+  - Bronze: normal x1-2, big x3-5, jackpot x8-15
+  - Silver: normal x1-2, big x4-8, jackpot x12-25
+  - Gold: normal x1-3, big x5-12, jackpot x15-40
+  - Platinum: normal x1-3, big x8-20, jackpot x30-80
+- **Sembol havuzlari:** Paper=5, Bronze=7, Silver=9, Gold=12, Platinum=15
+- **Yeni semboller:** clover (Yonca), bell (Zil), horseshoe (Nal), dice (Zar)
+- **Sinerji carpanlari:** Meyve x2, Gece x2, Lucky7 x5, Kraliyet x3, Ejderha x4, Full House x10, Gokkusagi x2, Festivali x5, JokerPartisi x3, BombaFirtinasi x4, TasKoleksiyonu x3, KozmikGuc x4, KriptoMadenci x5, CicekBahcesi x3, Efsane x6
+- **Mega Bilet:** Bilet bazli jackpot araligini kullaniyor
+
+## Balans Durumu (2026-02-24, matematik analizi sonrasi)
+- **ROI egrisi:** Paper x1.15, Bronze x0.95, Silver x0.65, Gold x0.35, Platinum x0.20
+- **Hedef akis:** Paper buildup → Bronze eglence → Silver drain baslangici → Gold/Platinum hizli drain → tur biter → tekrar oyna
+- **base_reward degerleri:** Paper=5, Bronze=12, Silver=45, Gold=105, Platinum=200
+- **Paper normal carpan:** [1,3] (buildup icin hafif pozitif)
+
+## SONRAKI SESSION GOREVLERI
+1. **Baslangic parasi 20 coin:** Oyuncu direkt 25'lik Bronze alamamali, once Paper ile buildup yapmali
+2. **5 yeni bilet turu (Platinum sonrasi):** Scale-up fiyatlarla ek tierler — isimler, fiyatlar, alan/sembol/base_reward tasarlanacak
+3. **Altin bilet duzeltmesi:** Su an sonraki bileti bedava yapiyor ama oyuncu o anki bileti bedava bekliyor — kafa karistirici. Altin bilet yakalandiginda mevcut biletin ucreti iade edilmeli veya popup metni netlesmeli
+4. **Bilet gecis hizi:** Kutlama bittikten sonra 0.75s bekleme var (`main.gd:503`), eski bilet kalktigi an yeni bilet gelmeli (delay=0). Hizli oynamayi destekle
+5. **Cikis butonu:** Main sahnesindeki "Geri" butonu "Cikis" olarak duzeltildi (bu sessionda yapildi)
 
 ---
 

@@ -11,14 +11,14 @@ extends RefCounted
 ## Odul = base_reward x carpan (base_reward << price = gercek kazi kazan riski)
 const MULTIPLIER_RANGES := {
 	"paper": {
-		"normal": [1, 1],    # 5 x1 = 5 (break even)
-		"big": [2, 3],       # 5 x2-3 = 10-15 (kar 5-10)
-		"jackpot": [5, 10],  # 5 x5-10 = 25-50 (buyuk kar)
+		"normal": [1, 3],    # 5 x1-3 = 5-15 (break even ile kucuk kar)
+		"big": [3, 5],       # 5 x3-5 = 15-25 (iyi kar)
+		"jackpot": [8, 15],  # 5 x8-15 = 40-75 (buyuk kar)
 	},
 	"bronze": {
-		"normal": [1, 2],    # 10 x1-2 = 10-20 (kayip 15-5)
-		"big": [3, 5],       # 10 x3-5 = 30-50 (kar 5-25)
-		"jackpot": [8, 15],  # 10 x8-15 = 80-150 (buyuk kar)
+		"normal": [2, 3],    # 10 x2-3 = 20-30 (kayip 5 ile kucuk kar)
+		"big": [4, 7],       # 10 x4-7 = 40-70 (iyi kar)
+		"jackpot": [10, 20], # 10 x10-20 = 100-200 (buyuk kar)
 	},
 	"silver": {
 		"normal": [1, 2],    # 20 x1-2 = 20-40 (kayip 80-60)

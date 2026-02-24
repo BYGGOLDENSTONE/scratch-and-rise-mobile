@@ -18,9 +18,34 @@ var _active: bool = true
 func _ready() -> void:
 	catch_btn.pressed.connect(_on_catch)
 	_apply_theme()
+	# Rastgele pozisyon: biletin ustu/alti, panellerin arasi
+	_randomize_position()
 	modulate.a = 0.0
 	var tw := create_tween()
 	tw.tween_property(self, "modulate:a", 1.0, 0.3)
+
+
+func _randomize_position() -> void:
+	# Bilet alani: ~160px (top bar) ile ~(viewport - 300px) (bottom panel) arasi
+	var vp_size := get_viewport_rect().size
+	var top_zone_min := 170.0  # Top bar altindaki alan
+	var top_zone_max := 280.0  # Bilet baslamadan once
+	var bottom_zone_min := vp_size.y - 360.0  # Bilet bittikten sonra
+	var bottom_zone_max := vp_size.y - 310.0  # Bottom panel baslamadan once
+	# Rastgele ust veya alt bolge sec
+	var target_y: float
+	if randf() < 0.5:
+		target_y = randf_range(top_zone_min, top_zone_max)
+	else:
+		target_y = randf_range(bottom_zone_min, bottom_zone_max)
+	# Yatay: hafif rastgele kayma
+	var target_x: float = randf_range(vp_size.x * 0.1, vp_size.x * 0.9 - size.x)
+	# Anchor'lari sifirla ve mutlak pozisyon kullan
+	anchor_left = 0.0
+	anchor_top = 0.0
+	anchor_right = 0.0
+	anchor_bottom = 0.0
+	position = Vector2(target_x, target_y)
 
 
 func _apply_theme() -> void:

@@ -43,10 +43,16 @@ func _apply_theme() -> void:
 	ThemeHelper.style_label(matches_label, ThemeHelper.p("text_primary"), 14)
 	ThemeHelper.style_label(synergies_label, ThemeHelper.p("text_primary"), 14)
 	ThemeHelper.style_label(jackpots_label, ThemeHelper.p("text_primary"), 14)
+	var play_again_btn: Button = $VBox/PlayAgainButton
 	var menu_btn: Button = $VBox/MenuButton
 	var ad_btn: Button = $VBox/WatchAdButton
-	ThemeHelper.make_button(menu_btn, ThemeHelper.p("warning"), 22)
+	ThemeHelper.make_button(play_again_btn, ThemeHelper.p("primary"), 26)
+	ThemeHelper.make_button(menu_btn, ThemeHelper.p("warning"), 20)
 	ThemeHelper.make_button(ad_btn, ThemeHelper.p("success"), 16)
+	# Enerji yoksa tekrar oyna butonu devre disi
+	if GameState.energy <= 0:
+		play_again_btn.text = "ENERJI YOK"
+		play_again_btn.disabled = true
 
 
 func _update_ui() -> void:
@@ -69,6 +75,13 @@ func _update_ui() -> void:
 		tw.tween_interval(0.5)
 		tw.tween_property(charm_earned_label, "scale", Vector2(1.3, 1.3), 0.2).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 		tw.tween_property(charm_earned_label, "scale", Vector2.ONE, 0.15)
+
+
+func _on_play_again_pressed() -> void:
+	if GameState.energy <= 0:
+		return
+	if GameState.start_round():
+		SceneTransition.change_scene("res://scenes/main/Main.tscn")
 
 
 func _on_menu_pressed() -> void:

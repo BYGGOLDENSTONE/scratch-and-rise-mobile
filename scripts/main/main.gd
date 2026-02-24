@@ -15,6 +15,7 @@ const EventBannerScene := preload("res://scenes/ui/EventBanner.tscn")
 const GoldenTicketScene := preload("res://scenes/ui/GoldenTicketPopup.tscn")
 const ThemeHelper := preload("res://scripts/ui/theme_helper.gd")
 const DailyQuestRef := preload("res://scripts/systems/daily_quest_system.gd")
+const SettingsPopupScene := preload("res://scenes/ui/SettingsPopup.tscn")
 
 @onready var coin_label: Label = %CoinLabel
 @onready var energy_label: Label = %EnergyLabel
@@ -41,6 +42,7 @@ var _pending_ticket_price: int = 0  # Ilk kazimada cekilecek fiyat (0 = bedava/o
 var _coin_delta_label: Label = null  # Coin yaninda +/- gosterimi
 var _is_first_ticket_of_round: bool = true  # Erken Kus charm icin
 var _no_match_count: int = 0  # Sanssiz Sansli basarimi icin
+var _settings_popup: PanelContainer = null  # Ayarlar popup referansi
 
 
 func _ready() -> void:
@@ -72,10 +74,12 @@ func _apply_theme() -> void:
 	ThemeHelper.style_warning(warning_label)
 	var charm_btn: Button = get_node("UILayer/UIRoot/VBox/BottomPanel/ActionButtons/CharmBtn")
 	var koleksiyon_btn: Button = get_node("UILayer/UIRoot/VBox/BottomPanel/ActionButtons/KoleksiyonBtn")
+	var ayarlar_btn: Button = get_node("UILayer/UIRoot/VBox/BottomPanel/ActionButtons/AyarlarBtn")
 	var back_btn: Button = get_node("UILayer/UIRoot/VBox/BottomPanel/ActionButtons/BackBtn")
-	ThemeHelper.make_button(charm_btn, ThemeHelper.p("info"), 24)
-	ThemeHelper.make_button(koleksiyon_btn, ThemeHelper.p("success"), 24)
-	ThemeHelper.make_button(back_btn, ThemeHelper.p("danger"), 24)
+	ThemeHelper.make_button(charm_btn, ThemeHelper.p("info"), 22)
+	ThemeHelper.make_button(koleksiyon_btn, ThemeHelper.p("success"), 22)
+	ThemeHelper.make_button(ayarlar_btn, ThemeHelper.p("text_secondary"), 22)
+	ThemeHelper.make_button(back_btn, ThemeHelper.p("danger"), 22)
 
 
 func _process(_delta: float) -> void:
@@ -136,6 +140,22 @@ func _on_round_ended(_total_earned: int) -> void:
 		_unlock_achievement(ach_id)
 	SaveManager.save_game()
 	SceneTransition.change_scene("res://scenes/screens/RoundEnd.tscn")
+
+
+func _on_charm_pressed() -> void:
+	SceneTransition.change_scene("res://scenes/screens/CharmScreen.tscn")
+
+
+func _on_koleksiyon_pressed() -> void:
+	SceneTransition.change_scene("res://scenes/screens/CollectionScreen.tscn")
+
+
+func _on_ayarlar_pressed() -> void:
+	if _settings_popup != null:
+		return
+	_settings_popup = SettingsPopupScene.instantiate()
+	get_node("UILayer").add_child(_settings_popup)
+	_settings_popup.popup_closed.connect(func(): _settings_popup = null)
 
 
 func _on_back_pressed() -> void:
@@ -695,17 +715,24 @@ func _show_golden_ticket_popup() -> void:
 	get_node("UILayer").add_child(_golden_ticket_popup)
 	_golden_ticket_popup.golden_ticket_caught.connect(_on_golden_caught)
 	_golden_ticket_popup.golden_ticket_missed.connect(_on_golden_missed)
+	# Popup acikken bilet inputunu engelle
+	if current_ticket:
+		current_ticket.input_blocked = true
 
 
 func _on_golden_caught() -> void:
 	GameState._free_ticket_active = true
 	print("[Main] Altin bilet yakalandi! Sonraki bilet ucretsiz!")
 	_golden_ticket_popup = null
+	if current_ticket:
+		current_ticket.input_blocked = false
 
 
 func _on_golden_missed() -> void:
 	print("[Main] Altin bilet kacti!")
 	_golden_ticket_popup = null
+	if current_ticket:
+		current_ticket.input_blocked = false
 
 
 func _unhandled_input(event: InputEvent) -> void:

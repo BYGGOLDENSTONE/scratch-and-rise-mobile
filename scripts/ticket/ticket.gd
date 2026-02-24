@@ -21,6 +21,7 @@ var _celebration_container: VBoxContainer = null
 var _drag_active: bool = false
 var has_started_scratching: bool = false
 var _celebration_dismissed: bool = false
+var input_blocked: bool = false  # Popup acikken input engelle
 
 @onready var ticket_header: Label = $VBox/TicketHeader
 @onready var grid: GridContainer = $VBox/GridContainer
@@ -115,6 +116,8 @@ func _apply_ticket_style(type: String) -> void:
 ## --- Surukleyerek Kazima ---
 
 func _input(event: InputEvent) -> void:
+	if input_blocked:
+		return
 	# Kutlama gorunurken dokunma → hemen gecis (hizli oyuncu icin)
 	if is_complete and not _celebration_dismissed and _celebration_container != null:
 		var is_touch := false

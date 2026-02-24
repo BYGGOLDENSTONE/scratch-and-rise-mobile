@@ -162,7 +162,10 @@ func _rebuild_list() -> void:
 
 
 func _on_back() -> void:
-	SceneTransition.change_scene("res://scenes/screens/MainMenu.tscn")
+	if GameState.in_round:
+		SceneTransition.change_scene("res://scenes/main/Main.tscn")
+	else:
+		SceneTransition.change_scene("res://scenes/screens/MainMenu.tscn")
 
 
 func _unhandled_input(event: InputEvent) -> void:
