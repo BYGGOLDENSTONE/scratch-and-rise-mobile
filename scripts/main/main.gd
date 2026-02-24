@@ -58,18 +58,18 @@ func _apply_theme() -> void:
 	$Background.color = ThemeHelper.p("bg_main")
 	var top_bar: PanelContainer = get_node("UILayer/UIRoot/VBox/TopBar")
 	ThemeHelper.style_top_bar(top_bar)
-	ThemeHelper.style_label(coin_label, ThemeHelper.p("warning"), 16)
-	ThemeHelper.style_label(ticket_count_label, ThemeHelper.p("text_primary"), 14)
-	ThemeHelper.style_label(energy_label, ThemeHelper.p("success"), 14)
-	ThemeHelper.style_label(energy_timer_label, ThemeHelper.p("text_secondary"), 11)
+	ThemeHelper.style_label(coin_label, ThemeHelper.p("warning"), 32)
+	ThemeHelper.style_label(ticket_count_label, ThemeHelper.p("text_primary"), 28)
+	ThemeHelper.style_label(energy_label, ThemeHelper.p("success"), 28)
+	ThemeHelper.style_label(energy_timer_label, ThemeHelper.p("text_secondary"), 20)
 	ThemeHelper.style_label(ticket_placeholder, ThemeHelper.p("text_secondary"), 16)
 	ThemeHelper.style_warning(warning_label)
 	var charm_btn: Button = get_node("UILayer/UIRoot/VBox/BottomPanel/ActionButtons/CharmBtn")
 	var koleksiyon_btn: Button = get_node("UILayer/UIRoot/VBox/BottomPanel/ActionButtons/KoleksiyonBtn")
 	var back_btn: Button = get_node("UILayer/UIRoot/VBox/BottomPanel/ActionButtons/BackBtn")
-	ThemeHelper.make_button(charm_btn, ThemeHelper.p("info"), 14)
-	ThemeHelper.make_button(koleksiyon_btn, ThemeHelper.p("success"), 14)
-	ThemeHelper.make_button(back_btn, ThemeHelper.p("danger"), 14)
+	ThemeHelper.make_button(charm_btn, ThemeHelper.p("info"), 24)
+	ThemeHelper.make_button(koleksiyon_btn, ThemeHelper.p("success"), 24)
+	ThemeHelper.make_button(back_btn, ThemeHelper.p("danger"), 24)
 
 
 func _process(_delta: float) -> void:
@@ -95,7 +95,7 @@ func _build_ticket_buttons() -> void:
 		var btn := Button.new()
 		btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		btn.pressed.connect(_on_ticket_buy.bind(t_type))
-		ThemeHelper.make_button(btn, ThemeHelper.get_tier_color(t_type), 12)
+		ThemeHelper.make_button(btn, ThemeHelper.get_tier_color(t_type), 22)
 		bilet_secimi.add_child(btn)
 		_ticket_buttons[t_type] = btn
 
@@ -275,6 +275,7 @@ func _on_ticket_completed(symbols: Array) -> void:
 			print("[Main] Bull Run! x2 carpan (kalan: %d)" % (bull_remaining - 1))
 		match_data["reward"] = reward
 		GameState.add_coins(reward)
+		_show_coin_delta(reward)
 		print("[Main] Eslesme! +", reward, " coin")
 	else:
 		print("[Main] Eslesme yok")
@@ -349,12 +350,6 @@ func _on_match_result_dismissed() -> void:
 	GameState._tickets_since_golden += 1
 	ticket_count_label.text = "Bilet: %d" % tickets_scratched
 
-	# Kazanc gostergesi (kutlama bittikten sonra)
-	if _last_match_data.get("has_match", false):
-		var reward: int = _last_match_data.get("reward", 0)
-		if reward > 0:
-			_show_coin_delta(reward)
-
 	# Basarim kontrolu
 	var context := {
 		"symbols": _last_symbols,
@@ -394,7 +389,7 @@ func _remove_current_ticket() -> void:
 		var price: int = config.get("price", 0)
 		if TicketData.is_ticket_unlocked(_selected_ticket_type) and GameState.coins >= price:
 			# Kisa gecikme ile otomatik bilet al (UX icin)
-			get_tree().create_timer(0.3).timeout.connect(func():
+			get_tree().create_timer(0.75).timeout.connect(func():
 				if current_ticket == null and GameState.in_round:
 					_on_ticket_buy(_selected_ticket_type)
 			)
@@ -429,32 +424,35 @@ func _show_coin_delta(amount: int) -> void:
 
 	_coin_delta_label = Label.new()
 	_coin_delta_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_coin_delta_label.z_index = 50
 
 	if amount >= 0:
 		_coin_delta_label.text = "+%s" % GameState.format_number(amount)
-		_coin_delta_label.add_theme_color_override("font_color", Color(0.2, 0.9, 0.3))
+		_coin_delta_label.add_theme_color_override("font_color", Color(0.1, 1.0, 0.3))
 	else:
 		_coin_delta_label.text = "%s" % GameState.format_number(amount)
-		_coin_delta_label.add_theme_color_override("font_color", Color(0.95, 0.25, 0.25))
+		_coin_delta_label.add_theme_color_override("font_color", Color(1.0, 0.2, 0.2))
 
-	_coin_delta_label.add_theme_font_size_override("font_size", 14)
-	_coin_delta_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.5))
-	_coin_delta_label.add_theme_constant_override("shadow_offset_x", 1)
-	_coin_delta_label.add_theme_constant_override("shadow_offset_y", 1)
+	_coin_delta_label.add_theme_font_size_override("font_size", 28)
+	_coin_delta_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.7))
+	_coin_delta_label.add_theme_constant_override("shadow_offset_x", 2)
+	_coin_delta_label.add_theme_constant_override("shadow_offset_y", 2)
 
-	# Coin label'in hemen yanina konumlandir (solda)
-	var parent := coin_label.get_parent()
-	parent.add_child(_coin_delta_label)
-	parent.move_child(_coin_delta_label, coin_label.get_index() + 1)
+	# Coin label'in altina overlay olarak konumlandir
+	get_node("UILayer").add_child(_coin_delta_label)
+	# Coin label'in global pozisyonunu kullan — altina yerlestir
+	_coin_delta_label.position = Vector2(coin_label.global_position.x, coin_label.global_position.y + coin_label.size.y + 4)
+	_coin_delta_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_coin_delta_label.custom_minimum_size = Vector2(coin_label.size.x, 0)
 
 	# Animasyon: belir → yukari kayarak kaybol
 	_coin_delta_label.modulate.a = 1.0
-	_coin_delta_label.pivot_offset = Vector2(20, 10)
+	_coin_delta_label.pivot_offset = Vector2(coin_label.size.x / 2.0, 14)
 	_coin_delta_label.scale = Vector2(0.5, 0.5)
 	var tw := create_tween().set_parallel(true)
-	tw.tween_property(_coin_delta_label, "scale", Vector2(1.2, 1.2), 0.15).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
-	tw.chain().tween_interval(0.8)
-	tw.chain().tween_property(_coin_delta_label, "modulate:a", 0.0, 0.4)
+	tw.tween_property(_coin_delta_label, "scale", Vector2(1.3, 1.3), 0.15).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	tw.chain().tween_interval(2.5)
+	tw.chain().tween_property(_coin_delta_label, "modulate:a", 0.0, 0.6)
 	tw.chain().tween_callback(func():
 		if is_instance_valid(_coin_delta_label):
 			_coin_delta_label.queue_free()

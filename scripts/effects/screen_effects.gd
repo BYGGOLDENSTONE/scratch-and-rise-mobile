@@ -12,6 +12,9 @@ var _shake_tween: Tween
 # Pool for scratch particles
 var _scratch_particles_pool: Array[GPUParticles2D] = []
 
+var _edge_left: ColorRect
+var _edge_right: ColorRect
+
 func _ready() -> void:
 	layer = 90
 	_setup_flash()
@@ -19,6 +22,7 @@ func _ready() -> void:
 	_setup_confetti()
 	_setup_mini_confetti()
 	_setup_scratch_particles()
+	_setup_edge_lights()
 	print("[ScreenEffects] Initialized")
 
 ## --- HAPTICS / VIBRATION ---
@@ -144,21 +148,21 @@ func _setup_confetti() -> void:
 	_confetti_particles = GPUParticles2D.new()
 	_confetti_particles.emitting = false
 	_confetti_particles.one_shot = true
-	_confetti_particles.amount = 60
+	_confetti_particles.amount = 100
 	_confetti_particles.lifetime = 1.5
 	_confetti_particles.position = Vector2(360, 200)
 	_confetti_particles.z_index = 100
 
 	var mat := ParticleProcessMaterial.new()
 	mat.direction = Vector3(0, 1, 0)
-	mat.spread = 60.0
-	mat.initial_velocity_min = 200.0
-	mat.initial_velocity_max = 500.0
+	mat.spread = 85.0
+	mat.initial_velocity_min = 250.0
+	mat.initial_velocity_max = 600.0
 	mat.gravity = Vector3(0, 400, 0)
 	mat.angular_velocity_min = -180.0
 	mat.angular_velocity_max = 180.0
-	mat.scale_min = 3.0
-	mat.scale_max = 6.0
+	mat.scale_min = 4.0
+	mat.scale_max = 8.0
 	mat.color = Color(1, 0.85, 0.1)
 	# Renk rastgelesi
 	var color_ramp := GradientTexture1D.new()
@@ -264,8 +268,13 @@ func play_scratch_particles(pos: Vector2) -> void:
 func jackpot_effect() -> void:
 	vibrate_heavy()
 	flash_screen(Color(1, 0.85, 0.1), 0.5)
-	screen_shake(18.0, 0.5) # Strong shake
+	screen_shake(18.0, 0.5)
 	play_confetti()
+	edge_flash(Color(1, 0.85, 0.1))
+	# Ikinci mini konfeti dalgasi
+	get_tree().create_timer(0.4).timeout.connect(func():
+		play_mini_confetti(Vector2(360, 500))
+	)
 
 
 ## --- BUYUK KAZANC EFEKTI ---
@@ -273,14 +282,16 @@ func big_win_effect() -> void:
 	vibrate_heavy()
 	flash_screen(Color(0.2, 1.0, 0.4), 0.3)
 	screen_shake(10.0, 0.3)
+	play_mini_confetti(Vector2(360, 450))
 
 
 ## --- YOLO EFEKTI (x50) ---
 func yolo_effect() -> void:
 	vibrate_heavy()
 	flash_screen(Color(1.0, 0.1, 0.1), 0.6)
-	screen_shake(25.0, 0.6) # Extreme shake
+	screen_shake(25.0, 0.6)
 	play_confetti()
+	edge_flash(Color(1.0, 0.1, 0.1))
 	
 	var yolo_label := Label.new()
 	yolo_label.text = "YOLO x50!"
@@ -313,4 +324,36 @@ func synergy_effect() -> void:
 	vibrate_heavy()
 	flash_screen(Color(0.6, 0.2, 1.0), 0.35)
 	screen_shake(8.0, 0.25)
+
+
+## --- KENAR ISIGI ---
+func _setup_edge_lights() -> void:
+	_edge_left = ColorRect.new()
+	_edge_left.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_edge_left.color = Color(1, 1, 1, 0)
+	_edge_left.anchor_top = 0.0
+	_edge_left.anchor_bottom = 1.0
+	_edge_left.anchor_left = 0.0
+	_edge_left.anchor_right = 0.0
+	_edge_left.offset_right = 40.0
+	add_child(_edge_left)
+
+	_edge_right = ColorRect.new()
+	_edge_right.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_edge_right.color = Color(1, 1, 1, 0)
+	_edge_right.anchor_top = 0.0
+	_edge_right.anchor_bottom = 1.0
+	_edge_right.anchor_left = 1.0
+	_edge_right.anchor_right = 1.0
+	_edge_right.offset_left = -40.0
+	add_child(_edge_right)
+
+
+func edge_flash(color: Color) -> void:
+	var c := Color(color.r, color.g, color.b, 0.6)
+	_edge_left.color = c
+	_edge_right.color = c
+	var tw := create_tween().set_parallel(true)
+	tw.tween_property(_edge_left, "color:a", 0.0, 0.8).set_ease(Tween.EASE_OUT)
+	tw.tween_property(_edge_right, "color:a", 0.0, 0.8).set_ease(Tween.EASE_OUT)
 

@@ -41,9 +41,10 @@ func setup(idx: int, symbol: String) -> void:
 	style.set_corner_radius_all(6)
 	symbol_panel.add_theme_stylebox_override("panel", style)
 
-	# Sembol label stili: parlak, kalin
+	# Sembol label stili: parlak, kalin (alan boyutuna oranli)
 	symbol_label.add_theme_color_override("font_color", color)
-	symbol_label.add_theme_font_size_override("font_size", 16)
+	var font_sz: int = clampi(int(min(custom_minimum_size.x, custom_minimum_size.y) * 0.18), 14, 32)
+	symbol_label.add_theme_font_size_override("font_size", font_sz)
 
 	# Metalik kapak shader
 	_setup_cover_shader()
@@ -202,7 +203,7 @@ func play_slam_pop(intensity: float = 1.0) -> void:
 		_glow_rect.scale = Vector2(0.3, 0.3)
 		_glow_rect.pivot_offset = _glow_rect.size / 2.0
 		var glow_tw := create_tween()
-		var glow_target_scale := 1.0 + intensity * 0.25
+		var glow_target_scale := 1.2 + intensity * 0.3
 		glow_tw.tween_property(_glow_rect, "scale", Vector2(glow_target_scale, glow_target_scale), 0.15).set_ease(Tween.EASE_OUT)
 		glow_tw.tween_property(_glow_rect, "modulate:a", 0.0, 0.45).set_delay(0.1)
 

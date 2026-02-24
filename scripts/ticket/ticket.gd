@@ -20,6 +20,7 @@ var _celebration_overlay: Node2D = null
 var _celebration_container: VBoxContainer = null
 var _drag_active: bool = false
 var has_started_scratching: bool = false
+var _celebration_dismissed: bool = false
 
 @onready var ticket_header: Label = $VBox/TicketHeader
 @onready var grid: GridContainer = $VBox/GridContainer
@@ -48,14 +49,21 @@ func setup(type: String, symbol_override: String = "") -> void:
 	is_complete = false
 	_scratch_areas.clear()
 
-	# Dinamik boyutlandirma: 5 sutun icin alanlari kucult
+	# Dinamik boyutlandirma: viewport oranli
 	var rows: int = ceili(float(total_areas) / float(cols))
-	var area_w: int = 100 if cols <= 4 else 65
-	var area_h: int = 80 if cols <= 4 else 60
+	var vp_size := get_viewport_rect().size
+	var avail_w: int = int(vp_size.x) - 40  # 20px margin her iki taraf
+	var avail_h: int = int(vp_size.y * 0.42)  # Ekranin %42'si bilete (ust/alt paneller buyuk)
+	var area_w: int = clampi((avail_w - (cols - 1) * 6 - 24) / cols, 65, 200)
+	var area_h: int = clampi((avail_h - (rows - 1) * 6 - 80) / rows, 60, 160)
 	var ticket_w: int = cols * area_w + (cols - 1) * 6 + 24
 	var ticket_h: int = rows * area_h + (rows - 1) * 6 + 80
 	get_parent().custom_minimum_size = Vector2(0, 0)  # serbest birak
 	custom_minimum_size = Vector2(ticket_w, ticket_h)
+
+	# Buyuk bilette header fontunu artir
+	if area_w >= 120:
+		ticket_header.add_theme_font_size_override("font_size", 18)
 
 	# Semboller (override varsa tum alanlari ayni sembolle doldur)
 	if symbol_override != "":
@@ -107,6 +115,16 @@ func _apply_ticket_style(type: String) -> void:
 ## --- Surukleyerek Kazima ---
 
 func _input(event: InputEvent) -> void:
+	# Kutlama gorunurken dokunma → hemen gecis (hizli oyuncu icin)
+	if is_complete and not _celebration_dismissed and _celebration_container != null:
+		var is_touch := false
+		if event is InputEventMouseButton and event.pressed:
+			is_touch = true
+		elif event is InputEventScreenTouch and event.pressed:
+			is_touch = true
+		if is_touch:
+			_dismiss_celebration()
+			return
 	if is_complete:
 		return
 
@@ -163,6 +181,7 @@ func get_ticket_type() -> String:
 
 ## Kutlama animasyonunu baslat (main.gd'den cagirilir)
 func play_celebration(match_data: Dictionary) -> void:
+	_celebration_dismissed = false
 	ticket_footer.visible = false
 	status_label.visible = false
 
@@ -221,7 +240,8 @@ func _play_match_celebration(match_data: Dictionary) -> void:
 	if matched_areas.size() >= 4:
 		ScreenEffects.screen_shake(14.0, 0.35)
 		ScreenEffects.flash_screen(sym_color, 0.3)
-		ScreenEffects.play_mini_confetti()
+		var ticket_center := global_position + size / 2.0
+		ScreenEffects.play_mini_confetti(ticket_center)
 
 	# === FAZ 2: Odul gosterimi (kisa bekleme sonrasi) ===
 	await get_tree().create_timer(0.5).timeout
@@ -342,21 +362,26 @@ func _show_reward_on_ticket(match_data: Dictionary) -> void:
 		reward_lbl.add_theme_font_size_override("font_size", int(s))
 	, 10.0, 22.0, 0.3).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 
-	# DEVAM butonu
-	var btn := Button.new()
-	btn.text = "DEVAM"
-	btn.custom_minimum_size = Vector2(0, 36)
-	ThemeHelper.make_button(btn, ThemeHelper.p("success"), 16)
-	btn.pressed.connect(func():
-		_cleanup_celebration()
-		celebration_finished.emit()
-	)
-	_celebration_container.add_child(btn)
-
 	# Giris animasyonu
 	_celebration_container.modulate.a = 0.0
 	var tw2 := create_tween()
 	tw2.tween_property(_celebration_container, "modulate:a", 1.0, 0.3)
+
+	# Otomatik gecis timer (tier'a gore bekleme suresi)
+	var wait_time: float
+	match tier:
+		"jackpot": wait_time = 2.5
+		"big": wait_time = 2.0
+		_: wait_time = 1.5
+	get_tree().create_timer(wait_time).timeout.connect(_dismiss_celebration)
+
+
+func _dismiss_celebration() -> void:
+	if _celebration_dismissed:
+		return
+	_celebration_dismissed = true
+	_cleanup_celebration()
+	celebration_finished.emit()
 
 
 func _cleanup_celebration() -> void:

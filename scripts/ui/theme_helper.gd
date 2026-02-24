@@ -230,15 +230,15 @@ static func style_top_bar(panel: PanelContainer) -> void:
 	var style := StyleBoxFlat.new()
 	style.bg_color = p("topbar_bg")
 	style.border_color = Color(accent.r, accent.g, accent.b, pf("topbar_border_alpha"))
-	style.border_width_bottom = 1
+	style.border_width_bottom = 2
 	style.corner_radius_top_left = 0
 	style.corner_radius_top_right = 0
-	style.corner_radius_bottom_left = 8
-	style.corner_radius_bottom_right = 8
-	style.content_margin_left = 8.0
-	style.content_margin_right = 8.0
-	style.content_margin_top = 6.0
-	style.content_margin_bottom = 6.0
+	style.corner_radius_bottom_left = 12
+	style.corner_radius_bottom_right = 12
+	style.content_margin_left = 20.0
+	style.content_margin_right = 20.0
+	style.content_margin_top = 16.0
+	style.content_margin_bottom = 16.0
 	panel.add_theme_stylebox_override("panel", style)
 
 
