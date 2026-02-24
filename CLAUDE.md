@@ -129,12 +129,16 @@ scratch-mobil/
 
 ## Basarim Sistemi Notlari
 - **Dosya:** `scripts/systems/achievement_system.gd` (preload ile referans)
-- **Basarimlar:** 5 erken + 5 orta + 5 gec + 4 gizli = 19 basarim
+- **Basarimlar:** 10 erken + 15 orta + 22 gec + 13 gizli = 60 basarim
 - **Oduller:** 2-30 CP arasi
+- **Nadir seviyeleri (rarity):** common (gri), uncommon (yesil), rare (mavi), epic (mor), legendary (altin)
 - **Kontrol:** Her bilet sonrasi + tur sonu + charm satin alma sonrasi
 - **State:** `GameState.unlocked_achievements`, `GameState.stats`, `GameState.round_stats`
 - **UI:** Basarim ekrani (`scenes/screens/AchievementScreen.tscn`), Basarim toast (`scenes/ui/AchievementToast.tscn`)
-- **Gizli basarimlar:** Joker Ustasi (3x joker), Seri Eslesme (5 ardisik), Cift Sinerji (2 sinerji 1 bilet), Sifirdan Zirveye (0 charm + 500 coin)
+- **Toast efektleri:** Slide-in bounce animasyonu, rarity-renk seridi, ekran flash, mini konfeti, CP ucma efekti, epic+ icin screen shake, legendary icin tam konfeti + kenar flash
+- **Basarim ekrani:** Kategori ilerleme cubuklari, rarity renk seridi her kartta, acilmis/kilitli gorsel ayrimi
+- **Gizli basarimlar (13):** Joker Ustasi (3x), Seri Eslesme (5 ardisik), Cift Sinerji (2 sinerji), Sifirdan Zirveye (0→500), Joker Cilginligi (4x), Bomba Zinciri, Sanssiz Sansli, Mukemmel Tur, Joker Festivali (5x), Uclu Sinerji (3 sinerji), Durdurulamaz (10 ardisik), Kral Midas (10K/tur), Yeni Baslayanin Sansi (ilk bilet jackpot)
+- **Yeni check type'lar:** sets_complete_gte, hidden_joker_count (target destekli), hidden_triple_synergy, hidden_rich_round, hidden_first_ticket_jackpot
 
 ## Gorsel Polish (M12) Notlari
 - **ThemeHelper:** `scripts/ui/theme_helper.gd` (preload ile referans, static fonksiyonlar)
@@ -236,6 +240,16 @@ scratch-mobil/
 ---
 
 ## Tamamlanan Gorevler
+
+### Basarim Sistemi Buyuk Guncelleme (2026-02-24)
+- **60 basarim:** 28→60 (10 erken + 15 orta + 22 gec + 13 gizli)
+- **Rarity sistemi:** common/uncommon/rare/epic/legendary — her basarima nadir seviyesi
+- **Yeni basarimlar:** Bilet tier eslesmeleri (Diamond→Legendary), milestone'lar (100/500/1000 bilet, 5K/100K coin), set ilerlemesi (2/4 set), charm ilerlemesi, jackpot sayaclari
+- **Yeni gizli basarimlar:** Joker Festivali (5x), Uclu Sinerji (3 sinerji/bilet), Durdurulamaz (10 ardisik), Kral Midas (10K/tur), Yeni Baslayanin Sansi (ilk bilet jackpot)
+- **Toast yenilendi:** Slide-in bounce (TRANS_BACK), rarity-renk seridi, scale pulse (TRANS_ELASTIC), shimmer animasyonu, CP ucma efekti
+- **Toast efektleri:** Mini konfeti (tum), screen shake (epic+), tam konfeti + kenar flash (legendary)
+- **Basarim ekrani yenilendi:** Kategori ilerleme cubuklari, rarity renk seridi, acilmis basarimlarda rarity etiketi
+- **Bugfix:** `ticket.gd` is_special tip cikarim hatasi duzeltildi (`:=` → `: bool =`, Godot 4.6 uyumluluk)
 
 ### Session Gorevleri Duzeltme (2026-02-24)
 - **Baslangic parasi 20 coin:** `game_state.gd` base 50→20 (Paper ile buildup zorunlu)

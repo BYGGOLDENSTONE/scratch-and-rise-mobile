@@ -6,29 +6,47 @@
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -150.0
-offset_right = 150.0
+offset_left = -210.0
+offset_right = 210.0
 offset_top = 20.0
-offset_bottom = 80.0
-custom_minimum_size = Vector2(300, 60)
+offset_bottom = 110.0
+custom_minimum_size = Vector2(420, 90)
+z_index = 100
 script = ExtResource("1_toast")
 
 [node name="Margin" type="MarginContainer" parent="."]
 layout_mode = 2
-theme_override_constants/margin_left = 12
-theme_override_constants/margin_right = 12
-theme_override_constants/margin_top = 6
-theme_override_constants/margin_bottom = 6
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_bottom = 10
 
-[node name="VBox" type="VBoxContainer" parent="Margin"]
+[node name="HBox" type="HBoxContainer" parent="Margin"]
 layout_mode = 2
+theme_override_constants/separation = 10
 
-[node name="NameLabel" type="Label" parent="Margin/VBox"]
+[node name="RarityStrip" type="ColorRect" parent="Margin/HBox"]
 layout_mode = 2
-text = "BASARIM: Test"
-horizontal_alignment = 1
+custom_minimum_size = Vector2(5, 0)
+color = Color(0.7, 0.7, 0.7, 1)
 
-[node name="RewardLabel" type="Label" parent="Margin/VBox"]
+[node name="Info" type="VBoxContainer" parent="Margin/HBox"]
 layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="NameLabel" type="Label" parent="Margin/HBox/Info"]
+layout_mode = 2
+text = "BASARIM"
+vertical_alignment = 1
+
+[node name="DescLabel" type="Label" parent="Margin/HBox/Info"]
+layout_mode = 2
+text = "Basarim Acildi!"
+
+[node name="RewardLabel" type="Label" parent="Margin/HBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(70, 0)
 text = "+5 CP"
-horizontal_alignment = 1
+horizontal_alignment = 2
+vertical_alignment = 1

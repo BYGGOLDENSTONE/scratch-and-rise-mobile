@@ -1,6 +1,6 @@
 extends Control
 
-## Basarim ekrani. Kategorilere gore listeleme.
+## Basarim ekrani. Kategorilere gore listeleme + ilerleme cubugu + nadir gosterimi.
 const AchievementRef := preload("res://scripts/systems/achievement_system.gd")
 const ThemeHelper := preload("res://scripts/ui/theme_helper.gd")
 
@@ -12,9 +12,9 @@ const ThemeHelper := preload("res://scripts/ui/theme_helper.gd")
 func _ready() -> void:
 	back_btn.pressed.connect(_on_back)
 	_apply_theme()
+	_build_header()
 	_build_list()
-	_update_counter()
-	print("[AchievementScreen] Ready")
+	print("[AchievementScreen] Ready — %d basarim" % AchievementRef.ACHIEVEMENT_ORDER.size())
 
 
 func _apply_theme() -> void:
@@ -25,10 +25,21 @@ func _apply_theme() -> void:
 	ThemeHelper.make_button(back_btn, ThemeHelper.p("danger"), 17)
 
 
-func _update_counter() -> void:
+## Ust kisimda toplam ilerleme cubugu
+func _build_header() -> void:
 	var total: int = AchievementRef.ACHIEVEMENT_ORDER.size()
 	var unlocked: int = GameState.unlocked_achievements.size()
 	counter_label.text = "%d / %d" % [unlocked, total]
+
+	# Ilerleme cubugu
+	var progress_bar := _create_progress_bar(unlocked, total, ThemeHelper.p("warning"))
+	# TopBar'in altina ekle (achievement_list'in basina)
+	achievement_list.add_child(progress_bar)
+
+	# Bosluk
+	var spacer := Control.new()
+	spacer.custom_minimum_size.y = 8
+	achievement_list.add_child(spacer)
 
 
 func _build_list() -> void:
@@ -39,7 +50,6 @@ func _build_list() -> void:
 		if ach.is_empty():
 			continue
 
-		# Kategori basligini ekle
 		var category: String = ach["category"]
 		if category != current_category:
 			current_category = category
@@ -49,27 +59,57 @@ func _build_list() -> void:
 
 
 func _add_section_header(category: String) -> void:
-	var sep := HSeparator.new()
-	achievement_list.add_child(sep)
+	# Bosluk
+	var spacer := Control.new()
+	spacer.custom_minimum_size.y = 6
+	achievement_list.add_child(spacer)
+
+	# Kategori header + ilerleme
+	var header_box := HBoxContainer.new()
+	header_box.custom_minimum_size.y = 36
+	achievement_list.add_child(header_box)
 
 	var header := Label.new()
 	header.text = AchievementRef.CATEGORY_NAMES.get(category, category.to_upper())
-	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	header.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	ThemeHelper.style_label(header, ThemeHelper.p("warning"), 16)
-	achievement_list.add_child(header)
+	header_box.add_child(header)
+
+	# Kategori ilerleme
+	var counts: Dictionary = AchievementRef.get_category_counts(category)
+	var count_label := Label.new()
+	count_label.text = "%d/%d" % [counts["unlocked"], counts["total"]]
+	ThemeHelper.style_label(count_label, ThemeHelper.p("text_secondary"), 14)
+	header_box.add_child(count_label)
+
+	# Kategori ilerleme cubugu
+	var cat_color: Color
+	match category:
+		"early": cat_color = AchievementRef.RARITY_COLORS["common"]
+		"mid": cat_color = AchievementRef.RARITY_COLORS["uncommon"]
+		"late": cat_color = AchievementRef.RARITY_COLORS["rare"]
+		"hidden": cat_color = AchievementRef.RARITY_COLORS["epic"]
+		_: cat_color = ThemeHelper.p("primary")
+
+	var progress := _create_progress_bar(counts["unlocked"], counts["total"], cat_color)
+	achievement_list.add_child(progress)
 
 
 func _add_achievement_item(ach_id: String, ach: Dictionary) -> void:
 	var is_unlocked: bool = ach_id in GameState.unlocked_achievements
+	var rarity: String = ach.get("rarity", "common")
+	var rarity_color: Color = AchievementRef.RARITY_COLORS.get(rarity, AchievementRef.RARITY_COLORS["common"])
 
 	# Ana kart
 	var card := PanelContainer.new()
-	card.custom_minimum_size.y = 70
-	var card_color := ThemeHelper.p("success") if is_unlocked else ThemeHelper.p("text_muted")
-	ThemeHelper.make_card(card, card_color)
+	card.custom_minimum_size.y = 76
+	if is_unlocked:
+		ThemeHelper.make_card(card, rarity_color)
+	else:
+		ThemeHelper.make_card(card, ThemeHelper.p("text_muted"))
 
 	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 10)
+	margin.add_theme_constant_override("margin_left", 6)
 	margin.add_theme_constant_override("margin_right", 10)
 	margin.add_theme_constant_override("margin_top", 6)
 	margin.add_theme_constant_override("margin_bottom", 6)
@@ -77,18 +117,30 @@ func _add_achievement_item(ach_id: String, ach: Dictionary) -> void:
 
 	var hbox := HBoxContainer.new()
 	hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	hbox.add_theme_constant_override("separation", 8)
 	margin.add_child(hbox)
 
-	# Sol: bilgi
+	# Sol: rarity strip (5px)
+	var strip := ColorRect.new()
+	strip.custom_minimum_size = Vector2(5, 0)
+	strip.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	if is_unlocked:
+		strip.color = rarity_color
+	else:
+		strip.color = Color(rarity_color.r, rarity_color.g, rarity_color.b, 0.25)
+	hbox.add_child(strip)
+
+	# Orta: bilgi
 	var info_vbox := VBoxContainer.new()
 	info_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	info_vbox.add_theme_constant_override("separation", 2)
 	hbox.add_child(info_vbox)
 
 	# Basarim ismi
 	var name_label := Label.new()
 	name_label.text = AchievementRef.get_display_name(ach_id)
 	if is_unlocked:
-		ThemeHelper.style_label(name_label, ThemeHelper.p("success"), 16)
+		ThemeHelper.style_label(name_label, ThemeHelper.p("text_primary"), 16)
 	else:
 		ThemeHelper.style_label(name_label, ThemeHelper.p("text_muted"), 16)
 	info_vbox.add_child(name_label)
@@ -96,22 +148,56 @@ func _add_achievement_item(ach_id: String, ach: Dictionary) -> void:
 	# Aciklama
 	var desc_label := Label.new()
 	desc_label.text = AchievementRef.get_display_description(ach_id)
-	ThemeHelper.style_label(desc_label, ThemeHelper.p("text_secondary"), 13)
+	ThemeHelper.style_label(desc_label, ThemeHelper.p("text_secondary"), 12)
 	info_vbox.add_child(desc_label)
 
+	# Rarity etiketi (sadece acilmissa)
+	if is_unlocked:
+		var rarity_label := Label.new()
+		rarity_label.text = AchievementRef.RARITY_NAMES.get(rarity, "")
+		ThemeHelper.style_label(rarity_label, rarity_color, 11)
+		info_vbox.add_child(rarity_label)
+
 	# Sag: odul
+	var reward_box := VBoxContainer.new()
+	reward_box.custom_minimum_size.x = 60
+	reward_box.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	hbox.add_child(reward_box)
+
 	var reward_label := Label.new()
-	reward_label.custom_minimum_size.x = 60
 	reward_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	if is_unlocked:
 		reward_label.text = "+%d CP" % ach["reward_cp"]
-		ThemeHelper.style_label(reward_label, ThemeHelper.p("success"), 16)
+		ThemeHelper.style_label(reward_label, ThemeHelper.p("warning"), 17)
 	else:
 		reward_label.text = "%d CP" % ach["reward_cp"]
-		ThemeHelper.style_label(reward_label, ThemeHelper.p("text_muted"), 16)
-	hbox.add_child(reward_label)
+		ThemeHelper.style_label(reward_label, ThemeHelper.p("text_muted"), 15)
+	reward_box.add_child(reward_label)
 
 	achievement_list.add_child(card)
+
+
+## Ilerleme cubugu olustur
+func _create_progress_bar(current: int, total: int, color: Color) -> Control:
+	var bar := Control.new()
+	bar.custom_minimum_size = Vector2(0, 10)
+	bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+
+	# Arka plan
+	var bg := ColorRect.new()
+	bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	bg.color = ThemeHelper.p("bg_card")
+	bar.add_child(bg)
+
+	# Dolu kisim (yuzdesel)
+	if total > 0 and current > 0:
+		var fill := ColorRect.new()
+		fill.anchor_right = clampf(float(current) / float(total), 0.0, 1.0)
+		fill.anchor_bottom = 1.0
+		fill.color = color
+		bar.add_child(fill)
+
+	return bar
 
 
 func _on_back() -> void:

@@ -704,16 +704,17 @@ func _unlock_achievement(ach_id: String) -> void:
 	GameState.charm_points += reward_cp
 	GameState.achievement_unlocked.emit(ach_id)
 	var display_name: String = ach.get("real_name", ach.get("name", ach_id))
-	print("[Main] Basarim acildi: %s (+%d CP)" % [display_name, reward_cp])
-	_show_achievement_toast(display_name, reward_cp)
+	var rarity: String = ach.get("rarity", "common")
+	print("[Main] Basarim acildi: %s (+%d CP) [%s]" % [display_name, reward_cp, rarity])
+	_show_achievement_toast(display_name, reward_cp, rarity)
 	SaveManager.save_game()
 
 
 ## Basarim toast'u goster
-func _show_achievement_toast(ach_name: String, reward_cp: int) -> void:
+func _show_achievement_toast(ach_name: String, reward_cp: int, rarity: String = "common") -> void:
 	var toast := AchievementToastScene.instantiate()
 	get_node("UILayer").add_child(toast)
-	toast.show_achievement(ach_name, reward_cp)
+	toast.show_achievement(ach_name, reward_cp, rarity)
 
 
 ## Olay banner'i goster

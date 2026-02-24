@@ -232,7 +232,7 @@ func _play_match_celebration(match_data: Dictionary) -> void:
 		var intensity := 0.7 + combo * 0.3
 
 		area.z_index = combo
-		var is_special := area.symbol_type == "joker" or area.symbol_type == "bomb"
+		var is_special: bool = area.symbol_type == "joker" or area.symbol_type == "bomb"
 		if is_special:
 			area.play_special_slam_pop(intensity)
 		else:
