@@ -8,13 +8,24 @@ var _coin_fly_container: Control
 var _confetti_particles: GPUParticles2D
 var _shake_tween: Tween
 
+# Pool for scratch particles
+var _scratch_particles_pool: Array[GPUParticles2D] = []
 
 func _ready() -> void:
 	layer = 90
 	_setup_flash()
 	_setup_coin_fly_container()
 	_setup_confetti()
+	_setup_scratch_particles()
 	print("[ScreenEffects] Initialized")
+
+## --- HAPTICS / VIBRATION ---
+func vibrate_light() -> void:
+	Input.vibrate_handheld(20) # 20ms quick buzz for scratching/minor taps
+
+func vibrate_heavy() -> void:
+	Input.vibrate_handheld(60) # 60ms solid vibration for matches/wins
+
 
 
 ## --- FLASH ---
@@ -33,7 +44,7 @@ func flash_screen(color: Color = Color.WHITE, duration: float = 0.3) -> void:
 
 
 ## --- SCREEN SHAKE ---
-func screen_shake(intensity: float = 8.0, duration: float = 0.3) -> void:
+func screen_shake(intensity: float = 12.0, duration: float = 0.25) -> void:
 	var viewport := get_viewport()
 	if viewport == null:
 		return
@@ -50,12 +61,15 @@ func screen_shake(intensity: float = 8.0, duration: float = 0.3) -> void:
 func _shake_node(node: Node, property: String, original: Vector2, intensity: float, duration: float) -> void:
 	if _shake_tween and _shake_tween.is_valid():
 		_shake_tween.kill()
+		node.set(property, original)
+		
 	_shake_tween = create_tween()
-	var steps := int(duration / 0.03)
+	var steps := int(duration / 0.02) # Faster shake cycles
 	for i in steps:
 		var offset := Vector2(randf_range(-intensity, intensity), randf_range(-intensity, intensity))
-		_shake_tween.tween_property(node, property, original + offset, 0.03)
-	_shake_tween.tween_property(node, property, original, 0.03)
+		_shake_tween.tween_property(node, property, original + offset, 0.02)
+		intensity *= 0.85 # Decay the shake quickly
+	_shake_tween.tween_property(node, property, original, 0.02)
 
 
 ## --- COIN UCMA ---
@@ -124,45 +138,97 @@ func play_confetti() -> void:
 	_confetti_particles.restart()
 	_confetti_particles.emitting = true
 
+## --- SCRATCH PARTICLES ---
+func _setup_scratch_particles() -> void:
+	for i in range(5): # Create a small pool of 5 emitters
+		var p := GPUParticles2D.new()
+		p.emitting = false
+		p.one_shot = true
+		p.amount = 15
+		p.lifetime = 0.4
+		p.explosiveness = 0.8
+		p.z_index = 80
+		
+		var mat := ParticleProcessMaterial.new()
+		mat.direction = Vector3(0, -1, 0)
+		mat.spread = 90.0
+		mat.initial_velocity_min = 100.0
+		mat.initial_velocity_max = 250.0
+		mat.gravity = Vector3(0, 500, 0)
+		mat.scale_min = 2.0
+		mat.scale_max = 4.0
+		mat.color = Color(0.8, 0.8, 0.8, 0.8) # Silver metallic dust color
+		
+		var alpha_ramp := GradientTexture1D.new()
+		var gradient := Gradient.new()
+		gradient.set_color(0, Color(1, 1, 1, 1))
+		gradient.set_color(1, Color(1, 1, 1, 0))
+		alpha_ramp.gradient = gradient
+		mat.color_ramp = alpha_ramp
+		
+		p.process_material = mat
+		add_child(p)
+		_scratch_particles_pool.append(p)
 
-## --- JACKPOT EFEKTI (flash + shake + konfeti) ---
+func play_scratch_particles(pos: Vector2) -> void:
+	for p in _scratch_particles_pool:
+		if not p.emitting:
+			p.position = pos
+			p.restart()
+			p.emitting = true
+			return
+
+## --- JACKPOT EFEKTI ---
 func jackpot_effect() -> void:
+	vibrate_heavy()
 	flash_screen(Color(1, 0.85, 0.1), 0.5)
-	screen_shake(12.0, 0.4)
+	screen_shake(18.0, 0.5) # Strong shake
 	play_confetti()
 
 
-## --- BUYUK KAZANC EFEKTI (shake + flash) ---
+## --- BUYUK KAZANC EFEKTI ---
 func big_win_effect() -> void:
-	flash_screen(Color(0.3, 1.0, 0.5), 0.3)
-	screen_shake(6.0, 0.25)
+	vibrate_heavy()
+	flash_screen(Color(0.2, 1.0, 0.4), 0.3)
+	screen_shake(10.0, 0.3)
 
 
 ## --- YOLO EFEKTI (x50) ---
 func yolo_effect() -> void:
+	vibrate_heavy()
 	flash_screen(Color(1.0, 0.1, 0.1), 0.6)
-	screen_shake(16.0, 0.5)
+	screen_shake(25.0, 0.6) # Extreme shake
 	play_confetti()
-	# Ekstra: YOLO yazisi
+	
 	var yolo_label := Label.new()
 	yolo_label.text = "YOLO x50!"
-	yolo_label.add_theme_font_size_override("font_size", 48)
+	yolo_label.add_theme_font_size_override("font_size", 64)
 	yolo_label.add_theme_color_override("font_color", Color(1.0, 0.1, 0.1))
+	# Add a shadow for better visibility
+	yolo_label.add_theme_color_override("font_shadow_color", Color.BLACK)
+	yolo_label.add_theme_constant_override("shadow_offset_x", 3)
+	yolo_label.add_theme_constant_override("shadow_offset_y", 3)
+	
 	yolo_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	yolo_label.anchors_preset = Control.PRESET_CENTER
 	yolo_label.z_index = 100
 	_coin_fly_container.add_child(yolo_label)
-	yolo_label.pivot_offset = yolo_label.size / 2
-	yolo_label.scale = Vector2(0.3, 0.3)
+	# Center pivot properly
+	yolo_label.position -= yolo_label.get_minimum_size() / 2.0
+	yolo_label.pivot_offset = yolo_label.get_minimum_size() / 2.0
+	yolo_label.scale = Vector2(0.2, 0.2)
 
 	var tw := create_tween()
-	tw.tween_property(yolo_label, "scale", Vector2(1.5, 1.5), 0.3).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	tw.tween_property(yolo_label, "scale", Vector2(1.5, 1.5), 0.35).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 	tw.tween_interval(0.8)
 	tw.tween_property(yolo_label, "modulate:a", 0.0, 0.4)
+	tw.tween_property(yolo_label, "scale", Vector2(2.0, 2.0), 0.4).set_ease(Tween.EASE_IN).set_delay(-0.4)
 	tw.tween_callback(yolo_label.queue_free)
 
 
 ## --- SINERJI EFEKTI ---
 func synergy_effect() -> void:
-	flash_screen(Color(0.5, 0.3, 1.0), 0.3)
-	screen_shake(5.0, 0.2)
+	vibrate_heavy()
+	flash_screen(Color(0.6, 0.2, 1.0), 0.35)
+	screen_shake(8.0, 0.25)
+

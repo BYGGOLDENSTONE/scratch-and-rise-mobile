@@ -4,9 +4,11 @@ extends PanelContainer
 ## Tier'a gore neon renk/border uygulanir.
 
 signal ticket_completed(symbols: Array)
+signal celebration_finished
 
 const ScratchAreaScene := preload("res://scenes/ticket/ScratchArea.tscn")
 const ThemeHelper := preload("res://scripts/ui/theme_helper.gd")
+const CollectionRef := preload("res://scripts/systems/collection_system.gd")
 
 var ticket_type: String = "paper"
 var symbols: Array = []
@@ -14,6 +16,8 @@ var scratched_count: int = 0
 var total_areas: int = 0
 var is_complete: bool = false
 var _scratch_areas: Array = []
+var _celebration_overlay: Node2D = null
+var _celebration_container: VBoxContainer = null
 
 @onready var ticket_header: Label = $VBox/TicketHeader
 @onready var grid: GridContainer = $VBox/GridContainer
@@ -108,35 +112,217 @@ func _complete() -> void:
 	if is_complete:
 		return
 	is_complete = true
-	status_label.text = "Tamamlandi!"
-	ThemeHelper.style_label(status_label, ThemeHelper.p("success"), 14)
-	status_label.visible = true
-	ticket_footer.visible = false
-
-	# Eslesen sembolleri bul ve pulse animasyonu oynat
-	_highlight_matches()
-
 	ticket_completed.emit(symbols)
 	print("[Ticket] Tamamlandi! Semboller: ", symbols)
 
 
-func _highlight_matches() -> void:
-	# Sembol sayimlarini bul
-	var counts := {}
-	for s in symbols:
-		counts[s] = counts.get(s, 0) + 1
-
-	# 3+ eslesenleri bul
-	var matching_symbols := []
-	for s in counts:
-		if counts[s] >= 3:
-			matching_symbols.append(s)
-
-	# Eslesen alanlarda glow animasyonu
-	for area in _scratch_areas:
-		if area.symbol_type in matching_symbols:
-			area.play_match_glow()
-
-
 func get_ticket_type() -> String:
 	return ticket_type
+
+
+## --- Kutlama Animasyon Sistemi ---
+
+## Kutlama animasyonunu baslat (main.gd'den cagirilir)
+func play_celebration(match_data: Dictionary) -> void:
+	ticket_footer.visible = false
+	status_label.visible = false
+
+	if match_data["has_match"]:
+		_play_match_celebration(match_data)
+	else:
+		_play_no_match()
+
+
+func _play_match_celebration(match_data: Dictionary) -> void:
+	var best_symbol: String = match_data["best_symbol"]
+	var sym_color: Color = TicketData.get_color(best_symbol)
+
+	# Overlay olustur (combo popup + cizgiler icin)
+	_celebration_overlay = Node2D.new()
+	_celebration_overlay.z_index = 10
+	add_child(_celebration_overlay)
+
+	# Eslesmeyenleri hemen soluktur
+	for area in _scratch_areas:
+		if area.symbol_type != best_symbol:
+			area.dim()
+
+	# Eslesen alanlari topla
+	var matched_areas := []
+	for area in _scratch_areas:
+		if area.symbol_type == best_symbol:
+			matched_areas.append(area)
+
+	# === FAZ 1: BAM BAM BAM! Tek tek patlat ===
+	var combo := 0
+	for area in matched_areas:
+		combo += 1
+		var intensity := 0.7 + combo * 0.3  # 1.0 → 1.3 → 1.6 → 1.9...
+
+		# Sembol SLAM! (z_index arttir ki sonraki hep ustte olsun)
+		area.z_index = combo
+		area.play_slam_pop(intensity)
+
+		# Escalating screen shake + vibration
+		ScreenEffects.vibrate_heavy()
+		ScreenEffects.screen_shake(3.0 + combo * 3.0, 0.12)
+
+		# Combo popup: "x1" "x1" "x1!!" (carpan gosterimi)
+		_show_combo_pop(combo, matched_areas.size(), area, match_data["multiplier"])
+
+		# Sonraki pop icin bekle (son pop icin bekleme)
+		if combo < matched_areas.size():
+			await get_tree().create_timer(0.22).timeout
+			if not is_inside_tree():
+				return
+
+	# 4+ eslesme: final slam!
+	if matched_areas.size() >= 4:
+		ScreenEffects.screen_shake(14.0, 0.35)
+		ScreenEffects.flash_screen(sym_color, 0.3)
+
+	# === FAZ 2: Odul gosterimi (kisa bekleme sonrasi) ===
+	await get_tree().create_timer(0.5).timeout
+	if not is_inside_tree():
+		return
+	_show_reward_on_ticket(match_data)
+
+
+## Carpan popup: sembolun ustunde "x1" "x1" "x1!!" seklinde (kumar tarzi)
+func _show_combo_pop(combo: int, total: int, area: Control, multiplier: int) -> void:
+	var pop := Label.new()
+	if combo == total:
+		pop.text = "x%d!!" % multiplier
+	else:
+		pop.text = "x%d" % multiplier
+	pop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	var font_size := 18 + combo * 5  # Giderek buyuyen: 23, 28, 33...
+	pop.add_theme_font_size_override("font_size", font_size)
+	pop.add_theme_color_override("font_color", Color.WHITE)
+	pop.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.7))
+	pop.add_theme_constant_override("shadow_offset_x", 2)
+	pop.add_theme_constant_override("shadow_offset_y", 2)
+
+	# Sembolun ustune konumlandir
+	var center: Vector2 = area.global_position - global_position + area.size / 2.0
+	pop.position = center - Vector2(15, 35)
+
+	_celebration_overlay.add_child(pop)
+
+	# Pop-up + yukari ucarak kaybol
+	pop.scale = Vector2(0.2, 0.2)
+	pop.pivot_offset = Vector2(15, 15)
+	var tw := create_tween().set_parallel(true)
+	tw.tween_property(pop, "scale", Vector2(1.4, 1.4), 0.1).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	tw.tween_property(pop, "position:y", pop.position.y - 30, 0.5).set_ease(Tween.EASE_OUT)
+	tw.tween_property(pop, "modulate:a", 0.0, 0.3).set_delay(0.25)
+	tw.chain().tween_callback(pop.queue_free)
+
+
+func _play_no_match() -> void:
+	for area in _scratch_areas:
+		area.dim()
+
+	status_label.text = "Eslesme yok..."
+	ThemeHelper.style_label(status_label, ThemeHelper.p("text_secondary"), 16)
+	status_label.visible = true
+
+	await get_tree().create_timer(1.5).timeout
+	if not is_inside_tree():
+		return
+	_cleanup_celebration()
+	celebration_finished.emit()
+
+
+func _show_reward_on_ticket(match_data: Dictionary) -> void:
+	_celebration_container = VBoxContainer.new()
+	_celebration_container.alignment = BoxContainer.ALIGNMENT_CENTER
+	_celebration_container.add_theme_constant_override("separation", 4)
+	$VBox.add_child(_celebration_container)
+
+	# Baslik (tier'a gore)
+	var title_lbl := Label.new()
+	title_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	var tier: String = match_data["tier"]
+	match tier:
+		"jackpot":
+			title_lbl.text = "JACKPOT!"
+			ThemeHelper.style_title(title_lbl, ThemeHelper.p("warning"), 26)
+		"big":
+			title_lbl.text = "BUYUK ESLESME!"
+			ThemeHelper.style_title(title_lbl, ThemeHelper.p("success"), 22)
+		_:
+			title_lbl.text = "ESLESME!"
+			ThemeHelper.style_title(title_lbl, ThemeHelper.p("primary"), 20)
+	_celebration_container.add_child(title_lbl)
+
+	# Detay
+	var detail_lbl := Label.new()
+	detail_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	var symbol_name: String = TicketData.get_display_name(match_data["best_symbol"])
+	var detail_text := "%s x%d = x%d carpan" % [symbol_name, match_data["best_count"], match_data["multiplier"]]
+
+	var synergies: Array = match_data.get("synergies", [])
+	var new_synergies: Array = match_data.get("new_synergies", [])
+	if not synergies.is_empty():
+		for syn in synergies:
+			if syn["id"] in new_synergies:
+				detail_text += "\nYENI SINERJI: %s! x%d" % [syn["name"], syn["multiplier"]]
+			else:
+				detail_text += "\nSINERJI: %s! x%d" % [syn["name"], syn["multiplier"]]
+		if not new_synergies.is_empty():
+			title_lbl.text = "SINERJI KESFEDILDI!"
+
+	var drop: Dictionary = match_data.get("collection_drop", {})
+	if not drop.is_empty():
+		var piece_name: String = CollectionRef.get_piece_name(drop["set_id"], drop["piece_id"])
+		var set_name: String = CollectionRef.get_set(drop["set_id"]).get("name", "")
+		detail_text += "\nKoleksiyon: %s (%s)" % [piece_name, set_name]
+		if match_data.get("set_completed", "") != "":
+			detail_text += "\nSET TAMAMLANDI!"
+
+	detail_lbl.text = detail_text
+	ThemeHelper.style_label(detail_lbl, ThemeHelper.p("text_primary"), 12)
+	_celebration_container.add_child(detail_lbl)
+
+	# Odul
+	var reward_lbl := Label.new()
+	reward_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	reward_lbl.text = "+%s Coin!" % GameState.format_number(match_data["reward"])
+	_celebration_container.add_child(reward_lbl)
+
+	# Odul buyume animasyonu (font size)
+	reward_lbl.add_theme_font_size_override("font_size", 10)
+	ThemeHelper.style_label(reward_lbl, ThemeHelper.p("success"), 10)
+	var tw := create_tween()
+	tw.tween_method(func(s: float):
+		reward_lbl.add_theme_font_size_override("font_size", int(s))
+	, 10.0, 22.0, 0.3).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+
+	# DEVAM butonu
+	var btn := Button.new()
+	btn.text = "DEVAM"
+	btn.custom_minimum_size = Vector2(0, 36)
+	ThemeHelper.make_button(btn, ThemeHelper.p("success"), 16)
+	btn.pressed.connect(func():
+		_cleanup_celebration()
+		celebration_finished.emit()
+	)
+	_celebration_container.add_child(btn)
+
+	# Giris animasyonu
+	_celebration_container.modulate.a = 0.0
+	var tw2 := create_tween()
+	tw2.tween_property(_celebration_container, "modulate:a", 1.0, 0.3)
+
+
+func _cleanup_celebration() -> void:
+	if _celebration_overlay:
+		_celebration_overlay.queue_free()
+		_celebration_overlay = null
+	if _celebration_container:
+		_celebration_container.queue_free()
+		_celebration_container = null
+	for area in _scratch_areas:
+		area.reset_celebration()

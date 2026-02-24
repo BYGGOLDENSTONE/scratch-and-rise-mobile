@@ -97,6 +97,10 @@ func scratch() -> void:
 	symbol_panel.visible = true
 	symbol_panel.pivot_offset = symbol_panel.size / 2.0
 
+	# Particles & Haptics for Juice
+	ScreenEffects.vibrate_light()
+	ScreenEffects.play_scratch_particles(global_position + (size / 2.0))
+
 	# Hizli Parmak charm: animasyon hizi artisi
 	var speed_mult := 1.0 + GameState.get_charm_level("hizli_parmak") * 0.1
 	var fade_dur := 0.3 / speed_mult
@@ -130,8 +134,64 @@ func _set_cover_reveal(value: float) -> void:
 func play_match_glow() -> void:
 	if not is_scratched:
 		return
+	ScreenEffects.vibrate_heavy()
+	
 	symbol_panel.pivot_offset = symbol_panel.size / 2.0
 	var tw := create_tween()
 	tw.set_loops(2)
-	tw.tween_property(symbol_panel, "scale", Vector2(1.15, 1.15), 0.15).set_ease(Tween.EASE_OUT)
+	# Daha abartili bir patlama hissi (scale 1.15 -> 1.25, rotasyon)
+	tw.tween_property(symbol_panel, "scale", Vector2(1.25, 1.25), 0.15).set_ease(Tween.EASE_OUT)
+	tw.parallel().tween_property(symbol_panel, "rotation_degrees", 5.0, 0.15).set_ease(Tween.EASE_OUT)
+	
 	tw.tween_property(symbol_panel, "scale", Vector2.ONE, 0.15).set_ease(Tween.EASE_IN)
+	tw.parallel().tween_property(symbol_panel, "rotation_degrees", 0.0, 0.15).set_ease(Tween.EASE_IN)
+
+
+## Dopamin slam: sembol BAM! diye patlar
+## intensity arttikca efekt sertlesir (combo escalation)
+func play_slam_pop(intensity: float = 1.0) -> void:
+	if not is_scratched:
+		return
+
+	symbol_panel.pivot_offset = symbol_panel.size / 2.0
+	var color: Color = TicketData.get_color(symbol_type)
+
+	# Isikli border + artan shadow glow
+	var style: StyleBoxFlat = symbol_panel.get_theme_stylebox("panel").duplicate() as StyleBoxFlat
+	if style:
+		style.border_color = Color(color.r, color.g, color.b, 0.95)
+		style.set_border_width_all(3)
+		style.shadow_color = Color(color.r, color.g, color.b, 0.6)
+		style.shadow_size = int(6 + intensity * 4)
+		symbol_panel.add_theme_stylebox_override("panel", style)
+
+	# Label flash: anlik beyaz, sonra sembol rengine don
+	symbol_label.add_theme_color_override("font_color", Color.WHITE)
+
+	# SLAM! Hizli buyutme + rotation punch
+	var slam_scale := 1.5 + (intensity - 1.0) * 0.15
+	var final_scale := 1.08 + (intensity - 1.0) * 0.04  # Kucuk kal, yan yana overlap olmasin
+	var rot := randf_range(-10.0, 10.0) * intensity
+
+	var tw := create_tween()
+	tw.tween_property(symbol_panel, "scale", Vector2(slam_scale, slam_scale), 0.06).set_ease(Tween.EASE_OUT)
+	tw.parallel().tween_property(symbol_panel, "rotation_degrees", rot, 0.06)
+	tw.tween_property(symbol_panel, "scale", Vector2(final_scale, final_scale), 0.14).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_ELASTIC)
+	tw.parallel().tween_property(symbol_panel, "rotation_degrees", 0.0, 0.14)
+	tw.tween_callback(func(): symbol_label.add_theme_color_override("font_color", color))
+
+
+## Eslesmeyenleri soluktur (%30 alpha)
+func dim() -> void:
+	if not is_scratched:
+		return
+	var tw := create_tween()
+	tw.tween_property(symbol_panel, "modulate:a", 0.3, 0.3)
+
+
+## Kutlama sonrasi normal haline dondur
+func reset_celebration() -> void:
+	symbol_panel.pivot_offset = symbol_panel.size / 2.0
+	symbol_panel.scale = Vector2.ONE
+	symbol_panel.modulate.a = 1.0
+	symbol_panel.rotation_degrees = 0.0

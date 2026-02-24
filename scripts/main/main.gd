@@ -5,7 +5,6 @@ extends Node2D
 ## Enerji labelina 5 kez tikla -> Debug Panel
 
 const TicketScene := preload("res://scenes/ticket/Ticket.tscn")
-const MatchResultScene := preload("res://scenes/ui/MatchResult.tscn")
 const DebugPanelScene := preload("res://scenes/debug/DebugPanel.tscn")
 const SynergyRef := preload("res://scripts/systems/synergy_system.gd")
 const CollectionRef := preload("res://scripts/systems/collection_system.gd")
@@ -26,7 +25,6 @@ const ThemeHelper := preload("res://scripts/ui/theme_helper.gd")
 @onready var energy_timer_label: Label = %EnergyTimerLabel
 
 var current_ticket: PanelContainer = null
-var match_result_popup: PanelContainer = null
 var tickets_scratched: int = 0
 var _debug_tap_count: int = 0
 var _debug_last_tap_time: float = 0.0
@@ -270,8 +268,9 @@ func _on_ticket_completed(symbols: Array) -> void:
 	# Gorsel efektler
 	_play_match_effects(match_data)
 
-	# Sonuc popup'ini goster
-	_show_match_result(match_data)
+	# Kutlama animasyonu (bilet uzerinde)
+	current_ticket.celebration_finished.connect(_on_match_result_dismissed, CONNECT_ONE_SHOT)
+	current_ticket.play_celebration(match_data)
 
 
 func _play_match_effects(match_data: Dictionary) -> void:
@@ -300,17 +299,7 @@ func _play_match_effects(match_data: Dictionary) -> void:
 		ScreenEffects.synergy_effect()
 
 
-func _show_match_result(match_data: Dictionary) -> void:
-	match_result_popup = MatchResultScene.instantiate()
-	get_node("UILayer").add_child(match_result_popup)
-	match_result_popup.show_result(match_data)
-	match_result_popup.result_dismissed.connect(_on_match_result_dismissed)
-
-
 func _on_match_result_dismissed() -> void:
-	if match_result_popup:
-		match_result_popup.queue_free()
-		match_result_popup = null
 	tickets_scratched += 1
 	GameState._tickets_since_golden += 1
 	ticket_count_label.text = "Bilet: %d" % tickets_scratched

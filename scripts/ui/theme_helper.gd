@@ -9,59 +9,61 @@ static var current_theme: ThemeMode = ThemeMode.DARK
 
 # --- DARK PALET ---
 const DARK_PALETTE := {
-	"bg_main": Color(0.07, 0.07, 0.09),
-	"bg_panel": Color(0.11, 0.11, 0.14),
-	"bg_card": Color(0.14, 0.14, 0.18),
-	"primary": Color(0.36, 0.53, 1.0),
-	"secondary": Color(0.55, 0.36, 1.0),
-	"success": Color(0.30, 0.78, 0.47),
-	"warning": Color(1.0, 0.72, 0.25),
-	"danger": Color(0.95, 0.35, 0.38),
-	"info": Color(0.30, 0.75, 0.93),
-	"text_primary": Color(0.95, 0.95, 0.97),
-	"text_secondary": Color(0.62, 0.62, 0.68),
-	"text_muted": Color(0.40, 0.40, 0.47),
-	"topbar_bg": Color(0.09, 0.09, 0.12, 0.95),
-	"topbar_border_alpha": 0.2,
-	"border_alpha": 0.25,
-	"tier_bg_paper": Color(0.14, 0.14, 0.15),
-	"tier_bg_bronze": Color(0.16, 0.12, 0.08),
-	"tier_bg_silver": Color(0.14, 0.15, 0.18),
-	"tier_bg_gold": Color(0.18, 0.15, 0.06),
-	"tier_bg_platinum": Color(0.13, 0.10, 0.20),
+	"bg_main": Color(0.05, 0.05, 0.08),         # Daha derin, zengin bir siyah/mor
+	"bg_panel": Color(0.09, 0.09, 0.13),        # Ince ayrım
+	"bg_card": Color(0.12, 0.12, 0.17),         # Kartlar için asalet
+	"primary": Color(0.20, 0.40, 0.95),         # Canlı ve güven veren Casino Mavisi
+	"secondary": Color(0.60, 0.15, 0.85),       # Asil Mor
+	"success": Color(0.15, 0.85, 0.45),         # Zıplayan, taze yeşil (kazanç hissi)
+	"warning": Color(1.0, 0.80, 0.15),          # Altın Sarısı
+	"danger": Color(1.0, 0.25, 0.35),           # YOLO/Uyarı Kırmızısı
+	"info": Color(0.0, 0.85, 0.95),             # Neon Camgöbeği
+	"text_primary": Color(0.98, 0.98, 1.0),
+	"text_secondary": Color(0.70, 0.70, 0.75),
+	"text_muted": Color(0.45, 0.45, 0.50),
+	"topbar_bg": Color(0.07, 0.07, 0.10, 0.95),
+	"topbar_border_alpha": 0.3,
+	"border_alpha": 0.35,
+	# Kart arka planlarında çok hafif tint 
+	"tier_bg_paper": Color(0.10, 0.10, 0.11),
+	"tier_bg_bronze": Color(0.14, 0.09, 0.05),
+	"tier_bg_silver": Color(0.12, 0.14, 0.16),
+	"tier_bg_gold": Color(0.16, 0.13, 0.04),
+	"tier_bg_platinum": Color(0.14, 0.08, 0.18),
 }
 
 # --- LIGHT PALET ---
 const LIGHT_PALETTE := {
-	"bg_main": Color(0.96, 0.96, 0.98),
+	"bg_main": Color(0.95, 0.96, 0.98),         # Temiz, ferah 
 	"bg_panel": Color(1.0, 1.0, 1.0),
-	"bg_card": Color(0.94, 0.94, 0.96),
-	"primary": Color(0.24, 0.42, 0.95),
-	"secondary": Color(0.45, 0.28, 0.90),
-	"success": Color(0.18, 0.65, 0.38),
-	"warning": Color(0.90, 0.60, 0.10),
-	"danger": Color(0.85, 0.22, 0.27),
-	"info": Color(0.15, 0.58, 0.82),
-	"text_primary": Color(0.10, 0.10, 0.14),
-	"text_secondary": Color(0.40, 0.40, 0.47),
-	"text_muted": Color(0.60, 0.60, 0.66),
+	"bg_card": Color(0.92, 0.94, 0.97),         
+	"primary": Color(0.15, 0.35, 0.90),         # Parlak mavi
+	"secondary": Color(0.50, 0.10, 0.80),
+	"success": Color(0.10, 0.75, 0.35),
+	"warning": Color(0.95, 0.65, 0.0),
+	"danger": Color(0.90, 0.15, 0.25),
+	"info": Color(0.05, 0.70, 0.85),
+	"text_primary": Color(0.10, 0.10, 0.12),
+	"text_secondary": Color(0.40, 0.40, 0.45),
+	"text_muted": Color(0.65, 0.65, 0.70),
 	"topbar_bg": Color(1.0, 1.0, 1.0, 0.95),
-	"topbar_border_alpha": 0.12,
-	"border_alpha": 0.15,
-	"tier_bg_paper": Color(0.92, 0.92, 0.93),
-	"tier_bg_bronze": Color(0.95, 0.91, 0.86),
-	"tier_bg_silver": Color(0.91, 0.92, 0.95),
-	"tier_bg_gold": Color(0.96, 0.94, 0.86),
-	"tier_bg_platinum": Color(0.93, 0.90, 0.97),
+	"topbar_border_alpha": 0.15,
+	"border_alpha": 0.20,
+	# Light mode için yumuşak arka plan tabanları
+	"tier_bg_paper": Color(0.90, 0.90, 0.92),
+	"tier_bg_bronze": Color(0.97, 0.92, 0.86),
+	"tier_bg_silver": Color(0.92, 0.93, 0.96),
+	"tier_bg_gold": Color(0.98, 0.96, 0.85),
+	"tier_bg_platinum": Color(0.94, 0.90, 0.98),
 }
 
 # Bilet tier aksanlari (tema-bagimsiz)
 const TIER_COLORS := {
-	"paper": Color(0.55, 0.55, 0.58),
-	"bronze": Color(0.70, 0.48, 0.25),
-	"silver": Color(0.68, 0.72, 0.78),
-	"gold": Color(0.90, 0.72, 0.15),
-	"platinum": Color(0.55, 0.35, 0.90),
+	"paper": Color(0.60, 0.60, 0.65),     # Daha nötr gri
+	"bronze": Color(0.85, 0.55, 0.25),    # Daha parlak bakır
+	"silver": Color(0.75, 0.80, 0.85),    # Daha mavi-buzlu gümüş
+	"gold": Color(1.0, 0.82, 0.10),       # Daha canlı, klasik casino altını
+	"platinum": Color(0.70, 0.40, 1.0),   # Yoğun, doymuş platin moru
 }
 
 
