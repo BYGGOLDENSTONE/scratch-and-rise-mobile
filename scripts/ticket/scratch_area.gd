@@ -43,7 +43,9 @@ func setup(idx: int, symbol: String) -> void:
 	symbol_panel.add_theme_stylebox_override("panel", style)
 
 	# Sembol label stili: parlak, kalin (alan boyutuna oranli)
-	symbol_label.add_theme_color_override("font_color", color)
+	# Light modda koyulastirilmis font rengi (parlak renkler acik bg'de okunamaz)
+	var font_color: Color = color if ThemeHelper.is_dark() else Color(color.r * 0.5, color.g * 0.5, color.b * 0.5)
+	symbol_label.add_theme_color_override("font_color", font_color)
 	var font_sz: int = clampi(int(min(custom_minimum_size.x, custom_minimum_size.y) * 0.18), 14, 32)
 	symbol_label.add_theme_font_size_override("font_size", font_sz)
 
@@ -222,7 +224,8 @@ func play_slam_pop(intensity: float = 1.0) -> void:
 	tw.parallel().tween_property(symbol_panel, "rotation_degrees", rot, 0.06)
 	tw.tween_property(symbol_panel, "scale", Vector2(final_scale, final_scale), 0.14).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_ELASTIC)
 	tw.parallel().tween_property(symbol_panel, "rotation_degrees", 0.0, 0.14)
-	tw.tween_callback(func(): symbol_label.add_theme_color_override("font_color", color))
+	var _slam_font_color: Color = color if ThemeHelper.is_dark() else Color(color.r * 0.5, color.g * 0.5, color.b * 0.5)
+	tw.tween_callback(func(): symbol_label.add_theme_color_override("font_color", _slam_font_color))
 
 
 ## Ozel sembol slam: joker/bomba icin farkli glow + pulse border
@@ -273,7 +276,8 @@ func play_special_slam_pop(intensity: float = 1.0) -> void:
 	tw.tween_property(symbol_panel, "scale", Vector2(slam_scale, slam_scale), 0.05).set_ease(Tween.EASE_OUT)
 	tw.tween_property(symbol_panel, "scale", Vector2(0.9, 0.9), 0.06)
 	tw.tween_property(symbol_panel, "scale", Vector2(1.15, 1.15), 0.08).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
-	tw.tween_callback(func(): symbol_label.add_theme_color_override("font_color", color))
+	var _special_font_color: Color = color if ThemeHelper.is_dark() else Color(color.r * 0.5, color.g * 0.5, color.b * 0.5)
+	tw.tween_callback(func(): symbol_label.add_theme_color_override("font_color", _special_font_color))
 
 
 ## Eslesmeyenleri soluktur (%30 alpha)
