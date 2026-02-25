@@ -119,9 +119,10 @@ func scratch() -> void:
 	symbol_panel.visible = true
 	symbol_panel.pivot_offset = symbol_panel.size / 2.0
 
-	# Particles & Haptics for Juice
+	# Particles, Haptics & Sound
 	ScreenEffects.vibrate_light()
 	ScreenEffects.play_scratch_particles(global_position + (size / 2.0))
+	SoundManager.play("scratch")
 
 	# Hizli Parmak charm: animasyon hizi artisi
 	var speed_mult := 1.0 + GameState.get_charm_level("hizli_parmak") * 0.1
@@ -218,6 +219,8 @@ func play_slam_pop(intensity: float = 1.0) -> void:
 		glow_tw.tween_property(_glow_rect, "modulate:a", persist_alpha, 0.35).set_delay(0.1)
 		glow_tw.tween_callback(_start_persistent_glow.bind(persist_alpha))
 
+	SoundManager.play("match_pop", 0.7 + intensity * 0.3)
+
 	# Soft slam: hafif buyutme + minimal rotasyon
 	var slam_scale := 1.30 + (intensity - 1.0) * 0.10
 	var final_scale := 1.05 + (intensity - 1.0) * 0.03
@@ -276,6 +279,8 @@ func play_special_slam_pop(intensity: float = 1.0) -> void:
 		glow_tw.tween_property(_glow_rect, "scale", Vector2(glow_target, glow_target), 0.2).set_ease(Tween.EASE_OUT)
 		glow_tw.tween_property(_glow_rect, "modulate:a", persist_alpha, 0.4).set_delay(0.15)
 		glow_tw.tween_callback(_start_persistent_glow.bind(persist_alpha))
+
+	SoundManager.play("match_special")
 
 	# Farkli animasyon: hizli double-bounce (ozel hissettir)
 	var slam_scale := 1.4 + (intensity - 1.0) * 0.12

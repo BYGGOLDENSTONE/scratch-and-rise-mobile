@@ -138,6 +138,7 @@ func _add_charm_item(charm_id: String, charm: Dictionary) -> void:
 
 func _on_charm_buy(charm_id: String) -> void:
 	if GameState.buy_charm(charm_id):
+		SoundManager.play("charm_buy")
 		# Basarim kontrolu (anahtar charm'lar ve charm ustasi)
 		var context := {}
 		var new_achievements: Array = AchievementRef.check_achievements(context)
@@ -162,6 +163,7 @@ func _rebuild_list() -> void:
 
 
 func _on_back() -> void:
+	SoundManager.play("ui_back")
 	if GameState.in_round:
 		SceneTransition.change_scene("res://scenes/main/Main.tscn")
 	else:

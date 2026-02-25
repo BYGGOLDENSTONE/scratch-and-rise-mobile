@@ -201,6 +201,7 @@ func _create_progress_bar(current: int, total: int, color: Color) -> Control:
 
 
 func _on_back() -> void:
+	SoundManager.play("ui_back")
 	if GameState.in_round:
 		SceneTransition.change_scene("res://scenes/main/Main.tscn")
 	else:

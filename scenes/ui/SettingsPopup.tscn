@@ -40,6 +40,12 @@ layout_mode = 2
 custom_minimum_size = Vector2(0, 50)
 text = "Tema: Karanlik"
 
+[node name="SoundToggleBtn" type="Button" parent="CenterBox/Panel/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(0, 50)
+text = "Ses: Acik"
+
 [node name="ResetBtn" type="Button" parent="CenterBox/Panel/VBox"]
 unique_name_in_owner = true
 layout_mode = 2

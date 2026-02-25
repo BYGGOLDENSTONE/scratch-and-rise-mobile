@@ -78,6 +78,7 @@ func _update_ui() -> void:
 
 
 func _on_play_again_pressed() -> void:
+	SoundManager.play("ui_tap")
 	if GameState.energy <= 0:
 		return
 	if GameState.start_round():
@@ -85,6 +86,7 @@ func _on_play_again_pressed() -> void:
 
 
 func _on_menu_pressed() -> void:
+	SoundManager.play("ui_back")
 	SceneTransition.change_scene("res://scenes/screens/MainMenu.tscn")
 
 

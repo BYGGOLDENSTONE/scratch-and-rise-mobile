@@ -8,6 +8,7 @@ signal popup_closed
 @onready var close_btn: Button = %CloseBtn
 @onready var reset_btn: Button = %ResetBtn
 @onready var theme_btn: Button = %ThemeToggleBtn
+@onready var sound_btn: Button = %SoundToggleBtn
 
 var _confirm_reset: bool = false
 
@@ -16,8 +17,10 @@ func _ready() -> void:
 	close_btn.pressed.connect(_on_close)
 	reset_btn.pressed.connect(_on_reset)
 	theme_btn.pressed.connect(_on_theme_toggle)
+	sound_btn.pressed.connect(_on_sound_toggle)
 	_apply_theme()
 	_update_theme_btn_text()
+	_update_sound_btn_text()
 	# Giris animasyonu
 	var panel: PanelContainer = $CenterBox/Panel
 	panel.pivot_offset = panel.size / 2
@@ -36,6 +39,7 @@ func _apply_theme() -> void:
 	ThemeHelper.make_button(close_btn, ThemeHelper.p("success"), 18)
 	ThemeHelper.make_button(reset_btn, ThemeHelper.p("danger"), 14)
 	ThemeHelper.make_button(theme_btn, ThemeHelper.p("primary"), 16)
+	ThemeHelper.make_button(sound_btn, ThemeHelper.p("info"), 16)
 	$BG.color = Color(0, 0, 0, 0.7)
 
 
@@ -47,13 +51,29 @@ func _update_theme_btn_text() -> void:
 
 
 func _on_theme_toggle() -> void:
+	SoundManager.play("ui_tap")
 	var new_theme := 1 if GameState.user_theme == 0 else 0
 	GameState.set_user_theme(new_theme)
 	_apply_theme()
 	_update_theme_btn_text()
 
 
+func _on_sound_toggle() -> void:
+	SoundManager.sfx_enabled = not SoundManager.sfx_enabled
+	_update_sound_btn_text()
+	SoundManager.play("ui_tap")
+	SaveManager.save_game()
+
+
+func _update_sound_btn_text() -> void:
+	if SoundManager.sfx_enabled:
+		sound_btn.text = "Ses: Acik"
+	else:
+		sound_btn.text = "Ses: Kapali"
+
+
 func _on_close() -> void:
+	SoundManager.play("popup_close")
 	popup_closed.emit()
 	queue_free()
 
@@ -61,6 +81,7 @@ func _on_close() -> void:
 func _on_reset() -> void:
 	if not _confirm_reset:
 		_confirm_reset = true
+		SoundManager.play("energy_warn")
 		reset_btn.text = "Emin misin? Tekrar bas"
 		# 3 saniye sonra geri al
 		var tw := create_tween()

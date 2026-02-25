@@ -149,6 +149,7 @@ func _on_energy_changed(_new_amount: int) -> void:
 
 
 func _on_round_ended(_total_earned: int) -> void:
+	SoundManager.play("round_end")
 	# Tur sonu basarim kontrolu
 	var context := {"round_end": true}
 	var new_achievements: Array = AchievementRef.check_achievements(context)
@@ -159,22 +160,26 @@ func _on_round_ended(_total_earned: int) -> void:
 
 
 func _on_charm_pressed() -> void:
+	SoundManager.play("ui_tap")
 	SceneTransition.change_scene("res://scenes/screens/CharmScreen.tscn")
 
 
 func _on_koleksiyon_pressed() -> void:
+	SoundManager.play("ui_tap")
 	SceneTransition.change_scene("res://scenes/screens/CollectionScreen.tscn")
 
 
 func _on_ayarlar_pressed() -> void:
 	if _settings_popup != null:
 		return
+	SoundManager.play("popup_open")
 	_settings_popup = SettingsPopupScene.instantiate()
 	get_node("UILayer").add_child(_settings_popup)
 	_settings_popup.popup_closed.connect(func(): _settings_popup = null)
 
 
 func _on_back_pressed() -> void:
+	SoundManager.play("ui_back")
 	if GameState.in_round:
 		GameState.end_round()
 	else:
@@ -230,6 +235,7 @@ func _on_ticket_buy(type: String) -> void:
 			return
 		_pending_ticket_price = price
 
+	SoundManager.play("ui_tap")
 	_selected_ticket_type = type
 	_ticket_paid = false
 	_create_ticket(type, false)
@@ -270,6 +276,7 @@ func _on_first_scratch(_area_index: int) -> void:
 	# Ilk kazimada coin cek
 	if not _ticket_paid and _pending_ticket_price > 0:
 		GameState.spend_coins(_pending_ticket_price)
+		SoundManager.play("coin_spend")
 		_show_coin_delta(-_pending_ticket_price)
 		print("[Main] Bilet ucreti cekildi: -%d coin" % _pending_ticket_price)
 		_ticket_paid = true
@@ -618,6 +625,7 @@ func _show_coin_delta(amount: int) -> void:
 
 
 func _show_warning(text: String) -> void:
+	SoundManager.play("energy_warn")
 	warning_label.text = text
 	warning_label.visible = true
 	warning_label.modulate.a = 1.0
@@ -713,6 +721,7 @@ func _unlock_achievement(ach_id: String) -> void:
 	var reward_cp: int = ach.get("reward_cp", 0)
 	GameState.charm_points += reward_cp
 	GameState.achievement_unlocked.emit(ach_id)
+	SoundManager.play("achievement")
 	var display_name: String = ach.get("real_name", ach.get("name", ach_id))
 	var rarity: String = ach.get("rarity", "common")
 	print("[Main] Basarim acildi: %s (+%d CP) [%s]" % [display_name, reward_cp, rarity])
@@ -729,6 +738,7 @@ func _show_achievement_toast(ach_name: String, reward_cp: int, rarity: String = 
 
 ## Olay banner'i goster
 func _show_event_banner(event_name: String, description: String) -> void:
+	SoundManager.play("event_trigger")
 	var banner := EventBannerScene.instantiate()
 	get_node("UILayer").add_child(banner)
 	banner.show_event(event_name, description)
@@ -738,6 +748,7 @@ func _show_event_banner(event_name: String, description: String) -> void:
 func _show_golden_ticket_popup() -> void:
 	if _golden_ticket_popup != null:
 		return
+	SoundManager.play("event_trigger")
 	_golden_ticket_popup = GoldenTicketScene.instantiate()
 	get_node("UILayer").add_child(_golden_ticket_popup)
 	_golden_ticket_popup.golden_ticket_caught.connect(_on_golden_caught)

@@ -352,6 +352,7 @@ func play_scratch_particles(pos: Vector2) -> void:
 
 ## --- JACKPOT EFEKTI ---
 func jackpot_effect() -> void:
+	SoundManager.play("jackpot")
 	vibrate_heavy()
 	flash_screen(Color(0.95, 0.82, 0.2), 0.45)
 	screen_shake(12.0, 0.35)
@@ -365,6 +366,7 @@ func jackpot_effect() -> void:
 
 ## --- BUYUK KAZANC EFEKTI ---
 func big_win_effect() -> void:
+	SoundManager.play("big_win")
 	vibrate_heavy()
 	flash_screen(Color(0.25, 0.85, 0.45), 0.3)
 	screen_shake(7.0, 0.25)
@@ -373,6 +375,7 @@ func big_win_effect() -> void:
 
 ## --- YOLO EFEKTI (x50) ---
 func yolo_effect() -> void:
+	SoundManager.play("jackpot")
 	vibrate_heavy()
 	flash_screen(Color(0.95, 0.25, 0.25), 0.5)
 	screen_shake(15.0, 0.4)
@@ -411,6 +414,7 @@ func yolo_effect() -> void:
 
 ## --- SINERJI EFEKTI ---
 func synergy_effect() -> void:
+	SoundManager.play("match_special")
 	vibrate_heavy()
 	flash_screen(Color(0.55, 0.30, 0.85), 0.30)
 	screen_shake(6.0, 0.20)

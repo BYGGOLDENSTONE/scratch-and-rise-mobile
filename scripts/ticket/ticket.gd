@@ -176,6 +176,7 @@ func _complete() -> void:
 	if is_complete:
 		return
 	is_complete = true
+	SoundManager.play("ticket_complete")
 	ticket_completed.emit(symbols)
 	print("[Ticket] Tamamlandi! Semboller: ", symbols)
 
@@ -385,6 +386,7 @@ func _show_combo_pop(combo: int, total: int, area: Control, multiplier: int) -> 
 
 
 func _play_no_match() -> void:
+	SoundManager.play("no_match")
 	for area in _scratch_areas:
 		area.dim()
 
@@ -455,6 +457,8 @@ func _show_reward_on_ticket(match_data: Dictionary) -> void:
 	reward_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	reward_lbl.text = "+%s Coin!" % GameState.format_number(match_data["reward"])
 	_celebration_container.add_child(reward_lbl)
+
+	SoundManager.play("coin_gain")
 
 	# Odul buyume animasyonu (font size)
 	reward_lbl.add_theme_font_size_override("font_size", 10)

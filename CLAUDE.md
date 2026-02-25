@@ -17,7 +17,7 @@
 - **Component-based structure:** Her sistem bagimsiz sahne/script
 - **2D Objeler (Node2D):** Bilet, kazima alanlari, semboller, efektler
 - **UI (Control):** Ust bar, bilet secimi, charm ekrani, popup'lar
-- **Autoload:** GameState (oyun durumu), SaveManager (kayit), AdManager (reklam)
+- **Autoload:** GameState (oyun durumu), SaveManager (kayit), AdManager (reklam), SoundManager (ses efektleri)
 - **Portrait mode:** 720x1280 base, touch input
 - **Sayi formati:** 1K, 1M, 1B, 1T, 1Qa, 1Qi...
 
@@ -234,12 +234,32 @@ scratch-mobil/
 - **Paper normal carpan:** [1,3] (buildup icin hafif pozitif)
 - **Baslangic parasi:** 20 coin (Paper ile buildup zorunlu)
 
+## Ses Efekti Sistemi Notlari
+- **Dosya:** `scripts/autoload/sound_manager.gd` (autoload: SoundManager)
+- **Sintetik sesler:** 19 placeholder ses, AudioStreamWAV ile runtime'da uretilir
+- **Ses turleri:** ui_tap, ui_back, popup_open, popup_close, scratch, match_pop, match_special, no_match, coin_gain, coin_spend, big_win, jackpot, achievement, event_trigger, energy_warn, ticket_complete, scene_swoosh, charm_buy, round_end
+- **Kullanim:** `SoundManager.play("ses_adi")` veya `SoundManager.play("ses_adi", pitch)`
+- **Ayarlar:** sfx_enabled (bool), sfx_volume (float 0-1), SaveManager'da saklanir
+- **Entegrasyon:** 14 dosyada ses cagrilari: main.gd, main_menu.gd, ticket.gd, scratch_area.gd, screen_effects.gd, scene_transition.gd, settings_popup.gd, charm_screen.gd, collection_screen.gd, achievement_screen.gd, synergy_album.gd, round_end.gd, save_manager.gd
+- **Pitch escalation:** match_pop sesinde intensity ile pitch artar (0.9 + intensity * 0.15)
+- **Degistirme:** Gercek ses dosyalari ile degistirilebilir (_sounds dictionary'sine AudioStreamWAV yerine dosyadan yuklenen stream atanabilir)
+
 ## SONRAKI SESSION GOREVLERI
 (Tum gorevler tamamlandi)
 
 ---
 
 ## Tamamlanan Gorevler
+
+### Ses Efekti Sistemi (2026-02-25)
+- **SoundManager autoload:** Sintetik placeholder sesler (19 adet), AudioStreamWAV ile runtime uretimi
+- **UI sesleri:** Buton tiklama (ui_tap), geri donme (ui_back), popup acilis/kapanis
+- **Oyun sesleri:** Kazima, sembol patlama (pitch escalation), ozel sembol, eslesme yok, bilet tamamlanma
+- **Odul sesleri:** Coin kazanma/harcama, buyuk kazanc, jackpot fanfar, charm satin alma
+- **Olay sesleri:** Basarim, olay tetikleme, enerji uyarisi, tur sonu, sahne gecisi
+- **Ayarlar:** Ses toggle (Acik/Kapali), SettingsPopup'a eklendi, SaveManager'da saklanir
+- **Entegrasyon:** 14 dosyada ~35 ses tetikleme noktasi
+- **Dosyalar:** `scripts/autoload/sound_manager.gd`, `scenes/ui/SettingsPopup.tscn` guncellendi
 
 ### Basarim Sistemi Buyuk Guncelleme (2026-02-24)
 - **60 basarim:** 28→60 (10 erken + 15 orta + 22 gec + 13 gizli)

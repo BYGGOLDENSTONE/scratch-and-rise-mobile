@@ -95,6 +95,7 @@ func _add_set_card(set_id: String, set_data: Dictionary) -> void:
 
 
 func _on_back() -> void:
+	SoundManager.play("ui_back")
 	if GameState.in_round:
 		SceneTransition.change_scene("res://scenes/main/Main.tscn")
 	else:

@@ -103,29 +103,35 @@ func _on_energy_changed(_new_amount: int) -> void:
 
 
 func _on_play_pressed() -> void:
+	SoundManager.play("ui_tap")
 	if GameState.start_round():
 		SceneTransition.change_scene("res://scenes/main/Main.tscn")
 
 
 func _on_charm_pressed() -> void:
+	SoundManager.play("ui_tap")
 	SceneTransition.change_scene("res://scenes/screens/CharmScreen.tscn")
 
 
 func _on_sinerji_pressed() -> void:
+	SoundManager.play("ui_tap")
 	SceneTransition.change_scene("res://scenes/screens/SynergyAlbum.tscn")
 
 
 func _on_koleksiyon_pressed() -> void:
+	SoundManager.play("ui_tap")
 	SceneTransition.change_scene("res://scenes/screens/CollectionScreen.tscn")
 
 
 func _on_basarim_pressed() -> void:
+	SoundManager.play("ui_tap")
 	SceneTransition.change_scene("res://scenes/screens/AchievementScreen.tscn")
 
 
 func _on_ayarlar_pressed() -> void:
 	if _settings_popup != null:
 		return
+	SoundManager.play("popup_open")
 	_settings_popup = SettingsPopupScene.instantiate()
 	add_child(_settings_popup)
 	_settings_popup.popup_closed.connect(func(): _settings_popup = null)

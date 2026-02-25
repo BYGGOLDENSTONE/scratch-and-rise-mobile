@@ -26,6 +26,7 @@ func save_game() -> void:
 		"stats": GameState.stats,
 		"unlocked_achievements": GameState.unlocked_achievements,
 		"user_theme": GameState.user_theme,
+		"sfx_enabled": SoundManager.sfx_enabled,
 		"daily_quests": GameState.daily_quests,
 		"daily_quest_date": GameState.daily_quest_date,
 		"daily_bonus_claimed": GameState.daily_bonus_claimed,
@@ -96,6 +97,9 @@ func load_game() -> bool:
 	# Tema tercihi
 	GameState.user_theme = int(data.get("user_theme", 0))
 	GameState._apply_saved_theme()
+
+	# Ses tercihi
+	SoundManager.sfx_enabled = data.get("sfx_enabled", true)
 
 	# Enerji yenilenme hesabı (dayanıklılık charm etkisi dahil)
 	var saved_energy: int = int(data.get("energy", GameState.BASE_MAX_ENERGY))

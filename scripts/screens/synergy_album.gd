@@ -87,6 +87,7 @@ func _add_synergy_item(synergy_id: String, synergy: Dictionary, discovered: bool
 
 
 func _on_back() -> void:
+	SoundManager.play("ui_back")
 	if GameState.in_round:
 		SceneTransition.change_scene("res://scenes/main/Main.tscn")
 	else:
