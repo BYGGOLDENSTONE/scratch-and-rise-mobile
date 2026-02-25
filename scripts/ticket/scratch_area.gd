@@ -19,6 +19,7 @@ var is_scratched: bool = false
 var _cover_shader_mat: ShaderMaterial
 var _glow_rect: ColorRect = null
 var _glow_shader_mat: ShaderMaterial = null
+var _glow_pulse_tween: Tween = null
 
 
 func setup(idx: int, symbol: String) -> void:
@@ -86,8 +87,8 @@ func _create_glow_node() -> void:
 	_glow_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_glow_rect.visible = false
 
-	# Alan boyutunun 1.8 kati
-	var glow_size := size * 1.8
+	# Alan boyutunun 2.5 kati (genis, yaygın hale)
+	var glow_size := size * 2.5
 	_glow_rect.size = glow_size
 	_glow_rect.position = (size - glow_size) / 2.0
 
@@ -195,24 +196,27 @@ func play_slam_pop(intensity: float = 1.0) -> void:
 	# Label flash: anlik beyaz, sonra sembol rengine don
 	symbol_label.add_theme_color_override("font_color", Color.WHITE)
 
-	# Soft radial glow patlamasi
+	# Radial glow patlamasi + kalici nefes alan isik
 	if _glow_rect and _glow_shader_mat:
 		_glow_rect.visible = true
 		var glow_col: Color
+		var persist_alpha: float
 		if ThemeHelper.is_dark():
-			_glow_rect.modulate.a = 0.7
-			glow_col = Color(color.r, color.g, color.b, 0.55)
+			_glow_rect.modulate.a = 0.55
+			glow_col = Color(color.r, color.g, color.b, 0.4)
+			persist_alpha = 0.20
 		else:
-			# Light modda: doygun renk + guclu alpha — parlak hissettir
-			_glow_rect.modulate.a = 0.85
-			glow_col = Color(color.r * 0.6, color.g * 0.6, color.b * 0.6, 0.65)
+			_glow_rect.modulate.a = 0.65
+			glow_col = Color(color.r * 0.6, color.g * 0.6, color.b * 0.6, 0.5)
+			persist_alpha = 0.28
 		_glow_shader_mat.set_shader_parameter("glow_color", glow_col)
 		_glow_rect.scale = Vector2(0.3, 0.3)
 		_glow_rect.pivot_offset = _glow_rect.size / 2.0
 		var glow_tw := create_tween()
-		var glow_target_scale := 1.0 + intensity * 0.2
-		glow_tw.tween_property(_glow_rect, "scale", Vector2(glow_target_scale, glow_target_scale), 0.18).set_ease(Tween.EASE_OUT)
-		glow_tw.tween_property(_glow_rect, "modulate:a", 0.0, 0.50).set_delay(0.1)
+		var glow_target_scale := 1.0 + intensity * 0.25
+		glow_tw.tween_property(_glow_rect, "scale", Vector2(glow_target_scale, glow_target_scale), 0.2).set_ease(Tween.EASE_OUT)
+		glow_tw.tween_property(_glow_rect, "modulate:a", persist_alpha, 0.35).set_delay(0.1)
+		glow_tw.tween_callback(_start_persistent_glow.bind(persist_alpha))
 
 	# Soft slam: hafif buyutme + minimal rotasyon
 	var slam_scale := 1.30 + (intensity - 1.0) * 0.10
@@ -253,22 +257,25 @@ func play_special_slam_pop(intensity: float = 1.0) -> void:
 
 	symbol_label.add_theme_color_override("font_color", Color.WHITE)
 
-	# Radial glow — ozel sembolun kendi rengiyle
+	# Radial glow — ozel sembol kalici parlama
 	if _glow_rect and _glow_shader_mat:
 		_glow_rect.visible = true
+		var persist_alpha: float
 		if ThemeHelper.is_dark():
-			_glow_rect.modulate.a = 0.85
-			_glow_shader_mat.set_shader_parameter("glow_color", Color(color.r, color.g, color.b, 0.70))
+			_glow_rect.modulate.a = 0.65
+			_glow_shader_mat.set_shader_parameter("glow_color", Color(color.r, color.g, color.b, 0.50))
+			persist_alpha = 0.28
 		else:
-			# Light modda: koyulastirilmis ozel glow — belirgin parlama
-			_glow_rect.modulate.a = 0.95
-			_glow_shader_mat.set_shader_parameter("glow_color", Color(color.r * 0.6, color.g * 0.6, color.b * 0.6, 0.75))
+			_glow_rect.modulate.a = 0.75
+			_glow_shader_mat.set_shader_parameter("glow_color", Color(color.r * 0.6, color.g * 0.6, color.b * 0.6, 0.55))
+			persist_alpha = 0.35
 		_glow_rect.scale = Vector2(0.3, 0.3)
 		_glow_rect.pivot_offset = _glow_rect.size / 2.0
 		var glow_tw := create_tween()
 		var glow_target := 1.3 + intensity * 0.25
 		glow_tw.tween_property(_glow_rect, "scale", Vector2(glow_target, glow_target), 0.2).set_ease(Tween.EASE_OUT)
-		glow_tw.tween_property(_glow_rect, "modulate:a", 0.0, 0.6).set_delay(0.15)
+		glow_tw.tween_property(_glow_rect, "modulate:a", persist_alpha, 0.4).set_delay(0.15)
+		glow_tw.tween_callback(_start_persistent_glow.bind(persist_alpha))
 
 	# Farkli animasyon: hizli double-bounce (ozel hissettir)
 	var slam_scale := 1.4 + (intensity - 1.0) * 0.12
@@ -278,6 +285,15 @@ func play_special_slam_pop(intensity: float = 1.0) -> void:
 	tw.tween_property(symbol_panel, "scale", Vector2(1.15, 1.15), 0.08).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
 	var _special_font_color: Color = color if ThemeHelper.is_dark() else Color(color.r * 0.5, color.g * 0.5, color.b * 0.5)
 	tw.tween_callback(func(): symbol_label.add_theme_color_override("font_color", _special_font_color))
+
+
+## Kalici nefes alan glow animasyonu (kutlama boyunca devam eder)
+func _start_persistent_glow(base_alpha: float) -> void:
+	if _glow_pulse_tween and _glow_pulse_tween.is_valid():
+		_glow_pulse_tween.kill()
+	_glow_pulse_tween = create_tween().set_loops()
+	_glow_pulse_tween.tween_property(_glow_rect, "modulate:a", base_alpha * 1.3, 0.8).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_SINE)
+	_glow_pulse_tween.tween_property(_glow_rect, "modulate:a", base_alpha * 0.7, 0.8).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_SINE)
 
 
 ## Eslesmeyenleri soluktur (%30 alpha)
@@ -294,6 +310,9 @@ func reset_celebration() -> void:
 	symbol_panel.scale = Vector2.ONE
 	symbol_panel.modulate.a = 1.0
 	symbol_panel.rotation_degrees = 0.0
+	if _glow_pulse_tween and _glow_pulse_tween.is_valid():
+		_glow_pulse_tween.kill()
+		_glow_pulse_tween = null
 	if _glow_rect:
 		_glow_rect.visible = false
 		_glow_rect.modulate.a = 1.0

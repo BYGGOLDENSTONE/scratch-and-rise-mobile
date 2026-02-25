@@ -246,6 +246,10 @@ func _play_match_celebration(match_data: Dictionary) -> void:
 		var punch_dir: Vector2 = punch_dirs[(combo - 1) % punch_dirs.size()]
 		ScreenEffects.screen_punch(punch_dir, 2.0 + combo * 1.5, 0.12)
 
+		# Sembol etrafinda mini konfeti patlamasi
+		var area_center: Vector2 = area.global_position + area.size / 2.0
+		ScreenEffects.play_slam_burst(area_center, TicketData.get_color(area.symbol_type))
+
 		# Popup: normal semboller "x1", joker → "JOKER!", bomba → "BOMBA +1!"
 		if area.symbol_type == "joker":
 			var jcolor: Color = TicketData.get_color("joker")
@@ -270,7 +274,44 @@ func _play_match_celebration(match_data: Dictionary) -> void:
 		ScreenEffects.screen_shake(9.0, 0.28)
 		ScreenEffects.flash_screen(sym_color, 0.3)
 		var ticket_center := global_position + size / 2.0
-		ScreenEffects.play_mini_confetti(ticket_center)
+		ScreenEffects.play_mini_confetti(ticket_center, sym_color)
+
+	# Dairesel dalga efekti (esleme bonusuna gore buyukluk/parlaklik)
+	var ripple_intensity: float
+	match match_data["tier"]:
+		"jackpot": ripple_intensity = 2.0
+		"big": ripple_intensity = 1.2
+		_: ripple_intensity = 0.6
+	if match_data["multiplier"] >= 5:
+		ripple_intensity *= 1.3
+	ScreenEffects.play_ripple_wave(sym_color, ripple_intensity)
+	# Jackpot: ikinci dalga (gecikmeli)
+	if match_data["tier"] == "jackpot":
+		get_tree().create_timer(0.3).timeout.connect(func():
+			ScreenEffects.play_ripple_wave(sym_color, ripple_intensity * 0.7)
+		)
+
+	# Finale patlamasi: eslesen her kare uzerinde + bonus buyuklugune gore ekstralar
+	for area in matched_areas:
+		var burst_pos: Vector2 = area.global_position + area.size / 2.0
+		ScreenEffects.play_slam_burst(burst_pos, sym_color)
+	# Bonus buyuklugune gore ekstra rastgele patlamalar (bilet alani icinde)
+	var extra_bursts: int = 0
+	match match_data["tier"]:
+		"jackpot": extra_bursts = 5
+		"big": extra_bursts = 3
+		_: extra_bursts = 1
+	if match_data["multiplier"] >= 5:
+		extra_bursts += 2
+	for i in extra_bursts:
+		var rnd_pos: Vector2 = global_position + Vector2(
+			randf_range(20, size.x - 20),
+			randf_range(20, size.y - 20)
+		)
+		ScreenEffects.play_slam_burst(rnd_pos, sym_color)
+	# Jackpot: ek buyuk konfeti
+	if match_data["tier"] == "jackpot":
+		ScreenEffects.play_confetti(global_position + size / 2.0, sym_color)
 
 	# === FAZ 2: Odul gosterimi (kisa bekleme sonrasi) ===
 	await get_tree().create_timer(0.5).timeout

@@ -14,6 +14,9 @@ var _scratch_particles_pool: Array[GPUParticles2D] = []
 
 var _edge_left: ColorRect
 var _edge_right: ColorRect
+var _ripple_shader: Shader
+var _slam_burst_pool: Array[GPUParticles2D] = []
+var _additive_mat: CanvasItemMaterial
 
 func _ready() -> void:
 	layer = 90
@@ -23,6 +26,9 @@ func _ready() -> void:
 	_setup_mini_confetti()
 	_setup_scratch_particles()
 	_setup_edge_lights()
+	_setup_ripple()
+	_setup_additive_mat()
+	_setup_slam_burst()
 	print("[ScreenEffects] Initialized")
 
 ## --- HAPTICS / VIBRATION ---
@@ -170,21 +176,21 @@ func _setup_confetti() -> void:
 	_confetti_particles = GPUParticles2D.new()
 	_confetti_particles.emitting = false
 	_confetti_particles.one_shot = true
-	_confetti_particles.amount = 60
-	_confetti_particles.lifetime = 1.3
+	_confetti_particles.amount = 90
+	_confetti_particles.lifetime = 1.5
 	_confetti_particles.position = Vector2(360, 200)
 	_confetti_particles.z_index = 100
 
 	var mat := ParticleProcessMaterial.new()
 	mat.direction = Vector3(0, 1, 0)
-	mat.spread = 75.0
-	mat.initial_velocity_min = 200.0
-	mat.initial_velocity_max = 450.0
-	mat.gravity = Vector3(0, 350, 0)
-	mat.angular_velocity_min = -120.0
-	mat.angular_velocity_max = 120.0
-	mat.scale_min = 3.0
-	mat.scale_max = 6.0
+	mat.spread = 85.0
+	mat.initial_velocity_min = 220.0
+	mat.initial_velocity_max = 500.0
+	mat.gravity = Vector3(0, 320, 0)
+	mat.angular_velocity_min = -150.0
+	mat.angular_velocity_max = 150.0
+	mat.scale_min = 4.0
+	mat.scale_max = 8.0
 	mat.color = Color(1, 0.85, 0.1)
 	# Renk rastgelesi
 	var color_ramp := GradientTexture1D.new()
@@ -201,8 +207,12 @@ func _setup_confetti() -> void:
 	add_child(_confetti_particles)
 
 
-func play_confetti() -> void:
-	_update_confetti_colors(_confetti_particles)
+func play_confetti(pos: Vector2 = Vector2(360, 200), color: Color = Color.TRANSPARENT) -> void:
+	if color != Color.TRANSPARENT:
+		_tint_confetti_color(_confetti_particles, color)
+	else:
+		_update_confetti_colors(_confetti_particles)
+	_confetti_particles.position = pos
 	_confetti_particles.restart()
 	_confetti_particles.emitting = true
 
@@ -212,20 +222,20 @@ func _setup_mini_confetti() -> void:
 	_mini_confetti = GPUParticles2D.new()
 	_mini_confetti.emitting = false
 	_mini_confetti.one_shot = true
-	_mini_confetti.amount = 25
-	_mini_confetti.lifetime = 0.8
+	_mini_confetti.amount = 40
+	_mini_confetti.lifetime = 1.0
 	_mini_confetti.z_index = 100
 
 	var mat := ParticleProcessMaterial.new()
 	mat.direction = Vector3(0, 1, 0)
-	mat.spread = 45.0
-	mat.initial_velocity_min = 120.0
-	mat.initial_velocity_max = 300.0
-	mat.gravity = Vector3(0, 400, 0)
+	mat.spread = 60.0
+	mat.initial_velocity_min = 140.0
+	mat.initial_velocity_max = 350.0
+	mat.gravity = Vector3(0, 350, 0)
 	mat.angular_velocity_min = -180.0
 	mat.angular_velocity_max = 180.0
-	mat.scale_min = 2.0
-	mat.scale_max = 4.0
+	mat.scale_min = 3.0
+	mat.scale_max = 6.0
 
 	var color_ramp := GradientTexture1D.new()
 	var gradient := Gradient.new()
@@ -241,8 +251,11 @@ func _setup_mini_confetti() -> void:
 	add_child(_mini_confetti)
 
 
-func play_mini_confetti(pos: Vector2 = Vector2(360, 400)) -> void:
-	_update_confetti_colors(_mini_confetti)
+func play_mini_confetti(pos: Vector2 = Vector2(360, 400), color: Color = Color.TRANSPARENT) -> void:
+	if color != Color.TRANSPARENT:
+		_tint_confetti_color(_mini_confetti, color)
+	else:
+		_update_confetti_colors(_mini_confetti)
 	_mini_confetti.position = pos
 	_mini_confetti.restart()
 	_mini_confetti.emitting = true
@@ -261,9 +274,32 @@ func _update_confetti_colors(particles: GPUParticles2D) -> void:
 		tex.gradient.set_color(0, Color(1.0, 0.3, 0.3))
 		tex.gradient.set_color(1, Color(1.0, 0.3, 1.0))
 	else:
-		# Light modda daha koyu/doygun konfeti renkleri
-		tex.gradient.set_color(0, Color(0.85, 0.15, 0.15))
-		tex.gradient.set_color(1, Color(0.85, 0.15, 0.85))
+		# Light modda cok koyu/doygun konfeti renkleri — acik arka planda net gorunsun
+		tex.gradient.set_color(0, Color(0.75, 0.05, 0.05))
+		tex.gradient.set_color(1, Color(0.75, 0.05, 0.75))
+
+
+## Konfeti renklerini belirli bir renge uyumlu hale getir (acik-koyu tonlar)
+func _tint_confetti_color(particles: GPUParticles2D, color: Color) -> void:
+	var ThemeHelper := preload("res://scripts/ui/theme_helper.gd")
+	var mat: ParticleProcessMaterial = particles.process_material as ParticleProcessMaterial
+	if mat == null or mat.color_initial_ramp == null:
+		return
+	var tex: GradientTexture1D = mat.color_initial_ramp as GradientTexture1D
+	if tex == null or tex.gradient == null:
+		return
+	var base: Color
+	if ThemeHelper.is_dark():
+		base = color
+	else:
+		base = Color(color.r * 0.55, color.g * 0.55, color.b * 0.55)
+	var g: Gradient = tex.gradient
+	var count: int = g.get_point_count()
+	for i in count:
+		var t: float = float(i) / maxf(float(count - 1), 1.0)
+		var c: Color = base.lightened(0.4 * (1.0 - t))
+		c = c.darkened(0.3 * t)
+		g.set_color(i, c)
 
 
 ## --- SCRATCH PARTICLES ---
@@ -420,4 +456,133 @@ func edge_flash(color: Color) -> void:
 	var tw := create_tween().set_parallel(true)
 	tw.tween_property(_edge_left, "color:a", 0.0, 0.65).set_ease(Tween.EASE_OUT)
 	tw.tween_property(_edge_right, "color:a", 0.0, 0.65).set_ease(Tween.EASE_OUT)
+
+
+## --- ADDITIVE MATERIAL (emissive parlama) ---
+func _setup_additive_mat() -> void:
+	_additive_mat = CanvasItemMaterial.new()
+	_additive_mat.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+
+
+## --- SLAM BURST (sembol etrafinda mini patlama) ---
+func _setup_slam_burst() -> void:
+	for i in range(14):
+		var p := GPUParticles2D.new()
+		p.emitting = false
+		p.one_shot = true
+		p.amount = 28
+		p.lifetime = 0.6
+		p.explosiveness = 1.0
+		p.z_index = 90
+
+		var mat := ParticleProcessMaterial.new()
+		mat.direction = Vector3(0, -1, 0)
+		mat.spread = 180.0
+		mat.initial_velocity_min = 100.0
+		mat.initial_velocity_max = 280.0
+		mat.gravity = Vector3(0, 220, 0)
+		mat.angular_velocity_min = -200.0
+		mat.angular_velocity_max = 200.0
+		mat.scale_min = 3.0
+		mat.scale_max = 6.0
+
+		var alpha_ramp := GradientTexture1D.new()
+		var gradient := Gradient.new()
+		gradient.set_color(0, Color(1, 1, 1, 1))
+		gradient.add_point(0.6, Color(1, 1, 1, 0.8))
+		gradient.set_color(1, Color(1, 1, 1, 0))
+		alpha_ramp.gradient = gradient
+		mat.color_ramp = alpha_ramp
+
+		p.process_material = mat
+		add_child(p)
+		_slam_burst_pool.append(p)
+
+
+func play_slam_burst(pos: Vector2, color: Color) -> void:
+	var ThemeHelper := preload("res://scripts/ui/theme_helper.gd")
+	var burst_color: Color
+	var use_additive: bool
+	if ThemeHelper.is_dark():
+		burst_color = Color(minf(color.r + 0.3, 1.0), minf(color.g + 0.3, 1.0), minf(color.b + 0.3, 1.0), 1.0)
+		use_additive = true
+	else:
+		burst_color = Color(color.r * 0.5, color.g * 0.5, color.b * 0.5, 1.0)
+		use_additive = false
+	for sp in _slam_burst_pool:
+		if not sp.emitting:
+			var mat: ParticleProcessMaterial = sp.process_material as ParticleProcessMaterial
+			if mat:
+				mat.color = burst_color
+			sp.material = _additive_mat if use_additive else null
+			sp.position = pos
+			sp.restart()
+			sp.emitting = true
+			return
+
+
+## --- DAIRESEL DALGA EFEKTI ---
+func _setup_ripple() -> void:
+	_ripple_shader = Shader.new()
+	_ripple_shader.code = """shader_type canvas_item;
+uniform float progress : hint_range(0.0, 1.5) = 0.0;
+uniform float ring_width = 0.05;
+uniform vec4 ring_color : source_color = vec4(1.0, 0.85, 0.3, 0.6);
+uniform float aspect = 1.778;
+
+void fragment() {
+	vec2 uv = UV - vec2(0.5);
+	uv.y *= aspect;
+	float dist = length(uv);
+	float w = ring_width * (1.0 + progress * 0.6);
+	float d = abs(dist - progress);
+	float ring = smoothstep(w, 0.0, d);
+	float inner = smoothstep(progress, progress * 0.15, dist) * 0.12;
+	float fade = 1.0 - smoothstep(0.15, 1.1, progress);
+	COLOR = vec4(ring_color.rgb, (ring + inner) * ring_color.a * fade);
+}
+"""
+
+
+func play_ripple_wave(color: Color, intensity: float = 1.0) -> void:
+	var ThemeHelper := preload("res://scripts/ui/theme_helper.gd")
+
+	var vp_size := get_viewport().get_visible_rect().size
+
+	var rect := ColorRect.new()
+	rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	rect.position = Vector2.ZERO
+	rect.size = vp_size
+
+	var mat := ShaderMaterial.new()
+	mat.shader = _ripple_shader
+	rect.material = mat
+	add_child(rect)
+	# En uste tasi (flash, konfeti vb. ustunde)
+	move_child(rect, get_child_count() - 1)
+
+	# Viewport aspect ratio
+	var aspect := vp_size.y / vp_size.x if vp_size.x > 0 else 1.778
+	mat.set_shader_parameter("aspect", aspect)
+
+	var ring_w := 0.03 + intensity * 0.025
+	var alpha: float
+	var wave_color: Color
+	if ThemeHelper.is_dark():
+		alpha = clampf(0.3 + intensity * 0.2, 0.0, 0.8)
+		wave_color = color
+	else:
+		alpha = clampf(0.25 + intensity * 0.15, 0.0, 0.7)
+		wave_color = Color(color.r * 0.6, color.g * 0.6, color.b * 0.6)
+
+	mat.set_shader_parameter("progress", 0.0)
+	mat.set_shader_parameter("ring_width", ring_w)
+	mat.set_shader_parameter("ring_color", Color(wave_color.r, wave_color.g, wave_color.b, alpha))
+
+	var duration := 0.6 + intensity * 0.3
+	var tw := create_tween()
+	tw.tween_method(func(p: float):
+		mat.set_shader_parameter("progress", p)
+	, 0.0, 1.2, duration).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+	tw.tween_callback(rect.queue_free)
 
