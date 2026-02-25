@@ -163,9 +163,14 @@ static func make_button(btn: Button, accent: Color = Color.TRANSPARENT, font_siz
 	disabled.content_margin_bottom = 10.0
 	btn.add_theme_stylebox_override("disabled", disabled)
 
-	# Font renkleri
-	btn.add_theme_color_override("font_color", accent)
-	btn.add_theme_color_override("font_hover_color", accent)
+	# Font renkleri — light modda koyulastirilmis (parlak renkler acik bg'de okunamaz)
+	var font_accent: Color
+	if is_dark():
+		font_accent = accent
+	else:
+		font_accent = Color(accent.r * 0.55, accent.g * 0.55, accent.b * 0.55)
+	btn.add_theme_color_override("font_color", font_accent)
+	btn.add_theme_color_override("font_hover_color", font_accent)
 	btn.add_theme_color_override("font_pressed_color", p("text_primary"))
 	btn.add_theme_color_override("font_disabled_color", p("text_muted"))
 	btn.add_theme_font_size_override("font_size", font_size)

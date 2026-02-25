@@ -36,9 +36,11 @@ func setup(type: String, symbol_override: String = "") -> void:
 	# Tier'a gore bilet stilini uygula
 	_apply_ticket_style(type)
 
-	# Header
+	# Header — light modda koyulastirilmis tier rengi
 	ticket_header.text = "%s - %d Coin" % [config["name"], config["price"]]
 	var tier_color: Color = ThemeHelper.get_tier_color(type)
+	if not ThemeHelper.is_dark():
+		tier_color = Color(tier_color.r * 0.55, tier_color.g * 0.55, tier_color.b * 0.55)
 	ticket_header.add_theme_color_override("font_color", tier_color)
 	ticket_header.add_theme_font_size_override("font_size", 16)
 
@@ -97,7 +99,9 @@ func _apply_ticket_style(type: String) -> void:
 
 	var style := StyleBoxFlat.new()
 	style.bg_color = tier_bg
-	style.border_color = Color(tier_color.r, tier_color.g, tier_color.b, 0.6)
+	var border_alpha := 0.6 if ThemeHelper.is_dark() else 0.75
+	var bc: Color = tier_color if ThemeHelper.is_dark() else Color(tier_color.r * 0.6, tier_color.g * 0.6, tier_color.b * 0.6)
+	style.border_color = Color(bc.r, bc.g, bc.b, border_alpha)
 	style.border_width_left = 2
 	style.border_width_top = 2
 	style.border_width_right = 2
