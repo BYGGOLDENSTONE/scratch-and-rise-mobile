@@ -44,7 +44,18 @@ func _setup_flash() -> void:
 
 
 func flash_screen(color: Color = Color.WHITE, duration: float = 0.3) -> void:
-	_flash_rect.color = Color(color.r, color.g, color.b, 0.35)
+	# Light modda: koyu flash (acik arka planda beyaz flash gorunmez)
+	var ThemeHelper := preload("res://scripts/ui/theme_helper.gd")
+	var flash_alpha: float
+	var flash_color: Color
+	if ThemeHelper.is_dark():
+		flash_color = color
+		flash_alpha = 0.35
+	else:
+		# Light modda rengi koyulastir ve alpha'yi artir
+		flash_color = Color(color.r * 0.6, color.g * 0.6, color.b * 0.6)
+		flash_alpha = 0.30
+	_flash_rect.color = Color(flash_color.r, flash_color.g, flash_color.b, flash_alpha)
 	var tw := create_tween()
 	tw.tween_property(_flash_rect, "color:a", 0.0, duration).set_ease(Tween.EASE_OUT)
 
@@ -126,10 +137,21 @@ func _setup_coin_fly_container() -> void:
 
 
 func coin_fly(amount: int, from_pos: Vector2) -> void:
+	var ThemeHelper := preload("res://scripts/ui/theme_helper.gd")
 	var label := Label.new()
 	label.text = "+%s" % GameState.format_number(amount)
 	label.add_theme_font_size_override("font_size", 28)
-	label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.1))
+	var coin_color: Color
+	if ThemeHelper.is_dark():
+		coin_color = Color(1.0, 0.85, 0.1)
+	else:
+		coin_color = Color(0.72, 0.55, 0.0)  # Koyu altin — acik bg'de okunur
+	label.add_theme_color_override("font_color", coin_color)
+	# Light modda golge ekle (okunurluk)
+	if not ThemeHelper.is_dark():
+		label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.25))
+		label.add_theme_constant_override("shadow_offset_x", 1)
+		label.add_theme_constant_override("shadow_offset_y", 1)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.position = from_pos - Vector2(40, 20)
 	label.z_index = 100
@@ -180,6 +202,7 @@ func _setup_confetti() -> void:
 
 
 func play_confetti() -> void:
+	_update_confetti_colors(_confetti_particles)
 	_confetti_particles.restart()
 	_confetti_particles.emitting = true
 
@@ -219,9 +242,28 @@ func _setup_mini_confetti() -> void:
 
 
 func play_mini_confetti(pos: Vector2 = Vector2(360, 400)) -> void:
+	_update_confetti_colors(_mini_confetti)
 	_mini_confetti.position = pos
 	_mini_confetti.restart()
 	_mini_confetti.emitting = true
+
+
+## Konfeti renklerini temaya gore guncelle
+func _update_confetti_colors(particles: GPUParticles2D) -> void:
+	var ThemeHelper := preload("res://scripts/ui/theme_helper.gd")
+	var mat: ParticleProcessMaterial = particles.process_material as ParticleProcessMaterial
+	if mat == null or mat.color_initial_ramp == null:
+		return
+	var tex: GradientTexture1D = mat.color_initial_ramp as GradientTexture1D
+	if tex == null or tex.gradient == null:
+		return
+	if ThemeHelper.is_dark():
+		tex.gradient.set_color(0, Color(1.0, 0.3, 0.3))
+		tex.gradient.set_color(1, Color(1.0, 0.3, 1.0))
+	else:
+		# Light modda daha koyu/doygun konfeti renkleri
+		tex.gradient.set_color(0, Color(0.85, 0.15, 0.15))
+		tex.gradient.set_color(1, Color(0.85, 0.15, 0.85))
 
 
 ## --- SCRATCH PARTICLES ---
@@ -257,11 +299,19 @@ func _setup_scratch_particles() -> void:
 		_scratch_particles_pool.append(p)
 
 func play_scratch_particles(pos: Vector2) -> void:
-	for p in _scratch_particles_pool:
-		if not p.emitting:
-			p.position = pos
-			p.restart()
-			p.emitting = true
+	var ThemeHelper := preload("res://scripts/ui/theme_helper.gd")
+	for sp in _scratch_particles_pool:
+		if not sp.emitting:
+			# Light modda koyu metalik parcaciklar (acik bg'de altin gorunmez)
+			var mat: ParticleProcessMaterial = sp.process_material as ParticleProcessMaterial
+			if mat:
+				if ThemeHelper.is_dark():
+					mat.color = Color(0.88, 0.80, 0.60, 0.85)
+				else:
+					mat.color = Color(0.65, 0.52, 0.25, 0.92)
+			sp.position = pos
+			sp.restart()
+			sp.emitting = true
 			return
 
 ## --- JACKPOT EFEKTI ---
@@ -293,12 +343,16 @@ func yolo_effect() -> void:
 	play_confetti()
 	edge_flash(Color(0.95, 0.25, 0.25))
 	
+	var ThemeHelper2 := preload("res://scripts/ui/theme_helper.gd")
 	var yolo_label := Label.new()
 	yolo_label.text = "YOLO x50!"
 	yolo_label.add_theme_font_size_override("font_size", 64)
-	yolo_label.add_theme_color_override("font_color", Color(0.95, 0.25, 0.25))
-	# Add a shadow for better visibility
-	yolo_label.add_theme_color_override("font_shadow_color", Color.BLACK)
+	if ThemeHelper2.is_dark():
+		yolo_label.add_theme_color_override("font_color", Color(0.95, 0.25, 0.25))
+		yolo_label.add_theme_color_override("font_shadow_color", Color.BLACK)
+	else:
+		yolo_label.add_theme_color_override("font_color", Color(0.78, 0.10, 0.10))
+		yolo_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.35))
 	yolo_label.add_theme_constant_override("shadow_offset_x", 3)
 	yolo_label.add_theme_constant_override("shadow_offset_y", 3)
 	
@@ -335,7 +389,7 @@ func _setup_edge_lights() -> void:
 	_edge_left.anchor_bottom = 1.0
 	_edge_left.anchor_left = 0.0
 	_edge_left.anchor_right = 0.0
-	_edge_left.offset_right = 24.0
+	_edge_left.offset_right = 30.0
 	add_child(_edge_left)
 
 	_edge_right = ColorRect.new()
@@ -345,12 +399,22 @@ func _setup_edge_lights() -> void:
 	_edge_right.anchor_bottom = 1.0
 	_edge_right.anchor_left = 1.0
 	_edge_right.anchor_right = 1.0
-	_edge_right.offset_left = -24.0
+	_edge_right.offset_left = -30.0
 	add_child(_edge_right)
 
 
 func edge_flash(color: Color) -> void:
-	var c := Color(color.r, color.g, color.b, 0.40)
+	var ThemeHelper := preload("res://scripts/ui/theme_helper.gd")
+	var edge_alpha: float
+	var edge_color: Color
+	if ThemeHelper.is_dark():
+		edge_color = color
+		edge_alpha = 0.40
+	else:
+		# Light modda koyulastirilmis kenar rengi + daha yuksek alpha
+		edge_color = Color(color.r * 0.7, color.g * 0.7, color.b * 0.7)
+		edge_alpha = 0.55
+	var c := Color(edge_color.r, edge_color.g, edge_color.b, edge_alpha)
 	_edge_left.color = c
 	_edge_right.color = c
 	var tw := create_tween().set_parallel(true)

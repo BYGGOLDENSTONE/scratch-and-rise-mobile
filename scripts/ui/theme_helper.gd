@@ -39,32 +39,32 @@ const DARK_PALETTE := {
 
 # --- LIGHT PALET ---
 const LIGHT_PALETTE := {
-	"bg_main": Color(0.94, 0.95, 0.97),         # Hafif soguk gri — temiz
-	"bg_panel": Color(0.99, 0.99, 1.0),         # Beyaza yakin — panel ayrim
-	"bg_card": Color(0.91, 0.92, 0.95),         # Belirgin kart arka plan
-	"primary": Color(0.20, 0.40, 0.85),         # Koyu mavi — okunur
-	"secondary": Color(0.45, 0.15, 0.70),       # Koyu mor — kontrast iyi
-	"success": Color(0.12, 0.62, 0.35),         # Koyu yesil — acik bg'de okunur
-	"warning": Color(0.82, 0.58, 0.0),          # Koyu altin — beyazda kontrast
-	"danger": Color(0.82, 0.18, 0.25),          # Koyu kirmizi
-	"info": Color(0.08, 0.55, 0.72),            # Koyu camgobeği — okunur
-	"text_primary": Color(0.12, 0.12, 0.15),
-	"text_secondary": Color(0.38, 0.38, 0.42),
-	"text_muted": Color(0.58, 0.58, 0.62),
-	"topbar_bg": Color(0.99, 0.99, 1.0, 0.96),
-	"topbar_border_alpha": 0.18,
-	"border_alpha": 0.28,
-	# Light mode icin belirgin arka plan tabanları
-	"tier_bg_paper": Color(0.88, 0.88, 0.90),
-	"tier_bg_bronze": Color(0.95, 0.90, 0.84),
-	"tier_bg_silver": Color(0.90, 0.91, 0.94),
-	"tier_bg_gold": Color(0.96, 0.93, 0.82),
-	"tier_bg_platinum": Color(0.92, 0.88, 0.96),
-	"tier_bg_diamond_tier": Color(0.85, 0.94, 0.97),
-	"tier_bg_emerald_tier": Color(0.85, 0.96, 0.88),
-	"tier_bg_ruby_tier": Color(0.97, 0.85, 0.87),
-	"tier_bg_obsidian": Color(0.88, 0.86, 0.92),
-	"tier_bg_legendary": Color(0.97, 0.93, 0.82),
+	"bg_main": Color(0.92, 0.93, 0.96),         # Hafif soğuk mavi-gri — daha belirgin
+	"bg_panel": Color(0.97, 0.97, 0.99),         # Beyaza yakin — panel ayrim
+	"bg_card": Color(0.88, 0.89, 0.93),         # Kartlar belirgin ayrisir
+	"primary": Color(0.15, 0.35, 0.82),         # Derin mavi — guclu kontrast
+	"secondary": Color(0.42, 0.10, 0.68),       # Doygun mor — belirgin
+	"success": Color(0.08, 0.55, 0.28),         # Koyu zumrut yesil — keskin
+	"warning": Color(0.78, 0.52, 0.0),          # Koyu amber — guclu kontrast
+	"danger": Color(0.78, 0.12, 0.18),          # Derin kirmizi
+	"info": Color(0.05, 0.48, 0.68),            # Koyu okyanus mavisi — belirgin
+	"text_primary": Color(0.08, 0.08, 0.12),
+	"text_secondary": Color(0.32, 0.32, 0.38),
+	"text_muted": Color(0.52, 0.52, 0.58),
+	"topbar_bg": Color(0.96, 0.96, 0.98, 0.97),
+	"topbar_border_alpha": 0.25,
+	"border_alpha": 0.38,
+	# Light mode icin doygun arka plan tabanlari
+	"tier_bg_paper": Color(0.85, 0.85, 0.88),
+	"tier_bg_bronze": Color(0.92, 0.85, 0.76),
+	"tier_bg_silver": Color(0.86, 0.88, 0.92),
+	"tier_bg_gold": Color(0.94, 0.89, 0.72),
+	"tier_bg_platinum": Color(0.89, 0.83, 0.95),
+	"tier_bg_diamond_tier": Color(0.80, 0.91, 0.96),
+	"tier_bg_emerald_tier": Color(0.80, 0.94, 0.84),
+	"tier_bg_ruby_tier": Color(0.95, 0.80, 0.82),
+	"tier_bg_obsidian": Color(0.84, 0.82, 0.90),
+	"tier_bg_legendary": Color(0.95, 0.89, 0.72),
 }
 
 # Bilet tier aksanlari (tema-bagimsiz)
@@ -124,8 +124,8 @@ static func make_button(btn: Button, accent: Color = Color.TRANSPARENT, font_siz
 	if is_dark():
 		normal.bg_color = Color(accent.r * 0.15 + 0.04, accent.g * 0.15 + 0.04, accent.b * 0.15 + 0.04, 0.90)
 	else:
-		normal.bg_color = Color(accent.r * 0.18 + 0.78, accent.g * 0.18 + 0.78, accent.b * 0.18 + 0.78, 1.0)
-	normal.border_color = Color(accent.r, accent.g, accent.b, border_a + 0.25)
+		normal.bg_color = Color(accent.r * 0.25 + 0.70, accent.g * 0.25 + 0.70, accent.b * 0.25 + 0.70, 1.0)
+	normal.border_color = Color(accent.r, accent.g, accent.b, border_a + 0.30)
 	normal.set_border_width_all(2)
 	normal.set_corner_radius_all(12)
 	normal.content_margin_left = 14.0
@@ -139,8 +139,8 @@ static func make_button(btn: Button, accent: Color = Color.TRANSPARENT, font_siz
 	if is_dark():
 		hover.bg_color = Color(accent.r * 0.22 + 0.05, accent.g * 0.22 + 0.05, accent.b * 0.22 + 0.05, 0.93)
 	else:
-		hover.bg_color = Color(accent.r * 0.22 + 0.74, accent.g * 0.22 + 0.74, accent.b * 0.22 + 0.74, 1.0)
-	hover.border_color = Color(accent.r, accent.g, accent.b, border_a + 0.35)
+		hover.bg_color = Color(accent.r * 0.30 + 0.64, accent.g * 0.30 + 0.64, accent.b * 0.30 + 0.64, 1.0)
+	hover.border_color = Color(accent.r, accent.g, accent.b, border_a + 0.40)
 	btn.add_theme_stylebox_override("hover", hover)
 
 	# Pressed — en parlak
@@ -148,7 +148,7 @@ static func make_button(btn: Button, accent: Color = Color.TRANSPARENT, font_siz
 	if is_dark():
 		pressed.bg_color = Color(accent.r * 0.30 + 0.06, accent.g * 0.30 + 0.06, accent.b * 0.30 + 0.06, 0.96)
 	else:
-		pressed.bg_color = Color(accent.r * 0.28 + 0.68, accent.g * 0.28 + 0.68, accent.b * 0.28 + 0.68, 1.0)
+		pressed.bg_color = Color(accent.r * 0.35 + 0.58, accent.g * 0.35 + 0.58, accent.b * 0.35 + 0.58, 1.0)
 	btn.add_theme_stylebox_override("pressed", pressed)
 
 	# Disabled
@@ -187,6 +187,11 @@ static func make_panel(panel: PanelContainer, border_color: Color = Color.TRANSP
 	style.content_margin_right = 14.0
 	style.content_margin_top = 12.0
 	style.content_margin_bottom = 12.0
+	# Light modda golge ile derinlik
+	if not is_dark():
+		style.shadow_color = Color(0, 0, 0, 0.10)
+		style.shadow_size = 4
+		style.shadow_offset = Vector2(0, 2)
 	panel.add_theme_stylebox_override("panel", style)
 
 
@@ -220,6 +225,11 @@ static func make_card(panel: PanelContainer, border_color: Color = Color.TRANSPA
 	style.content_margin_right = 12.0
 	style.content_margin_top = 10.0
 	style.content_margin_bottom = 10.0
+	# Light modda golge ile derinlik
+	if not is_dark():
+		style.shadow_color = Color(0, 0, 0, 0.08)
+		style.shadow_size = 3
+		style.shadow_offset = Vector2(0, 1)
 	panel.add_theme_stylebox_override("panel", style)
 
 
@@ -253,9 +263,9 @@ static func style_top_bar(panel: PanelContainer) -> void:
 	style.content_margin_right = 20.0
 	style.content_margin_top = 16.0
 	style.content_margin_bottom = 16.0
-	# Soft golge efekti
-	style.shadow_color = Color(0, 0, 0, 0.12 if is_dark() else 0.06)
-	style.shadow_size = 6
+	# Soft golge efekti — light modda daha belirgin
+	style.shadow_color = Color(0, 0, 0, 0.12 if is_dark() else 0.14)
+	style.shadow_size = 6 if is_dark() else 8
 	style.shadow_offset = Vector2(0, 3)
 	panel.add_theme_stylebox_override("panel", style)
 

@@ -96,8 +96,12 @@ func _spawn_cp_fly(cp: int) -> void:
 	var fly_label := Label.new()
 	fly_label.text = "+%d CP" % cp
 	fly_label.add_theme_font_size_override("font_size", 26)
-	fly_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.1))
-	fly_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.6))
+	if ThemeHelper.is_dark():
+		fly_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.1))
+		fly_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.6))
+	else:
+		fly_label.add_theme_color_override("font_color", Color(0.72, 0.55, 0.0))
+		fly_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.3))
 	fly_label.add_theme_constant_override("shadow_offset_x", 2)
 	fly_label.add_theme_constant_override("shadow_offset_y", 2)
 	fly_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER

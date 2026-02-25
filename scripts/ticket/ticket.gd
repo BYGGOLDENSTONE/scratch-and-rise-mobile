@@ -244,9 +244,15 @@ func _play_match_celebration(match_data: Dictionary) -> void:
 
 		# Popup: normal semboller "x1", joker → "JOKER!", bomba → "BOMBA +1!"
 		if area.symbol_type == "joker":
-			_show_special_pop(area, "JOKER!", TicketData.get_color("joker"))
+			var jcolor: Color = TicketData.get_color("joker")
+			if not ThemeHelper.is_dark():
+				jcolor = Color(jcolor.r * 0.65, jcolor.g * 0.65, jcolor.b * 0.65)
+			_show_special_pop(area, "JOKER!", jcolor)
 		elif area.symbol_type == "bomb":
-			_show_special_pop(area, "BOMBA +1!", TicketData.get_color("bomb"))
+			var bcolor: Color = TicketData.get_color("bomb")
+			if not ThemeHelper.is_dark():
+				bcolor = Color(bcolor.r * 0.65, bcolor.g * 0.65, bcolor.b * 0.65)
+			_show_special_pop(area, "BOMBA +1!", bcolor)
 		else:
 			_show_combo_pop(combo, ordered_areas.size(), area, match_data["multiplier"])
 
@@ -276,7 +282,10 @@ func _show_special_pop(area: Control, text: String, color: Color) -> void:
 	pop.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	pop.add_theme_font_size_override("font_size", 20)
 	pop.add_theme_color_override("font_color", color)
-	pop.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.7))
+	if ThemeHelper.is_dark():
+		pop.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.7))
+	else:
+		pop.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.4))
 	pop.add_theme_constant_override("shadow_offset_x", 2)
 	pop.add_theme_constant_override("shadow_offset_y", 2)
 
@@ -304,8 +313,13 @@ func _show_combo_pop(combo: int, total: int, area: Control, multiplier: int) -> 
 
 	var font_size := 16 + combo * 4  # Soft artis: 20, 24, 28...
 	pop.add_theme_font_size_override("font_size", font_size)
-	pop.add_theme_color_override("font_color", Color.WHITE)
-	pop.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.55))
+	if ThemeHelper.is_dark():
+		pop.add_theme_color_override("font_color", Color.WHITE)
+		pop.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.55))
+	else:
+		# Light modda koyu metin + daha belirgin golge
+		pop.add_theme_color_override("font_color", Color(0.15, 0.15, 0.2))
+		pop.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.35))
 	pop.add_theme_constant_override("shadow_offset_x", 2)
 	pop.add_theme_constant_override("shadow_offset_y", 2)
 

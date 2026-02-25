@@ -35,8 +35,9 @@ func setup(idx: int, symbol: String) -> void:
 	if ThemeHelper.is_dark():
 		style.bg_color = Color(color.r * 0.18 + 0.05, color.g * 0.18 + 0.05, color.b * 0.18 + 0.05, 0.92)
 	else:
-		style.bg_color = Color(color.r * 0.10 + 0.87, color.g * 0.10 + 0.87, color.b * 0.10 + 0.87, 1.0)
-	style.border_color = Color(color.r, color.g, color.b, ThemeHelper.pf("border_alpha") + 0.18)
+		# Light modda daha doygun tint — sembol kartlari belirgin ayrisir
+		style.bg_color = Color(color.r * 0.15 + 0.82, color.g * 0.15 + 0.82, color.b * 0.15 + 0.82, 1.0)
+	style.border_color = Color(color.r, color.g, color.b, ThemeHelper.pf("border_alpha") + 0.22)
 	style.set_border_width_all(2)
 	style.set_corner_radius_all(8)
 	symbol_panel.add_theme_stylebox_override("panel", style)
@@ -177,11 +178,16 @@ func play_slam_pop(intensity: float = 1.0) -> void:
 	# Soft border + hafif shadow glow
 	var style: StyleBoxFlat = symbol_panel.get_theme_stylebox("panel").duplicate() as StyleBoxFlat
 	if style:
-		style.border_color = Color(color.r, color.g, color.b, 0.80)
+		if ThemeHelper.is_dark():
+			style.border_color = Color(color.r, color.g, color.b, 0.80)
+			style.shadow_color = Color(color.r, color.g, color.b, 0.35)
+			style.shadow_size = int(5 + intensity * 3)
+		else:
+			# Light modda koyulastirilmis border + guclu golge
+			style.border_color = Color(color.r * 0.7, color.g * 0.7, color.b * 0.7, 0.90)
+			style.shadow_color = Color(color.r * 0.5, color.g * 0.5, color.b * 0.5, 0.50)
+			style.shadow_size = int(6 + intensity * 4)
 		style.set_border_width_all(2)
-		var shadow_alpha := 0.45 if not ThemeHelper.is_dark() else 0.35
-		style.shadow_color = Color(color.r, color.g, color.b, shadow_alpha)
-		style.shadow_size = int(5 + intensity * 3)
 		symbol_panel.add_theme_stylebox_override("panel", style)
 
 	# Label flash: anlik beyaz, sonra sembol rengine don
@@ -190,14 +196,14 @@ func play_slam_pop(intensity: float = 1.0) -> void:
 	# Soft radial glow patlamasi
 	if _glow_rect and _glow_shader_mat:
 		_glow_rect.visible = true
-		_glow_rect.modulate.a = 0.7
-		# Her iki modda yumusak glow
-		var glow_alpha := 0.55 if ThemeHelper.is_dark() else 0.45
 		var glow_col: Color
 		if ThemeHelper.is_dark():
-			glow_col = Color(color.r, color.g, color.b, glow_alpha)
+			_glow_rect.modulate.a = 0.7
+			glow_col = Color(color.r, color.g, color.b, 0.55)
 		else:
-			glow_col = Color(color.r * 0.75, color.g * 0.75, color.b * 0.75, glow_alpha)
+			# Light modda: doygun renk + guclu alpha — parlak hissettir
+			_glow_rect.modulate.a = 0.85
+			glow_col = Color(color.r * 0.6, color.g * 0.6, color.b * 0.6, 0.65)
 		_glow_shader_mat.set_shader_parameter("glow_color", glow_col)
 		_glow_rect.scale = Vector2(0.3, 0.3)
 		_glow_rect.pivot_offset = _glow_rect.size / 2.0
@@ -230,10 +236,16 @@ func play_special_slam_pop(intensity: float = 1.0) -> void:
 	# Parlak kesikli border (ozel sembol oldugunu belli et)
 	var style: StyleBoxFlat = symbol_panel.get_theme_stylebox("panel").duplicate() as StyleBoxFlat
 	if style:
-		style.border_color = Color(color.r, color.g, color.b, 0.95)
+		if ThemeHelper.is_dark():
+			style.border_color = Color(color.r, color.g, color.b, 0.95)
+			style.shadow_color = Color(color.r, color.g, color.b, 0.6)
+			style.shadow_size = int(8 + intensity * 4)
+		else:
+			# Light modda koyulastirilmis ozel border + guclu golge
+			style.border_color = Color(color.r * 0.65, color.g * 0.65, color.b * 0.65, 0.95)
+			style.shadow_color = Color(color.r * 0.4, color.g * 0.4, color.b * 0.4, 0.65)
+			style.shadow_size = int(10 + intensity * 5)
 		style.set_border_width_all(3)
-		style.shadow_color = Color(color.r, color.g, color.b, 0.6)
-		style.shadow_size = int(8 + intensity * 4)
 		symbol_panel.add_theme_stylebox_override("panel", style)
 
 	symbol_label.add_theme_color_override("font_color", Color.WHITE)
@@ -241,9 +253,13 @@ func play_special_slam_pop(intensity: float = 1.0) -> void:
 	# Radial glow — ozel sembolun kendi rengiyle
 	if _glow_rect and _glow_shader_mat:
 		_glow_rect.visible = true
-		_glow_rect.modulate.a = 0.85
-		var glow_alpha := 0.70 if ThemeHelper.is_dark() else 0.55
-		_glow_shader_mat.set_shader_parameter("glow_color", Color(color.r, color.g, color.b, glow_alpha))
+		if ThemeHelper.is_dark():
+			_glow_rect.modulate.a = 0.85
+			_glow_shader_mat.set_shader_parameter("glow_color", Color(color.r, color.g, color.b, 0.70))
+		else:
+			# Light modda: koyulastirilmis ozel glow — belirgin parlama
+			_glow_rect.modulate.a = 0.95
+			_glow_shader_mat.set_shader_parameter("glow_color", Color(color.r * 0.6, color.g * 0.6, color.b * 0.6, 0.75))
 		_glow_rect.scale = Vector2(0.3, 0.3)
 		_glow_rect.pivot_offset = _glow_rect.size / 2.0
 		var glow_tw := create_tween()

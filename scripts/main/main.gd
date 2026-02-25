@@ -573,15 +573,25 @@ func _show_coin_delta(amount: int) -> void:
 	_coin_delta_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_coin_delta_label.z_index = 50
 
+	var is_dark := ThemeHelper.is_dark()
 	if amount >= 0:
 		_coin_delta_label.text = "+%s" % GameState.format_number(amount)
-		_coin_delta_label.add_theme_color_override("font_color", Color(0.1, 1.0, 0.3))
+		if is_dark:
+			_coin_delta_label.add_theme_color_override("font_color", Color(0.1, 1.0, 0.3))
+		else:
+			_coin_delta_label.add_theme_color_override("font_color", Color(0.0, 0.55, 0.15))
 	else:
 		_coin_delta_label.text = "%s" % GameState.format_number(amount)
-		_coin_delta_label.add_theme_color_override("font_color", Color(1.0, 0.2, 0.2))
+		if is_dark:
+			_coin_delta_label.add_theme_color_override("font_color", Color(1.0, 0.2, 0.2))
+		else:
+			_coin_delta_label.add_theme_color_override("font_color", Color(0.75, 0.1, 0.1))
 
 	_coin_delta_label.add_theme_font_size_override("font_size", 28)
-	_coin_delta_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.7))
+	if is_dark:
+		_coin_delta_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.7))
+	else:
+		_coin_delta_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.25))
 	_coin_delta_label.add_theme_constant_override("shadow_offset_x", 2)
 	_coin_delta_label.add_theme_constant_override("shadow_offset_y", 2)
 
