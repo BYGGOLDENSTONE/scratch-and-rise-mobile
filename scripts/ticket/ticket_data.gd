@@ -93,65 +93,65 @@ const TICKET_CONFIGS := {
 	"silver": {
 		"name": "Gumus",
 		"price": 100,
-		"base_reward": 45,      # x1 = kayip 55 (%55), ROI ~x0.65
+		"base_reward": 38,      # ROI ~x0.65 hedefi
 		"area_count": 9,
 		"columns": 3,
-		"symbol_pool": ["cherry", "lemon", "grape", "star", "moon", "clover", "bell", "diamond", "heart"],
+		"symbol_pool": ["cherry", "lemon", "grape", "star", "moon", "clover", "bell", "diamond", "heart", "seven", "crown"],
 	},
 	"gold": {
 		"name": "Altin",
 		"price": 500,
-		"base_reward": 105,     # x1 = kayip 395 (%79), ROI ~x0.35
-		"area_count": 10,
-		"columns": 5,
+		"base_reward": 65,      # ROI ~x0.35 hedefi
+		"area_count": 9,
+		"columns": 3,
 		"symbol_pool": ["cherry", "lemon", "grape", "star", "moon", "clover", "bell", "diamond", "heart", "seven", "crown", "horseshoe"],
 	},
 	"platinum": {
 		"name": "Platin",
 		"price": 2500,
-		"base_reward": 200,     # x1 = kayip 2300 (%92), ROI ~x0.20
-		"area_count": 12,
-		"columns": 4,
+		"base_reward": 100,     # ROI ~x0.20 hedefi
+		"area_count": 9,
+		"columns": 3,
 		"symbol_pool": ["cherry", "lemon", "grape", "star", "moon", "clover", "bell", "diamond", "heart", "seven", "crown", "horseshoe", "phoenix", "dragon", "dice"],
 	},
 	"diamond_tier": {
 		"name": "Elmas",
 		"price": 7500,
-		"base_reward": 450,     # x1 = kayip 7050 (%94), ROI ~x0.15
-		"area_count": 12,
-		"columns": 4,
+		"base_reward": 225,     # ROI ~x0.15 hedefi
+		"area_count": 9,
+		"columns": 3,
 		"symbol_pool": ["cherry", "lemon", "grape", "star", "moon", "clover", "bell", "diamond", "heart", "seven", "crown", "horseshoe", "phoenix", "dragon", "dice", "ruby_gem", "sapphire"],
 	},
 	"emerald_tier": {
 		"name": "Zumrut",
 		"price": 20000,
-		"base_reward": 1000,    # x1 = kayip 19000 (%95), ROI ~x0.12
-		"area_count": 14,
-		"columns": 7,
+		"base_reward": 430,     # ROI ~x0.12 hedefi
+		"area_count": 9,
+		"columns": 3,
 		"symbol_pool": ["cherry", "lemon", "grape", "star", "moon", "clover", "bell", "diamond", "heart", "seven", "crown", "horseshoe", "phoenix", "dragon", "dice", "ruby_gem", "sapphire", "emerald_gem", "pearl"],
 	},
 	"ruby_tier": {
 		"name": "Yakut",
 		"price": 50000,
-		"base_reward": 2000,    # x1 = kayip 48000 (%96), ROI ~x0.10
-		"area_count": 15,
-		"columns": 5,
+		"base_reward": 750,     # ROI ~x0.10 hedefi
+		"area_count": 9,
+		"columns": 3,
 		"symbol_pool": ["cherry", "lemon", "grape", "star", "moon", "clover", "bell", "diamond", "heart", "seven", "crown", "horseshoe", "phoenix", "dragon", "dice", "ruby_gem", "sapphire", "emerald_gem", "pearl", "fire", "skull"],
 	},
 	"obsidian": {
 		"name": "Obsidyen",
 		"price": 125000,
-		"base_reward": 4000,    # x1 = kayip 121000 (%97), ROI ~x0.08
-		"area_count": 16,
-		"columns": 4,
+		"base_reward": 1000,    # ROI ~x0.08 hedefi
+		"area_count": 9,
+		"columns": 3,
 		"symbol_pool": ["cherry", "lemon", "grape", "star", "moon", "clover", "bell", "diamond", "heart", "seven", "crown", "horseshoe", "phoenix", "dragon", "dice", "ruby_gem", "sapphire", "emerald_gem", "pearl", "fire", "skull", "unicorn", "lightning"],
 	},
 	"legendary": {
 		"name": "Efsane",
 		"price": 300000,
-		"base_reward": 7500,    # x1 = kayip 292500 (%98), ROI ~x0.06
-		"area_count": 18,
-		"columns": 6,
+		"base_reward": 1800,    # ROI ~x0.06 hedefi
+		"area_count": 9,
+		"columns": 3,
 		"symbol_pool": ["cherry", "lemon", "grape", "star", "moon", "clover", "bell", "diamond", "heart", "seven", "crown", "horseshoe", "phoenix", "dragon", "dice", "ruby_gem", "sapphire", "emerald_gem", "pearl", "fire", "skull", "unicorn", "lightning", "anchor", "crystal"],
 	},
 }

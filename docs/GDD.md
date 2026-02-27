@@ -17,33 +17,52 @@ Gercek bir kazi kazan deneyimi. Oyuncu enerji harcayarak tura baslar, baslangic 
 
 ## Temel Oyun Dongusu
 
+### Ana Hedef
+**En az bilette en cok CP (Charm Point) toplamak.** CP = kalici ilerleme. Coin sadece bilet almak icin bir arac.
+
 ### Tur Dongusu (Session)
 ```
-ENERJI HARCA (1) --> 50 COIN AL --> BILET SATIN AL --> KAZI
+ENERJI HARCA (1) --> 20 COIN AL --> BILET SATIN AL --> KAZI
                                           |
                                      ESLESME VAR?
                                      /          \
                                   EVET          HAYIR
                                   /                \
                             COIN KAZAN        HICBIR SEY
-                                 |             (parayi zaten verdin)
-                           YENI BILET AL?
-                          (paran yetiyorsa)
+                            + CP KAZAN        (parayi zaten verdin)
+                                 |
+                           STRATEJIK KARAR:
+                     Ucuz bilet (coin biriktir, dusuk CP)
+                        veya
+                     Pahali bilet (coin harca, yuksek CP)
                                  |
                        PARA BITTI --> TUR BITER
                                  |
-                          LUCK CHARM KAZAN
+                          CHARM PUANI (CP) KAZAN
                          (meta progression)
+```
+
+### CP Optimizasyon Stratejisi
+```
+Paper bilet (5 coin):  ROI x1.20 (karli!) ama CP/bilet = 0.07 (cok dusuk)
+Gold bilet (500 coin): ROI x0.35 (zarar!) ama CP/bilet = 4.59 (65x daha iyi)
+Platinum (2.5K coin):  ROI x0.19 (buyuk zarar!) ama CP/bilet = 11.6 (163x daha iyi)
+
+Akilli oyuncu: Paper ile coin biriktir → yuksek tier'a gec → CP topla → drain ol → Paper'a don
+Aceleci oyuncu: Hemen pahali bilet → hizli batar, az CP
+Sabirli oyuncu: Hep Paper → asla batmaz, ama anlamsiz CP (163 Paper = 1 Platinum)
 ```
 
 ### Meta Dongusu
 ```
-TUR OYNA --> CHARM KAZAN --> DAHA GUCLU BASLA --> DAHA COK KAZAN --> DAHA COK CHARM
+TUR OYNA --> CP KAZAN --> CHARM AL --> DAHA GUCLU BASLA --> DAHA VERIMLI CP --> DAHA COK CHARM
 ```
 
-### Onemli Kural
-Kazima para vermez. Kazima **sembolleri acar**. Eslesme **para kazandirir**.
-Bilet satin almak = o parayi riske etmek. Eslesme yoksa hicbir sey donmez.
+### Onemli Kurallar
+- Kazima para vermez. Kazima **sembolleri acar**. Eslesme **para kazandirir**.
+- Bilet satin almak = o parayi riske etmek. Eslesme yoksa hicbir sey donmez.
+- Paper her zaman karli ama CP vermez — sonsuz grind anlamsiz.
+- Oyunun ozi: Coin yonetimi ile CP toplama verimliligi.
 
 ---
 
@@ -54,7 +73,7 @@ Bilet satin almak = o parayi riske etmek. Eslesme yoksa hicbir sey donmez.
 | Max enerji | 5 (Charm ile artirilabilir) |
 | Yenilenme | 10 dakikada 1 enerji |
 | Full dolma | ~50 dakika |
-| 1 enerji | = 1 tur = 50 coin baslangic |
+| 1 enerji | = 1 tur = 20 coin baslangic |
 
 ### Enerji Kazanma Yollari
 - **Zamanla:** 10 dakikada 1, otomatik
@@ -65,7 +84,7 @@ Bilet satin almak = o parayi riske etmek. Eslesme yoksa hicbir sey donmez.
 ### Tur Baslangici
 1. Oyuncu "OYNA" butonuna basar
 2. 1 enerji harcanir
-3. 50 coin verilir (Charm ile arttirilabilir)
+3. 20 coin verilir (Charm ile arttirilabilir)
 4. Bilet secim ekrani acilir
 5. Oyuncu bilet satin alir, kazir, kazanir veya kaybeder
 6. Para bitince "TUR BITTI" ekrani gelir
@@ -120,34 +139,40 @@ Eslesme yoksa:
 ## Bilet Sistemi
 
 ### Bilet Turleri
-| Bilet | Fiyat | Alan | Sembol Havuzu | Acilma Kosulu |
-|-------|-------|------|---------------|---------------|
-| Kagit | 5 | 6 | 3 (Kiraz, Limon, Uzum) | Baslangic |
-| Bronz | 15 | 8 | 5 (+Yildiz, Ay) | 500 toplam coin |
-| Gumus | 40 | 9 | 7 (+Elmas, Kalp) | Charm: Gumus Anahtar |
-| Altin | 100 | 10 | 9 (+7, Tac) | Charm: Altin Anahtar |
-| Platin | 250 | 12 | 11 (+Anka, Ejderha) | Charm: Platin Anahtar |
+| Bilet | Fiyat | Alan | Sembol | base_reward | ROI | CP/bilet | Acilma |
+|-------|-------|------|--------|-------------|-----|----------|--------|
+| Kagit | 5 | 6 | 5 | 5 | x1.20 | 0.07 | Baslangic |
+| Bronz | 25 | 8 | 7 | 12 | x0.96 | 0.55 | Baslangic |
+| Gumus | 100 | 9 | 11 | 38 | x0.67 | 1.86 | Baslangic |
+| Altin | 500 | 9 | 12 | 65 | x0.35 | 4.59 | Baslangic |
+| Platin | 2,500 | 9 | 15 | 100 | x0.19 | 11.6 | Baslangic |
+| Elmas | 7,500 | 9 | 17 | 225 | x0.17 | 27 | Baslangic |
+| Zumrut | 20,000 | 9 | 19 | 430 | x0.15 | 56 | Baslangic |
+| Yakut | 50,000 | 9 | 21 | 750 | x0.12 | 140 | Baslangic |
+| Obsidyen | 125,000 | 9 | 23 | 1,000 | x0.09 | 354 | Baslangic |
+| Efsane | 300,000 | 9 | 25 | 1,800 | x0.07 | 722 | Baslangic |
 
 ### Bilet Mantigi
-- Daha pahali bilet = daha cok alan = daha cok sembol cesidi
-- Daha cok sembol = eslesme **zorlasir** AMA oduller **buyur**
-- Oyuncu stratejik secim yapar: ucuz+guvenli mi, pahali+riskli mi?
+- Tum biletler max 9 alan (Paper=6, Bronze=8, Silver+=9) — 3x3 grid
+- Daha pahali bilet = daha genis sembol havuzu = eslesme **zorlasir**
+- Dusuk ROI = coin kaybedersin AMA CP/bilet **cok yuksek**
+- Oyuncu stratejik secim yapar: coin biriktir mi (Paper), CP icin risk al mi (yuksek tier)?
 
 ### Risk / Odul Ornekleri
 ```
-Kagit Bilet (5 coin):
-- Eslesme yok (%45): 0 coin (5 coin kaybettin)
-- Kucuk eslesme (%30): 2-5 coin (zararin kucuk veya bas basi)
-- Orta eslesme (%15): 10-25 coin (guzel kar!)
-- Buyuk eslesme (%8): 25-100 coin (harika!)
-- Jackpot (%2): 100-500 coin (JACKPOT!)
+Kagit Bilet (5 coin) — "Guvenli liman"
+- Eslesme yok (%53): 0 coin (5 coin kaybettin)
+- Normal eslesme (%39): 5-10 coin (kucuk kar)
+- Buyuk eslesme (%7): 15-25 coin (guzel!)
+- Jackpot (%1): 40-75 coin (harika!)
+- ROI x1.20 = uzun vadede karli, ama CP neredeyse sifir
 
-Altin Bilet (100 coin):
-- Eslesme yok (%45): 0 coin (100 coin kaybettin!)
-- Kucuk eslesme (%30): 50-100 coin (zararin buyuk veya bas basi)
-- Orta eslesme (%15): 200-500 coin (guzel kar!)
-- Buyuk eslesme (%8): 500-2000 coin (harika!)
-- Jackpot (%2): 2000-10000 coin (MEGA JACKPOT!)
+Altin Bilet (500 coin) — "Buyuk risk, buyuk CP"
+- Eslesme yok (%41): 0 coin (500 coin kaybettin!)
+- Normal eslesme (%47): 65-195 coin (yine zarar)
+- Buyuk eslesme (%11): 195-520 coin (basabas veya kucuk kar)
+- Jackpot (%1): 975-2600 coin (buyuk kar!)
+- ROI x0.35 = cogu zaman zarar, ama CP/bilet 65x Paper
 ```
 
 ---
@@ -166,13 +191,13 @@ Altin Bilet (100 coin):
 Odul = bilet_baz_odulu x eslesme_carpani x charm_bonusu
 ```
 
-### Beklenen Deger (Ortalama)
-Oyuncunun ortalama kazanci bilet fiyatinin ~1.2x-1.3x'i olmali.
-Bu sayede:
-- Uzun vadede oyuncu hafif karda (ilerleyebilir)
-- Ama tek tek biletlerde %45 ihtimalle kaybeder (heyecan)
-- Varyans yuksek = dopamin!
-- Charm'larla beklenen deger zamanla artar
+### Beklenen Deger (ROI Egrisi)
+Her tier'in farkli ROI'si var — bu oyunun stratejik omurgasi:
+- **Paper (x1.20):** Hafif karli — coin biriktirme araci, CP neredeyse sifir
+- **Bronze (x0.96):** Basabas — eglenceli, dusuk risk
+- **Silver-Gold (x0.35-0.67):** Zarar — ama CP/bilet 26-65x daha iyi
+- **Platinum+ (x0.06-0.19):** Buyuk zarar — ama CP/bilet 163-10.000x daha iyi
+Oyuncu stratejisi: Paper ile buildup → yuksek tier'da CP icin harca → drain ol → Paper'a don
 
 ### Ozel Semboller (Nadir cikar)
 | Sembol | Efekt | Cikma Sansi |
@@ -270,6 +295,142 @@ Baz puan = 1
 - Tum charm'lari sifirla = charm puanlarini geri al + %10 bonus
 - "Rebirth" hissi, yeniden dagitma ozgurlugu
 - Sadece cok ileri oyuncular icin
+
+---
+
+## Kart Destesi Sistemi (Mikro Strateji)
+
+Oyuncunun elinde sembol kartlari bulunur. Bileti kazidiktan sonra, eslesmesi eksik kalan sembolleri tamamlamak icin elindeki kartlari kullanabilir. Bu sistem kazima sansini stratejik kararlarla birlestirerek oyuna derinlik katar.
+
+### Temel Mekanik
+- Oyuncunun bir **kart destesi** var (acilmis kartlar havuzu)
+- Her tur basinda desteden **slot sayisi kadar kart secer** (2-6 arasi)
+- Bilet kazindiktan sonra **Kart Oynama Fazi** baslar
+- Oyuncu elindeki kartlari kullanarak eslesmesi eksik sembolleri tamamlar
+- Kullanilan kartlar o tur icin harcanir, kullanilmayanlar sonraki bilete tasinir
+- Tur bitince tum kartlar geri doner (yeni turda tekrar sec)
+
+### Kart Oynama Fazi
+```
+Bilet kazindi → Tum semboller gorundu
+      ↓
+KART OYNAMA FAZI (sure siniri yok, rahat dusun)
+      ↓
+Ornek durum:
+  Bilette: Uzum, Kiraz, Uzum, Limon, Kiraz, Yildiz
+  Elde: [Uzum] [Yildiz] [Kiraz]
+      ↓
+Oyuncu "Uzum" kartini oynar → 2 Uzum + 1 kart = 3'lu eslesme!
+Veya "Kiraz" kartini oynar → 2 Kiraz + 1 kart = 3'lu eslesme!
+Veya ikisini de oynar → 2 eslesme birden!
+Veya hicbirini oynamaz → kartlari sakla, sonraki bilette kullan
+      ↓
+Sonuc hesaplanir (kart bonuslari dahil)
+```
+
+### Strateji Ornekleri
+```
+Senaryo 1 - Basit karar:
+  Bilette 2x Uzum var. Elde Uzum karti var.
+  → Kagit bilette mi kullanayim (5 coin odul) yoksa Altin bilette mi saklayayim (100+ coin odul)?
+
+Senaryo 2 - Sinerji plani:
+  Sinerji tablosunda "Meyve Kokteyli = Kiraz + Limon + Uzum → x3 bonus"
+  → Tura Kiraz, Limon, Uzum kartlariyla gir
+  → Bilette 2 meyve denk gelirse kartla tamamla + sinerji bonusu kap
+
+Senaryo 3 - Kaynak yonetimi:
+  3 bilet kaldi, elde 2 kart kaldi.
+  → Hangi bilete kullanmak daha karli? Ucuz bilette garantici ol mu, pahali bilette risk mi al?
+```
+
+### Kart Turleri
+
+#### Sembol Kartlari (Ana Mekanik)
+Her sembol icin 1 kart. Biletteki o sembolden +1 ekler.
+
+| Kategori | Kartlar | CP Maliyeti |
+|----------|---------|-------------|
+| Temel | Kiraz, Limon, Uzum | 5 CP |
+| Orta | Yildiz, Ay, Kalp, Elmas | 10 CP |
+| Nadir | Tac, 7, Anka, Ejderha | 20 CP |
+| Yeni Tier | Yakut, Safir, Zumrut, Inci | 15 CP |
+| Ust Tier | Ates, Kurukafa, Tekboynuz, Yildirim | 25 CP |
+
+#### Ozel Kartlar (Gec Oyun, Pahali)
+| Kart | CP Maliyeti | Etki |
+|------|-------------|------|
+| Joker Karti | 50 CP | Herhangi bir sembol olarak sayilir |
+| Cift Karti | 40 CP | Oynadigin sembolden +1 yerine +2 ekler |
+| Carpan Karti | 60 CP | O biletteki toplam odulu x2 yapar (sembol eklemez) |
+
+### Kart Slot Sistemi
+Oyuncu baslangicta 2 kart slotuna sahiptir. CP harcayarak slot acabilir.
+
+| Slot | Maliyet | Toplam Harcanan |
+|------|---------|-----------------|
+| 2 slot | Baslangic | 0 CP |
+| 3. slot | 15 CP | 15 CP |
+| 4. slot | 30 CP | 45 CP |
+| 5. slot | 60 CP | 105 CP |
+| 6. slot | 100 CP | 205 CP |
+
+### CP Harcama Stratejisi
+Oyuncu CP'sini uc farkli alana yatirir — bu kararlar oyunun stratejik omurgasini olusturur:
+
+```
+CP Kazandin! Ne yapacaksin?
+  ├── Charm al → Pasif bonuslar (eslesme sansi, odul artisi)
+  ├── Kart ac → Yeni sembol kartlari (sinerji hedefleme)
+  └── Slot ac → Daha fazla kart tasi (esneklik)
+
+Ornek: 30 CP'n var.
+  A) Sans Tokasi charm Lv.4 → her bilette +%40 odul (pasif, guvenli)
+  B) 3 nadir sembol karti ac → sinerji hedefleme imkani (aktif, stratejik)
+  C) 4. kart slotu ac → her tur 1 ekstra kart (uzun vadeli yatirim)
+```
+
+### Tur Baslangici Kart Secimi
+```
+TUR BASLIYOR — Kartlarini Sec!
+
+Acilmis kartlarin: [Kiraz] [Uzum] [Limon] [Yildiz] [Ay] [Tac] [Joker]
+Slot sayisi: 4
+
+Sinerji tablosuna bak:
+  Meyve Kokteyli (Kiraz+Limon+Uzum) = x3
+  Gece Gokyuzu (Yildiz+Ay) = x4
+  Kraliyet (Tac+Elmas) = x5
+
+Secim: [Kiraz] [Limon] [Uzum] [Yildiz]
+  → Meyve Kokteyli sinerjisini hedefliyorsun + yedek Yildiz
+```
+
+### Kart Sistemi Ilerleme Asamalari
+
+#### Erken Oyun (0-50 CP)
+- 2 slot, 2-3 temel kart (Kiraz, Limon, Uzum)
+- Basit eslesmeler tamamlanir
+- "Kart ne ise yariyor?" ogrenir
+
+#### Orta Oyun (50-150 CP)
+- 3-4 slot, 6-8 kart (temel + orta)
+- Sinerji tablosuna bakarak kart secimi baslar
+- Slot mu alsam, kart mi alsam kararlari
+
+#### Gec Oyun (150-400 CP)
+- 5-6 slot, 12+ kart + ozel kartlar
+- Sinerji hedefleme tam devrede
+- Joker/Cift/Carpan kartlari ile buyuk kombinasyonlar
+- "Bu turda meyve mi hedefleyeyim yoksa kozmik mi?" gibi derin kararlar
+
+### Kart Sistemi Kurallari
+1. Kart oynamak **isteğe bağli** — her zaman pas gecebilirsin
+2. Bir bilette **birden fazla kart** oynanabilir
+3. Kartlar **sadece eslesmesi eksik** sembollere oynanabilir (zaten 3+ eslesme varsa gerek yok, ama 4'e cikarmak icin oynanabilir)
+4. Ozel kartlar (Joker, Cift, Carpan) tur basinda **sadece 1 tane** secilebilir
+5. Kullanilan kart o turda **harcanir**, tur bitince geri gelir
+6. Kart acma **kalici** — bir kez CP harca, sonsuza kadar kullan
 
 ---
 

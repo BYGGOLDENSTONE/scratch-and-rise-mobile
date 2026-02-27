@@ -6,6 +6,21 @@ extends Node
 const CharmDataRef := preload("res://scripts/systems/charm_data.gd")
 const CollectionRef := preload("res://scripts/systems/collection_system.gd")
 
+# --- Tier-Bazli CP Odul Tablosu ---
+# Her eslesmede bilet tier'ina gore sabit CP kazanilir (coin'den bagimsiz)
+const TIER_CP_REWARDS: Dictionary = {
+	"paper":        { "normal": 0.1,   "big": 0.3,    "jackpot": 1.0 },
+	"bronze":       { "normal": 0.5,   "big": 2.0,    "jackpot": 5.0 },
+	"silver":       { "normal": 2.0,   "big": 5.0,    "jackpot": 15.0 },
+	"gold":         { "normal": 5.0,   "big": 15.0,   "jackpot": 40.0 },
+	"platinum":     { "normal": 12.0,  "big": 35.0,   "jackpot": 100.0 },
+	"diamond_tier": { "normal": 25.0,  "big": 80.0,   "jackpot": 250.0 },
+	"emerald_tier": { "normal": 60.0,  "big": 200.0,  "jackpot": 600.0 },
+	"ruby_tier":    { "normal": 140.0, "big": 500.0,  "jackpot": 1500.0 },
+	"obsidian":     { "normal": 350.0, "big": 1200.0, "jackpot": 4000.0 },
+	"legendary":    { "normal": 800.0, "big": 3000.0, "jackpot": 10000.0 },
+}
+
 # --- Sinyaller ---
 signal coins_changed(new_amount: int)
 signal energy_changed(new_amount: int)
@@ -39,6 +54,10 @@ var total_coins_earned: int = 0
 var total_rounds_played: int = 0
 var best_round_coins: int = 0
 var last_round_earnings: int = 0
+
+# --- Tur Ici CP (her tur sifirlanir) ---
+var round_cp: float = 0.0
+var last_round_cp: float = 0.0
 
 # --- Koleksiyon & Sinerji ---
 var collected_pieces: Dictionary = {}  # { "set_id": ["piece1", "piece2"] }
@@ -164,12 +183,13 @@ func start_round() -> bool:
 	_free_ticket_active = false
 	_current_match_streak = 0
 	_son_hamle_used = 0
+	round_cp = 0.0
 	round_started.emit()
 	print("[GameState] Tur başladı — Başlangıç coin: ", coins)
 	return true
 
 
-## Tur bitir — charm puanı hesapla
+## Tur bitir — charm puanı hesapla (tier-bazli CP)
 func end_round() -> void:
 	if not in_round:
 		return
@@ -179,10 +199,12 @@ func end_round() -> void:
 	total_coins_earned += earned
 	if earned > best_round_coins:
 		best_round_coins = earned
-	var charm_earned := calc_charm_from_coins(earned)
+	last_round_cp = round_cp
+	var charm_earned := int(round_cp)
 	charm_points += charm_earned
+	round_cp = 0.0
 	round_ended.emit(earned)
-	print("[GameState] Tur bitti — Kazanılan: ", earned, " Charm: ", charm_earned)
+	print("[GameState] Tur bitti — Kazanılan: ", earned, " CP: ", last_round_cp, " (int: ", charm_earned, ")")
 	coins = 0
 
 
@@ -206,9 +228,15 @@ func get_starting_coins() -> int:
 	return base + bonus + mega_bonus + col_bonus
 
 
-## Coin'den charm puanı hesapla
-func calc_charm_from_coins(earned: int) -> int:
-	return int(earned / 100.0)
+## Bilet tier'ina gore CP hesapla
+func get_ticket_cp(ticket_tier: String, match_tier: String) -> float:
+	var tier_rewards: Dictionary = TIER_CP_REWARDS.get(ticket_tier, TIER_CP_REWARDS["paper"])
+	return tier_rewards.get(match_tier, 0.0)
+
+
+## Coin'den charm puanı hesapla (DEPRECATED — tier-bazli CP kullaniliyor)
+func calc_charm_from_coins(_earned: int) -> int:
+	return 0
 
 
 ## Charm seviyesini al

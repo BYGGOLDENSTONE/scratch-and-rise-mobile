@@ -75,6 +75,11 @@ scratch-mobil/
 | M12 | Gorsel Polish | Neon casino tema, kazima shader, ekran efektleri, bilet/sembol gorselleri | `tamamlandi` |
 | M13 | Test & Yayin | Balans, beta test, Play Store yayin, ASO | `bekliyor` |
 
+### Faz 4: Strateji & Derinlik
+| Faz | Isim | Kapsam | Durum |
+|-----|------|--------|-------|
+| M14 | Kart Destesi | Sembol kartlari, kart oynama fazi, slot sistemi, CP entegrasyonu, ozel kartlar | `bekliyor` |
+
 ---
 
 ## Commit Kurallari
@@ -165,7 +170,7 @@ scratch-mobil/
   - `_test_screenshot.png` — Godot viewport'tan kaydeder
 - **Polling:** 0.5 sn aralikla `_test_command.json` kontrol eder
 - **Release guard:** `OS.has_feature("release")` ise devre disi
-- **Komutlar:** `state`, `click`, `click_button`, `scratch_all`, `screenshot`, `wait`, `drag`, `change_scene`, `set_theme`, `set_coins`, `set_energy`, `list_buttons`
+- **Komutlar:** `state`, `click`, `click_button`, `scratch_all`, `screenshot`, `wait`, `drag`, `change_scene`, `set_theme`, `set_coins`, `set_energy`, `list_buttons`, `sim_tickets`
 - **click_button:** `emit_signal("pressed")` ile dogrudan sinyal gonderir (sim_click yerine) + 0.8s sahne gecis beklemesi
 - **change_scene:** Alias destegi: menu, game, charm, synergy, collection, achievement
 - **set_theme:** 0=dark, 1=light — `GameState.set_user_theme()` cagirir
@@ -194,7 +199,16 @@ scratch-mobil/
 {"command": "set_coins", "amount": 1000, "id": "11"}
 {"command": "set_energy", "amount": 5, "id": "12"}
 {"command": "list_buttons", "id": "13"}
+{"command": "sim_tickets", "count": 500, "ticket_type": "all", "starting_coins": 100000000, "id": "14"}
+{"command": "sim_tickets", "count": 1000, "ticket_type": "paper", "starting_coins": 20, "id": "15"}
 ```
+
+### Hizli Balans Testi
+- **Dosya:** `_fast_balance_test.py` (Python runner)
+- **Komut:** `python _fast_balance_test.py [bilet_sayisi] [--round] [--no-launch]`
+- **sim_tickets:** UI olmadan saf hesaplama, saniyede binlerce bilet simule eder
+- **Cikti:** Tier bazli eslesme orani, ROI, CP/bilet, carpan dagilimlari
+- **Kullanim:** Balans degisikligi sonrasi hizli dogrulama
 
 ### Otomatik Test (Subagent ile)
 - Sonnet model subagent ile coklu tur test yapilabilir
@@ -203,35 +217,30 @@ scratch-mobil/
 - **Kisitlama:** Tek Godot instance, tek dosya seti — paralel agent calismaz
 - **Debug panel:** 5 hizli tiklamayla acilir ama test harness polling (0.5sn) ile zamanlama zor, save dosyasi dogrudan silinebilir
 
-### Son Test Sonuclari (2026-02-23, balans duzeltmesi sonrasi, 89 bilet)
-- Paper eslesme orani: %44.9 (GDD hedefi: %55) — **DUZELTILDI** (onceki: %92.3)
-- Paper ROI (normal turlar): x0.80-1.00 — **DUZELTILDI** (onceki: x19.7)
-- Paper ROI (jackpotlu turlar): x1.74 — jackpot varyansı yüksek ama kabul edilebilir
-- Carpanlar: %72 x1, %16 x2, %12 x3-5 — istenen dagılım
-- Detayli rapor: `_test_report.json`
+### Son Test Sonuclari (2026-02-27, sim_tickets ile, 2000 bilet/tier)
+- Tum tier'lar hedef ROI'ye yakin (±%20 varyans dahilinde)
+- Paper ROI x1.20 (buildup), Gold ROI x0.35 (drain), Legendary ROI x0.07 (ultra-risk)
+- CP/bilet egrisi dogru: Paper 0.07 → Legendary 722 (10.000x fark)
+- Oyun amaci calisiyor: Paper ile coin biriktir, yuksek tier'da CP icin harca
+- Detayli sonuclar: `python _fast_balance_test.py 2000` ile yeniden uretilebilir
 
 ## Balans Sistemi Notlari
+- **Oyun amaci:** En az bilette en cok CP toplamak (CP = Charm Point = ilerleme)
 - **base_reward sistemi:** Odul = base_reward x carpan (base_reward << fiyat = dogal kayip)
-- **Fiyatlar:** Paper=5, Bronze=25, Silver=100, Gold=500, Platinum=2500
-- **Base reward:** Paper=5, Bronze=10, Silver=20, Gold=40, Platinum=80
-- **Kayip orani (normal eslesme):** Paper=%0, Bronze=%60, Silver=%80, Gold=%92, Platinum=%97
-- **Carpan tablosu:** `match_system.gd` MULTIPLIER_RANGES
-  - Paper: normal x1, big x2-3, jackpot x5-10
-  - Bronze: normal x1-2, big x3-5, jackpot x8-15
-  - Silver: normal x1-2, big x4-8, jackpot x12-25
-  - Gold: normal x1-3, big x5-12, jackpot x15-40
-  - Platinum: normal x1-3, big x8-20, jackpot x30-80
-- **Sembol havuzlari:** Paper=5, Bronze=7, Silver=9, Gold=12, Platinum=15
-- **Yeni semboller:** clover (Yonca), bell (Zil), horseshoe (Nal), dice (Zar)
+- **Alan sayisi:** Max 9 alan (Paper=6, Bronze=8, Silver+=9) — tum yuksek tier'lar 3x3 grid
+- **Fiyatlar:** Paper=5, Bronze=25, Silver=100, Gold=500, Platinum=2.5K, Diamond=7.5K, Emerald=20K, Ruby=50K, Obsidian=125K, Legendary=300K
+- **Base reward:** Paper=5, Bronze=12, Silver=38, Gold=65, Platinum=100, Diamond=225, Emerald=430, Ruby=750, Obsidian=1K, Legendary=1.8K
+- **Sembol havuzlari:** Paper=5, Bronze=7, Silver=11, Gold=12, Platinum=15, Diamond=17, Emerald=19, Ruby=21, Obsidian=23, Legendary=25
+- **Carpan tablosu:** `match_system.gd` MULTIPLIER_RANGES (degismedi)
 - **Sinerji carpanlari:** Meyve x2, Gece x2, Lucky7 x5, Kraliyet x3, Ejderha x4, Full House x10, Gokkusagi x2, Festivali x5, JokerPartisi x3, BombaFirtinasi x4, TasKoleksiyonu x3, KozmikGuc x4, KriptoMadenci x5, CicekBahcesi x3, Efsane x6
 - **Mega Bilet:** Bilet bazli jackpot araligini kullaniyor
 
-## Balans Durumu (2026-02-24, matematik analizi sonrasi)
-- **ROI egrisi:** Paper x1.15, Bronze x0.95, Silver x0.65, Gold x0.35, Platinum x0.20, Diamond x0.15, Emerald x0.12, Ruby x0.10, Obsidian x0.08, Legendary x0.06
-- **Hedef akis:** Paper buildup → Bronze eglence → Silver drain baslangici → Gold/Platinum hizli drain → Diamond+ ultra-risk → tur biter → tekrar oyna
-- **base_reward degerleri:** Paper=5, Bronze=12, Silver=45, Gold=105, Platinum=200, Diamond=450, Emerald=1K, Ruby=2K, Obsidian=4K, Legendary=7.5K
-- **Fiyatlar:** Paper=5, Bronze=25, Silver=100, Gold=500, Platinum=2.5K, Diamond=7.5K, Emerald=20K, Ruby=50K, Obsidian=125K, Legendary=300K
-- **Paper normal carpan:** [1,3] (buildup icin hafif pozitif)
+## Balans Durumu (2026-02-27, sim_tickets ile dogrulanmis, 2000 bilet/tier)
+- **ROI egrisi (olculen):** Paper x1.20, Bronze x0.96, Silver x0.67, Gold x0.35, Platinum x0.19, Diamond x0.17, Emerald x0.15, Ruby x0.12, Obsidian x0.09, Legendary x0.07
+- **Eslesme oranlari:** Paper %47, Bronze %60, Silver %61, Gold %59, Platinum %50, Diamond %49, Emerald %44, Ruby %43, Obsidian %42, Legendary %39
+- **CP/bilet:** Paper=0.07, Bronze=0.55, Silver=1.86, Gold=4.59, Platinum=11.6, Diamond=27, Emerald=56, Ruby=140, Obsidian=354, Legendary=722
+- **Oyun akisi:** Paper buildup (karli) → yuksek tier'larda CP icin risk al (zararda) → drain ol → Paper'a don → tekrar
+- **Neden Paper karli:** Oyuncuya coin biriktirme imkani verir, ama CP/bilet cok dusuk (0.07) — 163 Paper = 1 Platinum CP. Sabirli ama verimsiz.
 - **Baslangic parasi:** 20 coin (Paper ile buildup zorunlu)
 
 ## Ses Efekti Sistemi Notlari
@@ -244,12 +253,31 @@ scratch-mobil/
 - **Pitch escalation:** match_pop sesinde intensity ile pitch artar (0.9 + intensity * 0.15)
 - **Degistirme:** Gercek ses dosyalari ile degistirilebilir (_sounds dictionary'sine AudioStreamWAV yerine dosyadan yuklenen stream atanabilir)
 
+## Kart Destesi Sistemi Notlari
+- **Tasarim dok:** `docs/GDD.md` → "Kart Destesi Sistemi (Mikro Strateji)" bolumu
+- **Temel mekanik:** Bileti kazidiktan sonra elindeki sembol kartlariyla eksik eslesmeler tamamlanir
+- **Kart turleri:** Sembol kartlari (temel/orta/nadir) + Ozel kartlar (Joker, Cift, Carpan)
+- **Slot sistemi:** Baslangic 2 slot, CP ile max 6'ya cikarilir (15/30/60/100 CP)
+- **Kart acma:** CP ile kalici — bir kez ac, sonsuza kadar kullan (temel 5CP, nadir 20CP, ozel 40-60CP)
+- **Tur akisi:** Tur basi kart sec → bilet kazi → Kart Oynama Fazi → sonuc → sonraki bilet
+- **Strateji:** Sinerji tablosuna bakarak kart secimi, CP yonetimi (charm vs kart vs slot), kart tasarrufu
+- **Durum:** Tasarim tamamlandi, implementasyon bekliyor
+
 ## SONRAKI SESSION GOREVLERI
-(Tum gorevler tamamlandi)
+- [ ] M14: Kart Destesi Sistemi implementasyonu
 
 ---
 
 ## Tamamlanan Gorevler
+
+### Balans Yeniden Ayarlama + Hizli Test Sistemi (2026-02-27)
+- **sim_tickets komutu:** Test harness'a eklendi, UI olmadan saf hesaplama ile saniyede binlerce bilet simule eder
+- **_fast_balance_test.py:** Python runner, Godot'u baslatir, sim calistirir, formatli rapor uretir
+- **Alan sayisi siniri:** Tum tier'lar max 9 alan (Gold 10→9, Platinum 12→9, Emerald 14→9, Legendary 18→9)
+- **base_reward ayarlama:** Silver 45→38, Gold 105→65, Platinum 200→100, Diamond 450→225, Emerald 1K→430, Ruby 2K→750, Obsidian 4K→1K, Legendary 7.5K→1.8K
+- **Silver sembol havuzu:** 9→11 sembol (seven, crown eklendi)
+- **Sonuc:** ROI egrisi hedeflere oturdu, CP/bilet egrisi dogru calisiyor
+- **Oyun tasarimi:** "En az bilette en cok CP" — Paper karli ama CP/bilet cok dusuk, yuksek tier'lar zararda ama CP/bilet cok yuksek
 
 ### Ses Efekti Sistemi (2026-02-25)
 - **SoundManager autoload:** Sintetik placeholder sesler (19 adet), AudioStreamWAV ile runtime uretimi

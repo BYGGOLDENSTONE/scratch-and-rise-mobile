@@ -5,6 +5,8 @@ extends Node
 ## Release build'de devre disi.
 
 const POLL_INTERVAL := 0.5
+const TicketDataRef := preload("res://scripts/ticket/ticket_data.gd")
+const MatchSystemRef := preload("res://scripts/systems/match_system.gd")
 
 var _project_dir := ""
 var _cmd_path := ""
@@ -113,6 +115,8 @@ func _run_command(cmd: Dictionary) -> void:
 			result = {"energy": GameState.energy}
 		"list_buttons":
 			result = _cmd_list_buttons()
+		"sim_tickets":
+			result = _cmd_sim_tickets(cmd)
 		_:
 			result = {"error": "Bilinmeyen komut: %s" % cmd["command"]}
 	_write_state(result)
@@ -241,6 +245,106 @@ func _collect_buttons(node: Node, out: Array) -> void:
 		})
 	for child in node.get_children():
 		_collect_buttons(child, out)
+
+
+# ────────────────────────────────────────────
+# Bilet Simulasyonu (UI yok, saf hesaplama)
+# ────────────────────────────────────────────
+
+func _cmd_sim_tickets(cmd: Dictionary) -> Dictionary:
+	var count: int = cmd.get("count", 100)
+	var ticket_type: String = cmd.get("ticket_type", "all")
+	var starting_coins: int = cmd.get("starting_coins", 20)
+
+	if ticket_type == "all":
+		# Tum tier'lari tek seferde simule et
+		var results := {}
+		for tier_key in TicketDataRef.TICKET_ORDER:
+			results[tier_key] = _sim_single_tier(tier_key, count, starting_coins)
+		return {"sim_results": results}
+	else:
+		if not TicketDataRef.TICKET_CONFIGS.has(ticket_type):
+			return {"error": "Bilinmeyen bilet turu: %s" % ticket_type, "valid": TicketDataRef.TICKET_ORDER}
+		var tier_result := _sim_single_tier(ticket_type, count, starting_coins)
+		return {"sim_results": {ticket_type: tier_result}}
+
+
+func _sim_single_tier(ticket_type: String, max_count: int, starting_coins: int) -> Dictionary:
+	var config: Dictionary = TicketDataRef.TICKET_CONFIGS[ticket_type]
+	var price: int = config["price"]
+
+	var coins: int = starting_coins
+	var tickets_played := 0
+	var total_spent := 0
+	var total_earned := 0
+	var total_cp := 0.0
+	var tier_counts := {"normal": 0, "big": 0, "jackpot": 0, "none": 0}
+	var coin_history := [coins]
+	var rewards := []
+	var multipliers := []
+
+	for i in range(max_count):
+		if coins < price:
+			break
+
+		# Bilet al
+		coins -= price
+		total_spent += price
+		tickets_played += 1
+
+		# Sembol uret ve eslesme kontrol
+		var symbols: Array = TicketDataRef.get_random_symbols(ticket_type)
+		var match_result: Dictionary = MatchSystemRef.check_match(symbols, ticket_type)
+
+		var reward: int = 0
+		var cp: float = 0.0
+
+		if match_result["has_match"]:
+			reward = match_result["reward"]
+			var tier: String = match_result["tier"]
+			tier_counts[tier] += 1
+			cp = GameState.get_ticket_cp(ticket_type, tier)
+			multipliers.append(match_result["multiplier"])
+		else:
+			tier_counts["none"] += 1
+			multipliers.append(0)
+
+		coins += reward
+		total_earned += reward
+		total_cp += cp
+		coin_history.append(coins)
+		rewards.append(reward)
+
+	var net: int = total_earned - total_spent
+	var avg_roi: float = float(total_earned) / float(total_spent) if total_spent > 0 else 0.0
+	var match_rate: float = float(tickets_played - tier_counts["none"]) / float(tickets_played) if tickets_played > 0 else 0.0
+	var cp_per_ticket: float = total_cp / float(tickets_played) if tickets_played > 0 else 0.0
+
+	# Coin history'yi kisalt (cok buyukse sadece 200 nokta)
+	var history_out: Array = coin_history
+	if coin_history.size() > 200:
+		history_out = []
+		var step: float = float(coin_history.size() - 1) / 199.0
+		for j in range(200):
+			history_out.append(coin_history[int(j * step)])
+
+	return {
+		"tickets_played": tickets_played,
+		"total_spent": total_spent,
+		"total_earned": total_earned,
+		"net": net,
+		"avg_roi": snappedf(avg_roi, 0.001),
+		"match_rate": snappedf(match_rate, 0.001),
+		"tier_counts": tier_counts,
+		"total_cp": snappedf(total_cp, 0.01),
+		"cp_per_ticket": snappedf(cp_per_ticket, 0.001),
+		"final_coins": coins,
+		"coin_history": history_out,
+		"rewards": rewards,
+		"multipliers": multipliers,
+		"price": price,
+		"base_reward": config["base_reward"],
+	}
 
 
 # ────────────────────────────────────────────

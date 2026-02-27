@@ -43,6 +43,7 @@ var _coin_delta_label: Label = null  # Coin yaninda +/- gosterimi
 var _is_first_ticket_of_round: bool = true  # Erken Kus charm icin
 var _no_match_count: int = 0  # Sanssiz Sansli basarimi icin
 var _settings_popup: PanelContainer = null  # Ayarlar popup referansi
+var _cp_label: Label = null  # Top bar CP gostergesi
 
 
 func _ready() -> void:
@@ -53,6 +54,7 @@ func _ready() -> void:
 	energy_label.mouse_filter = Control.MOUSE_FILTER_STOP
 	energy_label.gui_input.connect(_on_debug_tap_input)
 	_apply_theme()
+	_setup_cp_label()
 	_build_ticket_buttons()
 	_update_ui()
 	_update_ticket_buttons()
@@ -80,6 +82,31 @@ func _apply_theme() -> void:
 	ThemeHelper.make_button(koleksiyon_btn, ThemeHelper.p("success"), 22)
 	ThemeHelper.make_button(ayarlar_btn, ThemeHelper.p("text_secondary"), 22)
 	ThemeHelper.make_button(back_btn, ThemeHelper.p("danger"), 22)
+	# CP label stili
+	if _cp_label:
+		ThemeHelper.style_label(_cp_label, ThemeHelper.p("info"), 28)
+
+
+func _setup_cp_label() -> void:
+	_cp_label = Label.new()
+	_cp_label.text = "CP: 0"
+	_cp_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_cp_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_cp_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	# TicketCountLabel'dan sonra, EnergyBox'tan once ekle
+	var hbox: HBoxContainer = get_node("UILayer/UIRoot/VBox/TopBar/HBox")
+	var energy_box_idx: int = hbox.get_node("EnergyBox").get_index()
+	hbox.add_child(_cp_label)
+	hbox.move_child(_cp_label, energy_box_idx)
+
+
+func _update_cp_label() -> void:
+	if _cp_label:
+		var cp_val: float = GameState.round_cp
+		if cp_val == int(cp_val):
+			_cp_label.text = "CP: %d" % int(cp_val)
+		else:
+			_cp_label.text = "CP: %.1f" % cp_val
 
 
 func _process(_delta: float) -> void:
@@ -130,6 +157,7 @@ func _update_ui() -> void:
 	coin_label.text = "Coin: %s" % GameState.format_number(GameState.coins)
 	energy_label.text = "Enerji: %d/%d" % [GameState.energy, GameState.get_max_energy()]
 	ticket_count_label.text = "Bilet: %d" % tickets_scratched
+	_update_cp_label()
 
 
 func _on_coins_changed(_new_amount: int) -> void:
@@ -375,7 +403,11 @@ func _on_ticket_completed(symbols: Array) -> void:
 		match_data["reward"] = reward
 		GameState.add_coins(reward)
 		_show_coin_delta(reward)
-		print("[Main] Eslesme! +", reward, " coin")
+		# Tier-bazli CP hesapla ve ekle
+		var cp_earned: float = GameState.get_ticket_cp(ticket_type, match_data["tier"])
+		GameState.round_cp += cp_earned
+		_update_cp_label()
+		print("[Main] Eslesme! +", reward, " coin, +", cp_earned, " CP")
 	else:
 		print("[Main] Eslesme yok")
 

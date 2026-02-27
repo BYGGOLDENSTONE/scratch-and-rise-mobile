@@ -57,9 +57,14 @@ func _apply_theme() -> void:
 
 func _update_ui() -> void:
 	earned_label.text = "Kazanilan: %s coin" % GameState.format_number(_round_earnings)
-	var charm_earned := GameState.calc_charm_from_coins(_round_earnings)
-	charm_earned_label.text = "+%d Charm Puani" % charm_earned
-	total_charm_label.text = "Toplam Charm: %s" % GameState.format_number(GameState.charm_points)
+	var charm_earned := int(GameState.last_round_cp)
+	var cp_display: String
+	if GameState.last_round_cp == int(GameState.last_round_cp):
+		cp_display = str(int(GameState.last_round_cp))
+	else:
+		cp_display = "%.1f" % GameState.last_round_cp
+	charm_earned_label.text = "+%s CP" % cp_display
+	total_charm_label.text = "Toplam CP: %s" % GameState.format_number(GameState.charm_points)
 	energy_label.text = "Enerji: %d / %d" % [GameState.energy, GameState.get_max_energy()]
 	# Tur istatistikleri
 	var rs: Dictionary = GameState.round_stats
@@ -95,10 +100,10 @@ func _on_watch_ad_pressed() -> void:
 
 
 func _on_ad_completed() -> void:
-	# Bonus: %50 ekstra charm
-	var bonus := GameState.calc_charm_from_coins(_round_earnings) / 2
+	# Bonus: %50 ekstra CP (tier-bazli)
+	var bonus := int(GameState.last_round_cp * 0.5)
 	if bonus < 1:
 		bonus = 1
 	GameState.charm_points += bonus
 	_update_ui()
-	print("[RoundEnd] Ad bonus: +", bonus, " charm")
+	print("[RoundEnd] Ad bonus: +", bonus, " CP")
