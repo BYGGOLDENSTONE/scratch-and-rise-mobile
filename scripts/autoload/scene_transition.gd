@@ -16,7 +16,7 @@ func _ready() -> void:
 
 
 ## Fade ile sahne degistir
-func change_scene(path: String, duration: float = 0.3) -> void:
+func change_scene(path: String, duration: float = 0.15) -> void:
 	SoundManager.play("scene_swoosh")
 	_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
 	var tw := create_tween()

@@ -1,0 +1,51 @@
+[gd_scene load_steps=2 format=3 uid="uid://daily_login_popup"]
+
+[ext_resource type="Script" path="res://scripts/ui/daily_login_popup.gd" id="1_login"]
+
+[node name="DailyLoginPopup" type="PanelContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+z_index = 90
+script = ExtResource("1_login")
+
+[node name="BG" type="ColorRect" parent="."]
+layout_mode = 2
+color = Color(0, 0, 0, 0.7)
+
+[node name="CenterBox" type="CenterContainer" parent="."]
+layout_mode = 2
+
+[node name="Panel" type="PanelContainer" parent="CenterBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(640, 420)
+
+[node name="VBox" type="VBoxContainer" parent="CenterBox/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 12
+offset_left = 16.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = -16.0
+
+[node name="Title" type="Label" parent="CenterBox/Panel/VBox"]
+layout_mode = 2
+text = "GUNLUK GIRIS ODULU"
+horizontal_alignment = 1
+
+[node name="StreakLabel" type="Label" parent="CenterBox/Panel/VBox"]
+layout_mode = 2
+text = "Ardisik giris: 0 gun"
+horizontal_alignment = 1
+
+[node name="DayGrid" type="GridContainer" parent="CenterBox/Panel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+columns = 4
+theme_override_constants/h_separation = 6
+theme_override_constants/v_separation = 6
+
+[node name="ClaimBtn" type="Button" parent="CenterBox/Panel/VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 50)
+text = "ODULU TOPLA"

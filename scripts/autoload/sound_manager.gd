@@ -4,11 +4,11 @@ extends Node
 ## Autoload: SoundManager.play("ses_adi")
 ## Gercek ses dosyalari ile degistirilebilir.
 
-const RATE: int = 22050
+const RATE: int = 44100
 const POOL_SIZE: int = 8
 
 var sfx_enabled: bool = true
-var sfx_volume: float = 0.7
+var sfx_volume: float = 0.5
 
 var _sounds: Dictionary = {}
 var _players: Array[AudioStreamPlayer] = []
@@ -100,98 +100,96 @@ func _arp(freqs: Array, note_dur: float, sustain: float, vol: float) -> AudioStr
 
 func _generate_sounds() -> void:
 	# ── UI Sesler ──
-	# Hafif tik sesi (buton tiklamasi)
-	_sounds["ui_tap"] = _wav(0.06, func(t: float) -> float:
-		return sin(TAU * 1200.0 * t) * exp(-t * 50.0) * 0.5)
+	# Yumusak tik (dusuk frekans, hizli decay)
+	_sounds["ui_tap"] = _wav(0.05, func(t: float) -> float:
+		return sin(TAU * 440.0 * t) * exp(-t * 80.0) * 0.3)
 
-	# Geri donme sesi (alcalan ton)
-	_sounds["ui_back"] = _wav(0.09, func(t: float) -> float:
-		var freq := lerpf(600.0, 380.0, t / 0.09)
-		return sin(TAU * freq * t) * exp(-t * 25.0) * 0.45)
+	# Geri donme (yumusak alcalan)
+	_sounds["ui_back"] = _wav(0.08, func(t: float) -> float:
+		var freq := lerpf(350.0, 220.0, t / 0.08)
+		return sin(TAU * freq * t) * exp(-t * 35.0) * 0.25)
 
-	# Popup acilis (yukselen ding)
-	_sounds["popup_open"] = _wav(0.14, func(t: float) -> float:
-		var freq := lerpf(480.0, 880.0, t / 0.14)
-		return sin(TAU * freq * t) * minf(t / 0.01, 1.0) * exp(-t * 12.0) * 0.4)
+	# Popup acilis (hafif yukselen)
+	_sounds["popup_open"] = _wav(0.12, func(t: float) -> float:
+		var freq := lerpf(330.0, 520.0, t / 0.12)
+		return sin(TAU * freq * t) * minf(t / 0.015, 1.0) * exp(-t * 18.0) * 0.25)
 
-	# Popup kapanis (alçalan ton)
-	_sounds["popup_close"] = _wav(0.11, func(t: float) -> float:
-		var freq := lerpf(700.0, 380.0, t / 0.11)
-		return sin(TAU * freq * t) * exp(-t * 20.0) * 0.4)
+	# Popup kapanis (hafif alcalan)
+	_sounds["popup_close"] = _wav(0.09, func(t: float) -> float:
+		var freq := lerpf(440.0, 280.0, t / 0.09)
+		return sin(TAU * freq * t) * exp(-t * 28.0) * 0.22)
 
 	# ── Kazima ──
-	# Yumusak kazima tiki (kisa sine + hafif noise)
-	_sounds["scratch"] = _wav(0.04, func(t: float) -> float:
-		var env := exp(-t * 90.0)
-		return (sin(TAU * 700.0 * t) * 0.25 + randf_range(-0.05, 0.05)) * env * 0.2)
+	# Cok kisa yumusak tik
+	_sounds["scratch"] = _wav(0.03, func(t: float) -> float:
+		return sin(TAU * 350.0 * t) * exp(-t * 120.0) * 0.15)
 
 	# ── Eslesme Sesleri ──
-	# Sembol patlama vurusu (dusuk baslangic — pitch ile buildup hissi verir)
-	_sounds["match_pop"] = _wav(0.15, func(t: float) -> float:
-		return (sin(TAU * 300.0 * t) * 0.7 + sin(TAU * 600.0 * t) * 0.2) * exp(-t * 25.0) * 0.5)
+	# Yumusak pop (dusuk frekans, sicak ton)
+	_sounds["match_pop"] = _wav(0.12, func(t: float) -> float:
+		return sin(TAU * 220.0 * t) * exp(-t * 30.0) * 0.3)
 
-	# Joker/Bomba ozel pop (parlak, metalik, belirgin farkli)
-	_sounds["match_special"] = _wav(0.2, func(t: float) -> float:
-		var freq := lerpf(500.0, 1000.0, t / 0.2)
-		return (sin(TAU * freq * t) * 0.5 + sin(TAU * freq * 1.5 * t) * 0.3) * minf(t / 0.003, 1.0) * exp(-t * 12.0) * 0.45)
+	# Ozel sembol (hafif parlak ama sert degil)
+	_sounds["match_special"] = _wav(0.15, func(t: float) -> float:
+		var freq := lerpf(330.0, 550.0, t / 0.15)
+		return sin(TAU * freq * t) * minf(t / 0.01, 1.0) * exp(-t * 18.0) * 0.25)
 
-	# Eslesme yok (uzgun alcalan ton)
-	_sounds["no_match"] = _wav(0.2, func(t: float) -> float:
-		var freq := lerpf(280.0, 160.0, t / 0.2)
-		return sin(TAU * freq * t) * exp(-t * 10.0) * 0.35)
+	# Eslesme yok (kisa, hafif uzgun ton)
+	_sounds["no_match"] = _wav(0.15, func(t: float) -> float:
+		var freq := lerpf(220.0, 150.0, t / 0.15)
+		return sin(TAU * freq * t) * exp(-t * 15.0) * 0.2)
 
 	# ── Coin Sesleri ──
-	# Para kazanma (iki yukselen ping)
-	_sounds["coin_gain"] = _wav(0.2, func(t: float) -> float:
-		var freq := 1000.0 if t < 0.1 else 1300.0
-		return sin(TAU * freq * t) * exp(-fmod(t, 0.1) * 30.0) * 0.4)
+	# Para kazanma (iki yumusak ping)
+	_sounds["coin_gain"] = _wav(0.15, func(t: float) -> float:
+		var freq := 550.0 if t < 0.075 else 660.0
+		return sin(TAU * freq * t) * exp(-fmod(t, 0.075) * 35.0) * 0.25)
 
-	# Para harcama (kisa alcalan ton)
-	_sounds["coin_spend"] = _wav(0.1, func(t: float) -> float:
-		var freq := lerpf(700.0, 480.0, t / 0.1)
-		return sin(TAU * freq * t) * exp(-t * 25.0) * 0.35)
+	# Para harcama (kisa hafif ton)
+	_sounds["coin_spend"] = _wav(0.08, func(t: float) -> float:
+		var freq := lerpf(400.0, 300.0, t / 0.08)
+		return sin(TAU * freq * t) * exp(-t * 35.0) * 0.2)
 
 	# ── Buyuk Kazanc ──
-	# C5-E5-G5 yukselen arpeggio
-	_sounds["big_win"] = _arp([523.0, 659.0, 784.0], 0.12, 0.0, 0.45)
+	# C4-E4-G4 yumusak arpeggio (bir oktav dusuk)
+	_sounds["big_win"] = _arp([262.0, 330.0, 392.0], 0.12, 0.0, 0.3)
 
-	# C5-E5-G5-C6 fanfar (sustain ile)
-	_sounds["jackpot"] = _arp([523.0, 659.0, 784.0, 1047.0], 0.12, 0.2, 0.45)
+	# C4-E4-G4-C5 fanfar (yumusak)
+	_sounds["jackpot"] = _arp([262.0, 330.0, 392.0, 523.0], 0.12, 0.15, 0.3)
 
 	# ── Basarim ──
-	# Cift parlak ping
-	_sounds["achievement"] = _wav(0.22, func(t: float) -> float:
-		return sin(TAU * 1100.0 * t) * exp(-fmod(t, 0.11) * 30.0) * 0.4)
+	# Cift yumusak ping
+	_sounds["achievement"] = _wav(0.2, func(t: float) -> float:
+		return sin(TAU * 550.0 * t) * exp(-fmod(t, 0.1) * 35.0) * 0.25)
 
 	# ── Olaylar ──
-	# Yukselen alarm tonu
-	_sounds["event_trigger"] = _wav(0.22, func(t: float) -> float:
-		var freq := lerpf(600.0, 1100.0, t / 0.22)
-		return sin(TAU * freq * t) * minf(t / 0.01, 1.0) * maxf(1.0 - t / 0.22, 0.0) * 0.45)
+	# Hafif yukselen ton
+	_sounds["event_trigger"] = _wav(0.18, func(t: float) -> float:
+		var freq := lerpf(350.0, 550.0, t / 0.18)
+		return sin(TAU * freq * t) * minf(t / 0.015, 1.0) * maxf(1.0 - t / 0.18, 0.0) * 0.28)
 
 	# ── Uyarilar ──
-	# Dusuk ton square buzz
-	_sounds["energy_warn"] = _wav(0.14, func(t: float) -> float:
-		var sq := 1.0 if fmod(t * 200.0, 1.0) < 0.5 else -1.0
-		return sq * minf(t / 0.01, 1.0) * maxf(1.0 - t / 0.14, 0.0) * 0.25)
+	# Dusuk yumusak buzz
+	_sounds["energy_warn"] = _wav(0.12, func(t: float) -> float:
+		return sin(TAU * 150.0 * t) * minf(t / 0.015, 1.0) * maxf(1.0 - t / 0.12, 0.0) * 0.2)
 
 	# ── Bilet ──
-	# Hizli yukselen sweep
-	_sounds["ticket_complete"] = _wav(0.15, func(t: float) -> float:
-		var freq := lerpf(500.0, 1400.0, t / 0.15)
-		return sin(TAU * freq * t) * minf(t / 0.005, 1.0) * maxf(1.0 - t / 0.15, 0.0) * 0.4)
+	# Hafif yukselen sweep
+	_sounds["ticket_complete"] = _wav(0.12, func(t: float) -> float:
+		var freq := lerpf(330.0, 660.0, t / 0.12)
+		return sin(TAU * freq * t) * minf(t / 0.01, 1.0) * maxf(1.0 - t / 0.12, 0.0) * 0.25)
 
 	# ── Gecis ──
-	# Yumusak noise swoosh
-	_sounds["scene_swoosh"] = _wav(0.18, func(t: float) -> float:
-		return randf_range(-1.0, 1.0) * sin(PI * t / 0.18) * 0.25)
+	# Cok hafif swoosh
+	_sounds["scene_swoosh"] = _wav(0.12, func(t: float) -> float:
+		return randf_range(-1.0, 1.0) * sin(PI * t / 0.12) * 0.1)
 
 	# ── Charm ──
-	# Parlak yukselen harmonik
-	_sounds["charm_buy"] = _wav(0.2, func(t: float) -> float:
-		var freq := lerpf(700.0, 1100.0, t / 0.2)
-		return (sin(TAU * freq * t) * 0.5 + sin(TAU * freq * 1.5 * t) * 0.2) * minf(t / 0.01, 1.0) * exp(-t * 8.0) * 0.4)
+	# Yumusak yukselen ton
+	_sounds["charm_buy"] = _wav(0.15, func(t: float) -> float:
+		var freq := lerpf(400.0, 600.0, t / 0.15)
+		return sin(TAU * freq * t) * minf(t / 0.015, 1.0) * exp(-t * 12.0) * 0.25)
 
 	# ── Tur Sonu ──
-	# G5-E5-C5 inen arpeggio
-	_sounds["round_end"] = _arp([784.0, 659.0, 523.0], 0.12, 0.0, 0.4)
+	# G4-E4-C4 yumusak inen arpeggio
+	_sounds["round_end"] = _arp([392.0, 330.0, 262.0], 0.12, 0.0, 0.25)

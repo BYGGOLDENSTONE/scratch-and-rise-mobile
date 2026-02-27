@@ -1,0 +1,341 @@
+keys,en,tr
+SCRATCH_AND_RISE,SCRATCH & RISE,SCRATCH & RISE
+KAZI_KAZAN_YUKSEL,Scratch & Rise,Kazi Kazan & Yuksel
+OYNA,PLAY,OYNA
+GERI,Back,Geri
+AYARLAR,SETTINGS,AYARLAR
+KAPAT,CLOSE,KAPAT
+COIN_YETERSIZ,Not enough coins!,Coin yetersiz!
+ENERJI_YOK,NO ENERGY,ENERJI YOK
+KILITLI,Locked,Kilitli
+AKTIF,ACTIVE,AKTIF
+MAX,MAX,MAX
+TAMAM,OK,TAMAM
+TOPLANDI,Claimed,Toplandi
+TOPLA,CLAIM,TOPLA
+COIN_FMT,Coin: %s,Coin: %s
+BILET_FMT,Ticket: %d,Bilet: %d
+ENERJI_FMT,Energy: %d/%d,Enerji: %d/%d
+GEM_FMT,%s Gem,%s Gem
+GEM_SAYI_FMT,Gem: %d,Gem: %d
+GEM_ONDALIK_FMT,Gem: %.1f,Gem: %.1f
+ENERJI_TIMER_FMT,%d:%02d until +1 energy,%d:%02d sonra +1 enerji
+ENERJI_BEKLE_FMT,Energy: %d / %d,Enerji: %d / %d
+CHARM_EKRANI,LUCK CHARMS,LUCK CHARM'LAR
+TEMEL_CHARMLAR,BASIC CHARMS,TEMEL CHARM'LAR
+ORTA_CHARMLAR,MID CHARMS,ORTA CHARM'LAR
+GUCLU_CHARMLAR,POWER CHARMS,GUCLU CHARM'LAR
+CHARM_AL_FMT,BUY  %d Gem,AL  %d Gem
+CHARM_UP_FMT,+  %d Gem,+  %d Gem
+CHARM_BTN,Charm,Charm
+SINERJI_BTN,Synergy,Sinerji
+KOLEKSIYON_BTN,Collection,Koleksiyon
+BASARIM_BTN,Achievement,Basarim
+GOREVLER_BTN,Quests,Gorevler
+TUR_BITTI,ROUND OVER!,TUR BITTI!
+KAZANILAN_FMT,Earned: %s coin,Kazanilan: %s coin
+GEM_KAZANILAN_FMT,+%s Gem,+%s Gem
+TOPLAM_GEM_FMT,Total Gem: %s,Toplam Gem: %s
+BILET_STAT_FMT,Tickets: %d,Bilet: %d
+ESLESME_STAT_FMT,Matches: %d,Eslesme: %d
+SINERJI_STAT_FMT,Synergies: %d,Sinerji: %d
+JACKPOT_STAT_FMT,Jackpots: %d,Jackpot: %d
+TEKRAR_OYNA,PLAY AGAIN,TEKRAR OYNA
+ANA_MENU,MAIN MENU,ANA MENU
+REKLAM_IZLE,Watch Ad (+Gem),Reklam Izle (+Gem)
+KOLEKSIYON_EKRANI,COLLECTION,KOLEKSIYON
+BASARIMLAR_EKRANI,ACHIEVEMENTS,BASARIMLAR
+SINERJI_ALBUMU,SYNERGY ALBUM,SINERJI ALBUMU
+HENUZ_KESFEDILMEDI,Not yet discovered,Henuz kesfedilmedi
+KESFEDILDI_FMT,%d / %d Discovered,%d / %d Kesfedildi
+GIZLI_SINERJI,Hidden synergy,Gizli sinerji
+TAMAMLANDI_FMT,COMPLETE! %s,TAMAMLANDI! %s
+KOLEKSIYON_ILERLEME_FMT,%d / %d — Bonus: %s,%d / %d — Bonus: %s
+GOREV,Quest,Gorev
+GEM_ODUL_FMT,+%d Gem,+%d Gem
+ENERJI_ODUL_FMT,+%d Energy,+%d Enerji
+GUNLUK_GOREVLER,DAILY QUESTS,GUNLUK GOREVLER
+BONUS_FMT,Bonus: %d/3 quests complete,Bonus: %d/3 gorev tamamla
+BONUS_TOPLANDI,Bonus claimed!,Bonus toplandi!
+BONUS_TOPLA_FMT,BONUS: +%d Gem,BONUS: +%d Gem
+GUNLUK_GIRIS,DAILY LOGIN REWARD,GUNLUK GIRIS ODULU
+ARDISIK_GIRIS_FMT,Login streak: %d days,Ardisik giris: %d gun
+ODULU_TOPLA,CLAIM REWARD,ODULU TOPLA
+GUN_FMT,Day %d,Gun %d
+PARCA,Piece,Parca
+TEMA_KARANLIK,Theme: Dark,Tema: Karanlik
+TEMA_AYDINLIK,Theme: Light,Tema: Aydinlik
+SES_ACIK,Sound: On,Ses: Acik
+SES_KAPALI,Sound: Off,Ses: Kapali
+SAVE_SIFIRLA,Reset Save,Save Sifirla
+EMIN_MISIN,Are you sure? Press again,Emin misin? Tekrar bas
+DIL,Language,Dil
+ESLESME_YOK,No match...,Eslesme yok...
+JACKPOT_TEXT,JACKPOT!,JACKPOT!
+BUYUK_ESLESME,BIG MATCH!,BUYUK ESLESME!
+ESLESME_TEXT,MATCH!,ESLESME!
+SINERJI_KESFEDILDI,SYNERGY DISCOVERED!,SINERJI KESFEDILDI!
+ALTIN_BILET,GOLDEN TICKET!,ALTIN BILET!
+YAKALA,CATCH!,YAKALA!
+SANIYE_FMT,%.1f seconds,%.1f saniye
+YAKALADIN,CAUGHT!,YAKALADIN!
+BILET_BEDAVA,This ticket is free!,Bu bilet bedava!
+BULL_RUN,BULL RUN!,BULL RUN!
+RARITY_COMMON,Common,Yaygin
+RARITY_UNCOMMON,Uncommon,Sira Disi
+RARITY_RARE,Rare,Nadir
+RARITY_EPIC,Epic,Epik
+RARITY_LEGENDARY,Legendary,Efsanevi
+BASARIM_ACILDI_FMT,%s Achievement!,%s Basarim!
+CAT_ERKEN,EARLY GAME,ERKEN OYUN
+CAT_ORTA,MID GAME,ORTA OYUN
+CAT_GEC,LATE GAME,GEC OYUN
+CAT_GIZLI,HIDDEN,GIZLI
+BILET_ALANI,[ TICKET AREA ],[ BILET ALANI ]
+CHARM_NAME_SANS_TOKASI,Lucky Charm,Sans Tokasi
+CHARM_NAME_ZENGIN_BASLANGIC,Rich Start,Zengin Baslangic
+CHARM_NAME_KESKIN_GOZ,Sharp Eye,Keskin Goz
+CHARM_NAME_HIZLI_PARMAK,Quick Finger,Hizli Parmak
+CHARM_NAME_SANSLI_YILDIZ,Lucky Star,Sansli Yildiz
+CHARM_NAME_IKINCI_SANS,Second Chance,Ikinci Sans
+CHARM_NAME_HAZINE_AVCISI,Treasure Hunter,Hazine Avcisi
+CHARM_NAME_CIFTE_SANS,Double Luck,Cifte Sans
+CHARM_NAME_MIKNATIS,Magnet,Miknatis
+CHARM_NAME_ERKEN_KUS,Early Bird,Erken Kus
+CHARM_NAME_SANS_CARKI,Wheel of Fortune,Sans Carki
+CHARM_NAME_KOLEKSIYONCU_RUHU,Collector Spirit,Koleksiyoncu Ruhu
+CHARM_NAME_COMBO_USTASI,Combo Master,Combo Ustasi
+CHARM_NAME_DAYANIKLILIK,Endurance,Dayaniklilik
+CHARM_NAME_SON_HAMLE,Last Move,Son Hamle
+CHARM_NAME_JOKER_MIKNATISI,Joker Magnet,Joker Miknatisi
+CHARM_NAME_CARPAN_GUCU,Multiplier Power,Carpan Gucu
+CHARM_NAME_ENERJI_DEPOSU,Energy Tank,Enerji Deposu
+CHARM_NAME_SINERJI_RADARI,Synergy Radar,Sinerji Radari
+CHARM_NAME_ALTINPARMAK,Golden Touch,Altinparmak
+CHARM_NAME_KRAL_DOKUNUSU,King's Touch,Kral Dokunusu
+CHARM_NAME_YOLO,YOLO,YOLO
+CHARM_NAME_MEGA_BASLANGIC,Mega Start,Mega Baslangic
+CHARM_DESC_SANS_TOKASI,Match reward +%{value},Eslesme odulu +%{value}
+CHARM_DESC_ZENGIN_BASLANGIC,Starting coins +{value},Baslangic parasi +{value} coin
+CHARM_DESC_KESKIN_GOZ,3-match chance +%{value},3'lu eslesme sansi +%{value}
+CHARM_DESC_HIZLI_PARMAK,Scratch speed +%{value},Kazima hizi +%{value}
+CHARM_DESC_SANSLI_YILDIZ,Special symbol chance +%{value},Ozel sembol sansi +%{value}
+CHARM_DESC_IKINCI_SANS,Reroll on no match %{value},Eslesme yoksa tekrar cekme %{value}
+CHARM_DESC_HAZINE_AVCISI,Collection drop chance +%{value},Koleksiyon dusme sansi +%{value}
+CHARM_DESC_CIFTE_SANS,4+ match extra +%{value} coin,4+ eslesmede ekstra +%{value} coin
+CHARM_DESC_MIKNATIS,Synergy chance +%{value},Sinerji sansi +%{value}
+CHARM_DESC_ERKEN_KUS,First ticket %{value} discount,Ilk bilet %{value} indirimli
+CHARM_DESC_SANS_CARKI,Every 5th ticket bonus event +%{value},Her 5. bilette bonus olay +%{value}
+CHARM_DESC_KOLEKSIYONCU_RUHU,Collection drop +{value} Gem,Koleksiyon dusunce +{value} Gem
+CHARM_DESC_COMBO_USTASI,Consecutive match bonus +%{value},Ardisik eslesme bonusu +%{value}
+CHARM_DESC_DAYANIKLILIK,Energy regen speed +%{value},Enerji yenilenme hizi +%{value}
+CHARM_DESC_SON_HAMLE,Free Paper if coins < 20 ({value}x/round),Coin < 20 ise bedava Paper bilet (tur basi {value}x)
+CHARM_DESC_JOKER_MIKNATISI,Joker symbol chance +%{value},Joker sembol sansi +%{value}
+CHARM_DESC_CARPAN_GUCU,Multiplier symbol chance +%{value},Carpan sembol sansi +%{value}
+CHARM_DESC_ENERJI_DEPOSU,Max energy +{value},Max enerji +{value}
+CHARM_DESC_SINERJI_RADARI,Synergy chance +%{value},Sinerji sansi +%{value}
+CHARM_DESC_ALTINPARMAK,All rewards +%{value},Tum oduller +%{value}
+CHARM_DESC_KRAL_DOKUNUSU,4+ match reward x{value},4+ eslesme odulu x{value}
+CHARM_DESC_YOLO,1% chance reward x50,%1 sansla odul x50
+CHARM_DESC_MEGA_BASLANGIC,Starting coins +{value},Baslangic parasi +{value} coin
+TICKET_KAGIT,Paper,Kagit
+TICKET_BRONZ,Bronze,Bronz
+TICKET_GUMUS,Silver,Gumus
+TICKET_ALTIN,Gold,Altin
+TICKET_PLATIN,Platinum,Platin
+TICKET_ELMAS,Diamond,Elmas
+TICKET_ZUMRUT,Emerald,Zumrut
+TICKET_YAKUT,Ruby,Yakut
+TICKET_OBSIDYEN,Obsidian,Obsidyen
+TICKET_EFSANE,Legendary,Efsane
+SYM_KIRAZ,Cherry,Kiraz
+SYM_LIMON,Lemon,Limon
+SYM_UZUM,Grape,Uzum
+SYM_YILDIZ,Star,Yildiz
+SYM_AY,Moon,Ay
+SYM_YONCA,Clover,Yonca
+SYM_ZIL,Bell,Zil
+SYM_ELMAS,Diamond,Elmas
+SYM_KALP,Heart,Kalp
+SYM_YEDI,7,7
+SYM_TAC,Crown,Tac
+SYM_NAL,Horseshoe,Nal
+SYM_ANKA,Phoenix,Anka
+SYM_EJDERHA,Dragon,Ejderha
+SYM_ZAR,Dice,Zar
+SYM_YAKUT,Ruby,Yakut
+SYM_SAFIR,Sapphire,Safir
+SYM_ZUMRUT,Emerald,Zumrut
+SYM_INCI,Pearl,Inci
+SYM_ATES,Fire,Ates
+SYM_KURUKAFA,Skull,Kurukafa
+SYM_TEKBOYNUZ,Unicorn,Tekboynuz
+SYM_YILDIRIM,Lightning,Yildirim
+SYM_CAPA,Anchor,Capa
+SYM_KRISTAL,Crystal,Kristal
+SYM_JOKER,Joker,Joker
+SYM_X2,x2,x2
+SYM_BOMBA,Bomb,Bomba
+ACH_ILKKAZIMA_NAME,First Scratch,Ilk Kazima
+ACH_ILKKAZIMA_DESC,Complete 1 ticket,1 bilet tamamla
+ACH_ILKESLESME_NAME,First Match,Ilk Eslesme
+ACH_ILKESLESME_DESC,Find your first match,Ilk eslesmeni bul
+ACH_ONBILET_NAME,Warm Up,Isinma Turu
+ACH_ONBILET_DESC,Complete 10 tickets,10 bilet tamamla
+ACH_KUCUKADIMLAR_NAME,Small Steps,Kucuk Adimlar
+ACH_KUCUKADIMLAR_DESC,Earn 100 total coins,100 toplam coin kazan
+ACH_SINERJIAVCISI_NAME,Synergy Hunter,Sinerji Avcisi
+ACH_SINERJIAVCISI_DESC,Discover first synergy,Ilk sinerjiyi kesfet
+ACH_SERIKAZICI_NAME,Serial Scratcher,Seri Kazici
+ACH_SERIKAZICI_DESC,Scratch 10 tickets in a round,Bir turda 10 bilet kazi
+ACH_ILKJOKER_NAME,First Joker,Ilk Joker
+ACH_ILKJOKER_DESC,Find a Joker symbol,Bir bilette Joker sembol bul
+ACH_ILKBOMBA_NAME,First Bomb,Ilk Bomba
+ACH_ILKBOMBA_DESC,Find a Bomb symbol,Bir bilette Bomba sembol bul
+ACH_BESFARKLI_NAME,Five Different,Bes Farkli
+ACH_BESFARKLI_DESC,Play 5 different ticket types,5 farkli bilet turunde oyna
+ACH_ELLIBILET_NAME,Scratch Master,Kazi Ustasi
+ACH_ELLIBILET_DESC,Scratch 50 total tickets,Toplam 50 bilet kazi
+ACH_BRONZKAZICI_NAME,Bronze Hunter,Bronz Avci
+ACH_BRONZKAZICI_DESC,Find match in Bronze ticket,Bronze bilette eslesme bul
+ACH_GUMUSKAZICI_NAME,Silver Scratcher,Gumus Kazici
+ACH_GUMUSKAZICI_DESC,Find match in Silver ticket,Gumus bilette eslesme bul
+ACH_ALTINAVCI_NAME,Gold Hunter,Altin Avci
+ACH_ALTINAVCI_DESC,Find match in Gold ticket,Altin bilette eslesme bul
+ACH_JACKPOT_NAME,Jackpot!,Jackpot!
+ACH_JACKPOT_DESC,Hit first jackpot,Ilk jackpot'u vur
+ACH_BESJACKPOT_NAME,Jackpot Hunter,Jackpot Avcisi
+ACH_BESJACKPOT_DESC,Hit 5 jackpots,5 jackpot vur
+ACH_KOLEKSIYONCU_NAME,Collector,Koleksiyoncu
+ACH_KOLEKSIYONCU_DESC,Complete first collection set,Ilk koleksiyon setini tamamla
+ACH_ZENGINTUR_NAME,Rich Round,Zengin Tur
+ACH_ZENGINTUR_DESC,Earn 500+ coins in a round,Bir turda 500+ coin kazan
+ACH_UCSINERJI_NAME,Synergy Collector,Sinerji Koleksiyoncusu
+ACH_UCSINERJI_DESC,Discover 3 different synergies,3 farkli sinerji kesfet
+ACH_ONKOLEKSIYON_NAME,Piece Hunter,Parca Avcisi
+ACH_ONKOLEKSIYON_DESC,Collect 10 collection pieces,10 koleksiyon parcasi topla
+ACH_YIRMIKOLEKSIYON_NAME,Piece Master,Parca Ustasi
+ACH_YIRMIKOLEKSIYON_DESC,Collect 20 collection pieces,20 koleksiyon parcasi topla
+ACH_BINCOIN_NAME,Thousand Coins,Bin Coin
+ACH_BINCOIN_DESC,Earn 1000 total coins,Toplam 1000 coin kazan
+ACH_BESBINCOIN_NAME,Five Thousand,Bes Bin
+ACH_BESBINCOIN_DESC,Earn 5000 total coins,Toplam 5000 coin kazan
+ACH_GOLDOYNA_NAME,Gold Fire,Altin Ates
+ACH_GOLDOYNA_DESC,Hit jackpot in Gold ticket,Gold bilette jackpot vur
+ACH_YUZBILET_NAME,Scratch Baron,Kazi Baronu
+ACH_YUZBILET_DESC,Scratch 100 total tickets,Toplam 100 bilet kazi
+ACH_IKISET_NAME,Set Collector,Set Koleksiyoncusu
+ACH_IKISET_DESC,Complete 2 collection sets,2 koleksiyon seti tamamla
+ACH_PLATINSERI_NAME,Platinum Series,Platin Seri
+ACH_PLATINSERI_DESC,Find match in Platinum ticket,Platin bilette eslesme bul
+ACH_DIAMONDKAZICI_NAME,Diamond Hunter,Elmas Avci
+ACH_DIAMONDKAZICI_DESC,Find match in Diamond ticket,Diamond bilette eslesme bul
+ACH_EMERALDKAZICI_NAME,Emerald Hunter,Zumrut Avci
+ACH_EMERALDKAZICI_DESC,Find match in Emerald ticket,Emerald bilette eslesme bul
+ACH_RUBYKAZICI_NAME,Ruby Hunter,Yakut Avci
+ACH_RUBYKAZICI_DESC,Find match in Ruby ticket,Ruby bilette eslesme bul
+ACH_OBSIDIANKAZICI_NAME,Obsidian Hunter,Obsidyen Avci
+ACH_OBSIDIANKAZICI_DESC,Find match in Obsidian ticket,Obsidian bilette eslesme bul
+ACH_LEGENDARYKAZICI_NAME,Legend Hunter,Efsane Avci
+ACH_LEGENDARYKAZICI_DESC,Find match in Legendary ticket,Legendary bilette eslesme bul
+ACH_COMBOMASTER_NAME,Combo Master,Combo Master
+ACH_COMBOMASTER_DESC,Discover 5 different synergies,5 farkli sinerji kesfet
+ACH_MILYONER_NAME,Millionaire,Milyoner
+ACH_MILYONER_DESC,Earn 1000+ coins in a round,Bir turda 1000+ coin kazan
+ACH_TAMSET_NAME,Full Set,Tam Set
+ACH_TAMSET_DESC,Complete all collections,Tum koleksiyonlari tamamla
+ACH_CHARMUSTASI_NAME,Charm Master,Charm Ustasi
+ACH_CHARMUSTASI_DESC,Collect 50 charm levels,50 charm seviyesi topla
+ACH_TUMSINERJILER_NAME,Synergy Master,Sinerji Ustasi
+ACH_TUMSINERJILER_DESC,Discover all synergies,Tum sinerjileri kesfet
+ACH_ELLIJACKPOT_NAME,Jackpot King,Jackpot Krali
+ACH_ELLIJACKPOT_DESC,Hit 50 total jackpots,Toplam 50 jackpot vur
+ACH_ONBINCOIN_NAME,Rich,Zengin
+ACH_ONBINCOIN_DESC,Earn 10000 total coins,Toplam 10000 coin kazan
+ACH_TUMCHARMLAR_NAME,Charm Guru,Charm Gurusu
+ACH_TUMCHARMLAR_DESC,Buy at least 15 charms,En az 15 charm satin al
+ACH_YUZBINCOIN_NAME,Hundred K,Yuz Bin
+ACH_YUZBINCOIN_DESC,Earn 100K total coins,Toplam 100K coin kazan
+ACH_BESYUZBILET_NAME,Ticket Baron,Bilet Baronu
+ACH_BESYUZBILET_DESC,Scratch 500 total tickets,Toplam 500 bilet kazi
+ACH_BINBILET_NAME,Ticket Emperor,Bilet Imparatoru
+ACH_BINBILET_DESC,Scratch 1000 total tickets,Toplam 1000 bilet kazi
+ACH_YUZJACKPOT_NAME,Jackpot Emperor,Jackpot Imparatoru
+ACH_YUZJACKPOT_DESC,Hit 100 total jackpots,Toplam 100 jackpot vur
+ACH_ONCHARM_NAME,Charm Collection,Charm Koleksiyonu
+ACH_ONCHARM_DESC,Buy 10 charms,10 charm satin al
+ACH_DORTSET_NAME,Set Master,Set Ustasi
+ACH_DORTSET_DESC,Complete 4 collection sets,4 koleksiyon seti tamamla
+ACH_DIAMONDJACKPOT_NAME,Diamond Jackpot,Elmas Jackpot
+ACH_DIAMONDJACKPOT_DESC,Hit jackpot in Diamond ticket,Diamond bilette jackpot vur
+ACH_LEGENDARYJACKPOT_NAME,Legendary Jackpot,Efsane Jackpot
+ACH_LEGENDARYJACKPOT_DESC,Hit jackpot in Legendary ticket,Legendary bilette jackpot vur
+ACH_JOKERUSTASI_NAME,Joker Master,Joker Ustasi
+ACH_JOKERUSTASI_DESC,Find 3+ Jokers in one ticket,Tek bilette 3+ Joker bul
+ACH_SERIESLESME_NAME,Match Streak,Seri Eslesme
+ACH_SERIESLESME_DESC,5 consecutive matches,Ardisik 5 bilet eslesme
+ACH_CIFTSINERJI_NAME,Double Synergy,Cift Sinerji
+ACH_CIFTSINERJI_DESC,Find 2 synergies in one ticket,Tek bilette 2 sinerji bul
+ACH_SIFIRDANZIRVEYE_NAME,Zero to Hero,Sifirdan Zirveye
+ACH_SIFIRDANZIRVEYE_DESC,Start with no bonus and finish 500+,Bonus olmadan baslayip 500+ coin bitir
+ACH_JOKERCILGINLIGI_NAME,Joker Frenzy,Joker Cilginligi
+ACH_JOKERCILGINLIGI_DESC,Find 4+ Jokers in one ticket,Tek bilette 4+ Joker bul
+ACH_BOMBAZINCIRI_NAME,Bomb Chain,Bomba Zinciri
+ACH_BOMBAZINCIRI_DESC,Bomb + Jackpot same ticket,Bomba + Jackpot ayni bilet
+ACH_SANSSIZSANSLI_NAME,Lucky Unlucky,Sanssiz Sansli
+ACH_SANSSIZSANSLI_DESC,5 no-match then jackpot,5 ust uste eslesme yok sonra jackpot
+ACH_MUKEMMELTUR_NAME,Perfect Round,Mukemmel Tur
+ACH_MUKEMMELTUR_DESC,Match in all tickets in a round,1 turda tum biletlerde eslesme bul
+ACH_BESJOKER_NAME,Joker Festival,Joker Festivali
+ACH_BESJOKER_DESC,Find 5+ Jokers in one ticket,Tek bilette 5+ Joker bul
+ACH_UCSINERJTEK_NAME,Triple Synergy,Uclu Sinerji
+ACH_UCSINERJTEK_DESC,Find 3+ synergies in one ticket,Tek bilette 3+ sinerji bul
+ACH_ONSERI_NAME,Unstoppable,Durdurulamaz
+ACH_ONSERI_DESC,10 consecutive matches,Ardisik 10 bilet eslesme
+ACH_ZENGINTUR2_NAME,King Midas,Kral Midas
+ACH_ZENGINTUR2_DESC,Earn 10K+ coins in a round,Bir turda 10K+ coin kazan
+ACH_ILKBILETJP_NAME,Beginner's Luck,Yeni Baslayanin Sansi
+ACH_ILKBILETJP_DESC,Jackpot on first ticket of round,Turun ilk biletinde jackpot vur
+EVENT_ALTIN_BILET_NAME,Golden Ticket,Altin Bilet
+EVENT_ALTIN_BILET_DESC,A golden ticket appeared! Catch it!,Parlak bir bilet belirdi! Yakala!
+EVENT_BULL_RUN_NAME,BULL RUN!,BULL RUN!
+EVENT_BULL_RUN_DESC,Next 3 ticket rewards x2!,Sonraki 3 bilet odulleri x2!
+EVENT_BEDAVA_BILET_NAME,Free Ticket!,Bedava Bilet!
+EVENT_BEDAVA_BILET_DESC,Next ticket is free!,Sonraki bilet ucretsiz!
+EVENT_JOKER_YAGMURU_NAME,Joker Rain!,Joker Yagmuru!
+EVENT_JOKER_YAGMURU_DESC,All symbols are Joker next ticket!,Sonraki bilette tum semboller Joker!
+EVENT_MEGA_BILET_NAME,MEGA TICKET!,MEGA BILET!
+EVENT_MEGA_BILET_DESC,Next ticket guaranteed jackpot!,Sonraki bilet garanti jackpot!
+QUEST_KAZI5_NAME,Daily Scratcher,Gunluk Kazici
+QUEST_KAZI5_DESC,Scratch 5 tickets,5 bilet kazi
+QUEST_ESLESME3_NAME,Match Finder,Eslesme Avcisi
+QUEST_ESLESME3_DESC,Find 3 matches,3 eslesme bul
+QUEST_COIN100_NAME,Coin Collector,Coin Toplama
+QUEST_COIN100_DESC,Earn 100 coins,100 coin kazan
+QUEST_TUR1_NAME,Daily Round,Gunluk Tur
+QUEST_TUR1_DESC,Play 1 round,1 tur oyna
+QUEST_SINERJI1_NAME,Find Synergy,Sinerji Bul
+QUEST_SINERJI1_DESC,Trigger 1 synergy,1 sinerji tetikle
+QUEST_KAZI15_NAME,Scratch Marathon,Kazi Maratonu
+QUEST_KAZI15_DESC,Scratch 15 tickets,15 bilet kazi
+QUEST_JACKPOT1_NAME,Jackpot Chaser,Jackpot Pesinde
+QUEST_JACKPOT1_DESC,Hit 1 jackpot,1 jackpot vur
+QUEST_STREAK3_NAME,Streak Catcher,Seri Yakalayici
+QUEST_STREAK3_DESC,3 consecutive matches,3 ardisik eslesme
+QUEST_KOLEKSIYON1_NAME,Piece Hunter,Parca Avcisi
+QUEST_KOLEKSIYON1_DESC,Find 1 collection piece,1 koleksiyon parcasi bul
+QUEST_GOLD_NAME,Gold Courage,Altin Cesareti
+QUEST_GOLD_DESC,Open Gold+ ticket,Gold+ bilet ac
+QUEST_COIN500_NAME,Big Earnings,Buyuk Kazanc
+QUEST_COIN500_DESC,Earn 500 coins,500 coin kazan
+QUEST_ESLESME10_NAME,Match Master,Eslesme Ustasi
+QUEST_ESLESME10_DESC,Find 10 matches,10 eslesme bul
+QUEST_PLATIN_NAME,Platinum Courage,Platin Cesaret
+QUEST_PLATIN_DESC,Play Platinum ticket,Platinum bilet oyna
+LOGIN_GUN1,+1 Energy,+1 Enerji
+LOGIN_GUN2,+2 Gem,+2 Gem
+LOGIN_GUN3,Collection Piece,Koleksiyon Parcasi
+LOGIN_GUN4,+2 Energy,+2 Enerji
+LOGIN_GUN5,+5 Gem,+5 Gem
+LOGIN_GUN6,+3 Energy,+3 Enerji
+LOGIN_GUN7,+15 Gem + Collection,+15 Gem + Koleksiyon

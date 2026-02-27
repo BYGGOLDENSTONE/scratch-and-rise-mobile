@@ -20,6 +20,7 @@ var _round_earnings: int = 0
 
 func _ready() -> void:
 	_round_earnings = GameState.last_round_earnings
+	GameState.locale_changed.connect(func(_l): _update_ui())
 	_apply_theme()
 	_update_ui()
 	# Giris animasyonu: slide down + fade
@@ -51,29 +52,35 @@ func _apply_theme() -> void:
 	ThemeHelper.make_button(ad_btn, ThemeHelper.p("success"), 16)
 	# Enerji yoksa tekrar oyna butonu devre disi
 	if GameState.energy <= 0:
-		play_again_btn.text = "ENERJI YOK"
+		play_again_btn.text = tr("ENERJI_YOK")
 		play_again_btn.disabled = true
 
 
 func _update_ui() -> void:
-	earned_label.text = "Kazanilan: %s coin" % GameState.format_number(_round_earnings)
-	var charm_earned := int(GameState.last_round_cp)
-	var cp_display: String
-	if GameState.last_round_cp == int(GameState.last_round_cp):
-		cp_display = str(int(GameState.last_round_cp))
-	else:
-		cp_display = "%.1f" % GameState.last_round_cp
-	charm_earned_label.text = "+%s CP" % cp_display
-	total_charm_label.text = "Toplam CP: %s" % GameState.format_number(GameState.charm_points)
-	energy_label.text = "Enerji: %d / %d" % [GameState.energy, GameState.get_max_energy()]
+	# Buton yazilari
+	var title: Label = $VBox/Title
+	title.text = tr("TUR_BITTI")
+	var play_again_btn: Button = $VBox/PlayAgainButton
+	var menu_btn: Button = $VBox/MenuButton
+	var ad_btn: Button = $VBox/WatchAdButton
+	play_again_btn.text = tr("TEKRAR_OYNA")
+	menu_btn.text = tr("ANA_MENU")
+	ad_btn.text = tr("REKLAM_IZLE")
+	if GameState.energy <= 0:
+		play_again_btn.text = tr("ENERJI_YOK")
+	earned_label.text = tr("KAZANILAN_FMT") % GameState.format_number(_round_earnings)
+	var gems_earned: int = GameState.last_round_gems
+	charm_earned_label.text = tr("GEM_KAZANILAN_FMT") % str(gems_earned)
+	total_charm_label.text = tr("TOPLAM_GEM_FMT") % GameState.format_number(GameState.gems)
+	energy_label.text = tr("ENERJI_BEKLE_FMT") % [GameState.energy, GameState.get_max_energy()]
 	# Tur istatistikleri
 	var rs: Dictionary = GameState.round_stats
-	tickets_label.text = "Bilet: %d" % rs.get("tickets", 0)
-	matches_label.text = "Eslesme: %d" % rs.get("matches", 0)
-	synergies_label.text = "Sinerji: %d" % rs.get("synergies", 0)
-	jackpots_label.text = "Jackpot: %d" % rs.get("jackpots", 0)
+	tickets_label.text = tr("BILET_STAT_FMT") % rs.get("tickets", 0)
+	matches_label.text = tr("ESLESME_STAT_FMT") % rs.get("matches", 0)
+	synergies_label.text = tr("SINERJI_STAT_FMT") % rs.get("synergies", 0)
+	jackpots_label.text = tr("JACKPOT_STAT_FMT") % rs.get("jackpots", 0)
 	# Charm kazanma pulse animasyonu
-	if charm_earned > 0:
+	if gems_earned > 0:
 		charm_earned_label.pivot_offset = charm_earned_label.size / 2
 		charm_earned_label.scale = Vector2(0.5, 0.5)
 		var tw := create_tween()
@@ -100,10 +107,8 @@ func _on_watch_ad_pressed() -> void:
 
 
 func _on_ad_completed() -> void:
-	# Bonus: %50 ekstra CP (tier-bazli)
-	var bonus := int(GameState.last_round_cp * 0.5)
-	if bonus < 1:
-		bonus = 1
-	GameState.charm_points += bonus
+	# Bonus: %50 ekstra gem
+	var bonus: int = maxi(int(GameState.last_round_gems * 0.5), 1)
+	GameState.gems += bonus
 	_update_ui()
-	print("[RoundEnd] Ad bonus: +", bonus, " CP")
+	print("[RoundEnd] Ad bonus: +", bonus, " Gem")

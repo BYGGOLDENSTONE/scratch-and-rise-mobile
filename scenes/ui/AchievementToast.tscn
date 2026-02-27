@@ -47,6 +47,6 @@ text = "Basarim Acildi!"
 [node name="RewardLabel" type="Label" parent="Margin/HBox"]
 layout_mode = 2
 custom_minimum_size = Vector2(70, 0)
-text = "+5 CP"
+text = "+5 Gem"
 horizontal_alignment = 2
 vertical_alignment = 1

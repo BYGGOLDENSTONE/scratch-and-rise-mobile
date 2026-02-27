@@ -1,28 +1,28 @@
 extends RefCounted
 
-## Gunluk gorev sistemi. Her gun 3 rastgele gorev, tamamlayinca bonus CP.
+## Gunluk gorev sistemi. Her gun 3 rastgele gorev, tamamlayinca bonus gem.
 
-## Gorev sablonlari: { id, name, description, target, reward_cp, category, check_type, ... }
+## Gorev sablonlari: { id, name, description, target, reward_gem, category, check_type, ... }
 const QUEST_TEMPLATES := [
-	# Kolay gorevler (reward: 2 CP)
-	{"id": "kazi_5", "name": "Gunluk Kazici", "description": "5 bilet kazi", "target": 5, "reward_cp": 2, "category": "easy", "check_type": "tickets"},
-	{"id": "eslesme_3", "name": "Eslesme Avcisi", "description": "3 eslesme bul", "target": 3, "reward_cp": 2, "category": "easy", "check_type": "matches"},
-	{"id": "coin_100", "name": "Coin Toplama", "description": "100 coin kazan", "target": 100, "reward_cp": 2, "category": "easy", "check_type": "coins_earned"},
-	{"id": "tur_1", "name": "Gunluk Tur", "description": "1 tur oyna", "target": 1, "reward_cp": 2, "category": "easy", "check_type": "rounds"},
-	# Orta gorevler (reward: 3 CP)
-	{"id": "sinerji_1", "name": "Sinerji Bul", "description": "1 sinerji tetikle", "target": 1, "reward_cp": 3, "category": "medium", "check_type": "synergies"},
-	{"id": "kazi_15", "name": "Kazi Maratonu", "description": "15 bilet kazi", "target": 15, "reward_cp": 3, "category": "medium", "check_type": "tickets"},
-	{"id": "jackpot_1", "name": "Jackpot Pesinde", "description": "1 jackpot vur", "target": 1, "reward_cp": 3, "category": "medium", "check_type": "jackpots"},
-	{"id": "streak_3", "name": "Seri Yakalayici", "description": "3 ardisik eslesme", "target": 3, "reward_cp": 3, "category": "medium", "check_type": "streak"},
-	{"id": "koleksiyon_1", "name": "Parca Avcisi", "description": "1 koleksiyon parcasi bul", "target": 1, "reward_cp": 3, "category": "medium", "check_type": "collection_drops"},
-	# Zor gorevler (reward: 5 CP)
-	{"id": "gold_oyna", "name": "Altin Cesareti", "description": "Gold bilet oyna", "target": 1, "reward_cp": 5, "category": "hard", "check_type": "gold_ticket"},
-	{"id": "coin_500", "name": "Buyuk Kazanc", "description": "500 coin kazan", "target": 500, "reward_cp": 5, "category": "hard", "check_type": "coins_earned"},
-	{"id": "eslesme_10", "name": "Eslesme Ustasi", "description": "10 eslesme bul", "target": 10, "reward_cp": 5, "category": "hard", "check_type": "matches"},
-	{"id": "platin_oyna", "name": "Platin Cesaret", "description": "Platinum bilet oyna", "target": 1, "reward_cp": 5, "category": "hard", "check_type": "platinum_ticket"},
+	# Kolay gorevler
+	{"id": "kazi_5", "name": "Gunluk Kazici", "description": "5 bilet kazi", "target": 5, "reward_gem": 0, "reward_energy": 1, "category": "easy", "check_type": "tickets"},
+	{"id": "eslesme_3", "name": "Eslesme Avcisi", "description": "3 eslesme bul", "target": 3, "reward_gem": 2, "reward_energy": 0, "category": "easy", "check_type": "matches"},
+	{"id": "coin_100", "name": "Coin Toplama", "description": "100 coin kazan", "target": 100, "reward_gem": 2, "reward_energy": 0, "category": "easy", "check_type": "coins_earned"},
+	{"id": "tur_1", "name": "Gunluk Tur", "description": "1 tur oyna", "target": 1, "reward_gem": 2, "reward_energy": 0, "category": "easy", "check_type": "rounds"},
+	# Orta gorevler
+	{"id": "sinerji_1", "name": "Sinerji Bul", "description": "1 sinerji tetikle", "target": 1, "reward_gem": 2, "reward_energy": 0, "category": "medium", "check_type": "synergies"},
+	{"id": "kazi_15", "name": "Kazi Maratonu", "description": "15 bilet kazi", "target": 15, "reward_gem": 3, "reward_energy": 0, "category": "medium", "check_type": "tickets"},
+	{"id": "jackpot_1", "name": "Jackpot Pesinde", "description": "1 jackpot vur", "target": 1, "reward_gem": 5, "reward_energy": 0, "category": "medium", "check_type": "jackpots"},
+	{"id": "streak_3", "name": "Seri Yakalayici", "description": "3 ardisik eslesme", "target": 3, "reward_gem": 3, "reward_energy": 0, "category": "medium", "check_type": "streak"},
+	{"id": "koleksiyon_1", "name": "Parca Avcisi", "description": "1 koleksiyon parcasi bul", "target": 1, "reward_gem": 3, "reward_energy": 0, "category": "medium", "check_type": "collection_drops"},
+	# Zor gorevler
+	{"id": "gold_oyna", "name": "Altin Cesareti", "description": "Gold+ bilet ac", "target": 1, "reward_gem": 3, "reward_energy": 0, "category": "hard", "check_type": "gold_ticket"},
+	{"id": "coin_500", "name": "Buyuk Kazanc", "description": "500 coin kazan", "target": 500, "reward_gem": 5, "reward_energy": 0, "category": "hard", "check_type": "coins_earned"},
+	{"id": "eslesme_10", "name": "Eslesme Ustasi", "description": "10 eslesme bul", "target": 10, "reward_gem": 5, "reward_energy": 0, "category": "hard", "check_type": "matches"},
+	{"id": "platin_oyna", "name": "Platin Cesaret", "description": "Platinum bilet oyna", "target": 1, "reward_gem": 5, "reward_energy": 0, "category": "hard", "check_type": "platinum_ticket"},
 ]
 
-const DAILY_BONUS_CP := 5  # 3/3 tamamlayinca ekstra bonus
+const DAILY_BONUS_GEM := 5  # 3/3 tamamlayinca ekstra bonus
 
 
 ## Gunluk gorevleri kontrol et, gerekirse yenile
@@ -74,7 +74,8 @@ static func _make_quest(template: Dictionary) -> Dictionary:
 		"name": template["name"],
 		"description": template["description"],
 		"target": template["target"],
-		"reward_cp": template["reward_cp"],
+		"reward_gem": template["reward_gem"],
+		"reward_energy": template.get("reward_energy", 0),
 		"check_type": template["check_type"],
 		"progress": 0,
 		"completed": false,
@@ -134,17 +135,22 @@ static func update_progress(context: Dictionary) -> Array:
 	return newly_completed
 
 
-## Gorev odulunu topla
-static func claim_quest_reward(quest_index: int) -> int:
+## Gorev odulunu topla. Doner: {"gem": X, "energy": Y}
+static func claim_quest_reward(quest_index: int) -> Dictionary:
 	if quest_index < 0 or quest_index >= GameState.daily_quests.size():
-		return 0
+		return {}
 	var quest: Dictionary = GameState.daily_quests[quest_index]
 	if not quest["completed"] or quest["reward_claimed"]:
-		return 0
+		return {}
 	quest["reward_claimed"] = true
-	GameState.charm_points += quest["reward_cp"]
+	var gem_reward: int = quest.get("reward_gem", 0)
+	var energy_reward: int = quest.get("reward_energy", 0)
+	if gem_reward > 0:
+		GameState.gems += gem_reward
+	if energy_reward > 0:
+		GameState.energy += energy_reward
 	SaveManager.save_game()
-	return quest["reward_cp"]
+	return {"gem": gem_reward, "energy": energy_reward}
 
 
 ## Tum gorevler tamamlandi mi
@@ -160,9 +166,9 @@ static func claim_daily_bonus() -> int:
 	if not all_quests_completed() or GameState.daily_bonus_claimed:
 		return 0
 	GameState.daily_bonus_claimed = true
-	GameState.charm_points += DAILY_BONUS_CP
+	GameState.gems += DAILY_BONUS_GEM
 	SaveManager.save_game()
-	return DAILY_BONUS_CP
+	return DAILY_BONUS_GEM
 
 
 ## Gorev bilgilerini goster icin

@@ -1,38 +1,46 @@
 extends Node
 
 ## Oyun durumunu tutan global autoload.
-## Mobil: tur bazlı, enerji sistemi, charm puanları.
+## Mobil: tur bazlı, enerji sistemi, gem.
 
 const CharmDataRef := preload("res://scripts/systems/charm_data.gd")
 const CollectionRef := preload("res://scripts/systems/collection_system.gd")
 
-# --- Tier-Bazli CP Odul Tablosu ---
-# Her eslesmede bilet tier'ina gore sabit CP kazanilir (coin'den bagimsiz)
-const TIER_CP_REWARDS: Dictionary = {
-	"paper":        { "normal": 0.1,   "big": 0.3,    "jackpot": 1.0 },
-	"bronze":       { "normal": 0.5,   "big": 2.0,    "jackpot": 5.0 },
-	"silver":       { "normal": 2.0,   "big": 5.0,    "jackpot": 15.0 },
-	"gold":         { "normal": 5.0,   "big": 15.0,   "jackpot": 40.0 },
-	"platinum":     { "normal": 12.0,  "big": 35.0,   "jackpot": 100.0 },
-	"diamond_tier": { "normal": 25.0,  "big": 80.0,   "jackpot": 250.0 },
-	"emerald_tier": { "normal": 60.0,  "big": 200.0,  "jackpot": 600.0 },
-	"ruby_tier":    { "normal": 140.0, "big": 500.0,  "jackpot": 1500.0 },
-	"obsidian":     { "normal": 350.0, "big": 1200.0, "jackpot": 4000.0 },
-	"legendary":    { "normal": 800.0, "big": 3000.0, "jackpot": 10000.0 },
+# --- Tier-Bazli Gem Odul Tablosu ---
+# Sadece ilk kez o bilet turu kazildiginda verilir (tek seferlik)
+const TIER_GEM_REWARDS: Dictionary = {
+	"paper":        1,
+	"bronze":       2,
+	"silver":       3,
+	"gold":         5,
+	"platinum":     8,
+	"diamond_tier": 12,
+	"emerald_tier": 18,
+	"ruby_tier":    25,
+	"obsidian":     35,
+	"legendary":    50,
 }
 
 # --- Sinyaller ---
 signal coins_changed(new_amount: int)
 signal energy_changed(new_amount: int)
-signal charm_points_changed(new_amount: int)
+signal gems_changed(new_amount: int)
 signal round_started()
 signal round_ended(total_earned: int)
 signal achievement_unlocked(id: String)
 signal event_triggered(id: String, data: Dictionary)
 signal theme_changed(theme_id: int)
+signal locale_changed(locale: String)
 
 # --- Kullanici Ayarlari ---
 var user_theme: int = 0  # 0 = dark, 1 = light
+var user_locale: String = "tr"
+
+const SUPPORTED_LOCALES: Array = ["tr", "en"]
+const LOCALE_NAMES: Dictionary = {
+	"tr": "Turkce",
+	"en": "English",
+}
 
 # --- Tur İçi (her tur sıfırlanır) ---
 var coins: int = 0:
@@ -43,10 +51,10 @@ var coins: int = 0:
 var in_round: bool = false
 
 # --- Kalıcı Veriler ---
-var charm_points: int = 0:
+var gems: int = 0:
 	set(value):
-		charm_points = max(value, 0)
-		charm_points_changed.emit(charm_points)
+		gems = max(value, 0)
+		gems_changed.emit(gems)
 
 var charms: Dictionary = {}  # { "charm_id": level }
 
@@ -55,9 +63,12 @@ var total_rounds_played: int = 0
 var best_round_coins: int = 0
 var last_round_earnings: int = 0
 
-# --- Tur Ici CP (her tur sifirlanir) ---
-var round_cp: float = 0.0
-var last_round_cp: float = 0.0
+# --- Tur Ici Gem (her tur sifirlanir) ---
+var round_gems: int = 0
+var last_round_gems: int = 0
+
+# --- Gem alinmis bilet turleri (kalici, save edilir) ---
+var gem_claimed_tiers: Array = []  # ["paper", "bronze", ...]
 
 # --- Koleksiyon & Sinerji ---
 var collected_pieces: Dictionary = {}  # { "set_id": ["piece1", "piece2"] }
@@ -83,6 +94,11 @@ var daily_quests: Array = []  # [{"id", "progress", "target", "completed"}]
 var daily_quest_date: String = ""  # "YYYY-MM-DD" formatinda
 var daily_bonus_claimed: bool = false
 
+# --- Günlük Giriş ---
+var login_streak: int = 0
+var last_login_date: String = ""
+var login_reward_claimed: bool = false
+
 # --- Son Hamle state ---
 var _son_hamle_used: int = 0  # Bu turda kac kez kullanildi
 
@@ -98,6 +114,7 @@ var _current_match_streak: int = 0
 # --- Enerji Sistemi ---
 const BASE_MAX_ENERGY: int = 5
 const ENERGY_REGEN_SECONDS: float = 600.0  # 10 dakika
+const MAX_TICKETS_PER_ROUND: int = 15  # Tur basina max bilet
 
 var energy: int = BASE_MAX_ENERGY:
 	set(value):
@@ -110,8 +127,60 @@ var _energy_regen_accumulator: float = 0.0
 const ThemeHelperRef := preload("res://scripts/ui/theme_helper.gd")
 
 func _ready() -> void:
+	_load_translations()
 	_apply_saved_theme()
 	print("[GameState] Initialized — Mobile")
+
+
+## CSV ceviri dosyasini okuyup TranslationServer'a ekle
+func _load_translations() -> void:
+	var path := "res://assets/translations/translations.csv"
+	var file := FileAccess.open(path, FileAccess.READ)
+	if not file:
+		print("[GameState] Translation CSV not found: ", path)
+		return
+
+	var header: PackedStringArray = file.get_csv_line()
+	if header.size() < 2:
+		return
+
+	# Her dil icin Translation objesi olustur
+	var translations: Dictionary = {}
+	for i in range(1, header.size()):
+		var locale: String = header[i].strip_edges()
+		if locale != "":
+			var t := Translation.new()
+			t.locale = locale
+			translations[locale] = {"obj": t, "col": i}
+
+	# Satirlari oku
+	while not file.eof_reached():
+		var line: PackedStringArray = file.get_csv_line()
+		if line.size() < 2 or line[0].strip_edges() == "":
+			continue
+		var key: String = line[0].strip_edges()
+		for locale in translations:
+			var col: int = translations[locale]["col"]
+			if col < line.size():
+				var val: String = line[col].strip_edges()
+				if val != "":
+					translations[locale]["obj"].add_message(key, val)
+
+	# TranslationServer'a ekle
+	for locale in translations:
+		TranslationServer.add_translation(translations[locale]["obj"])
+
+	print("[GameState] Translations loaded: %d locales" % translations.size())
+
+
+## Dil degistir
+func set_user_locale(locale: String) -> void:
+	if locale not in SUPPORTED_LOCALES:
+		return
+	user_locale = locale
+	TranslationServer.set_locale(locale)
+	locale_changed.emit(locale)
+	SaveManager.save_game()
 
 
 ## Tema degistir ve kaydet
@@ -128,6 +197,7 @@ func _apply_saved_theme() -> void:
 		ThemeHelperRef.ThemeMode.DARK if user_theme == 0 else ThemeHelperRef.ThemeMode.LIGHT
 	)
 	RenderingServer.set_default_clear_color(ThemeHelperRef.p("bg_main"))
+	TranslationServer.set_locale(user_locale)
 
 
 func _process(delta: float) -> void:
@@ -183,13 +253,13 @@ func start_round() -> bool:
 	_free_ticket_active = false
 	_current_match_streak = 0
 	_son_hamle_used = 0
-	round_cp = 0.0
+	round_gems = 0
 	round_started.emit()
 	print("[GameState] Tur başladı — Başlangıç coin: ", coins)
 	return true
 
 
-## Tur bitir — charm puanı hesapla (tier-bazli CP)
+## Tur bitir — gem hesapla (tier-bazli)
 func end_round() -> void:
 	if not in_round:
 		return
@@ -199,12 +269,11 @@ func end_round() -> void:
 	total_coins_earned += earned
 	if earned > best_round_coins:
 		best_round_coins = earned
-	last_round_cp = round_cp
-	var charm_earned := int(round_cp)
-	charm_points += charm_earned
-	round_cp = 0.0
+	last_round_gems = round_gems
+	gems += round_gems
+	round_gems = 0
 	round_ended.emit(earned)
-	print("[GameState] Tur bitti — Kazanılan: ", earned, " CP: ", last_round_cp, " (int: ", charm_earned, ")")
+	print("[GameState] Tur bitti — Kazanılan: ", earned, " Gem: ", last_round_gems)
 	coins = 0
 
 
@@ -228,13 +297,26 @@ func get_starting_coins() -> int:
 	return base + bonus + mega_bonus + col_bonus
 
 
-## Bilet tier'ina gore CP hesapla
-func get_ticket_cp(ticket_tier: String, match_tier: String) -> float:
-	var tier_rewards: Dictionary = TIER_CP_REWARDS.get(ticket_tier, TIER_CP_REWARDS["paper"])
-	return tier_rewards.get(match_tier, 0.0)
+## Bilet tier'ina gore gem hesapla (sadece ilk kez acildiginda)
+func get_ticket_gems(ticket_tier: String) -> int:
+	if ticket_tier in gem_claimed_tiers:
+		return 0
+	return TIER_GEM_REWARDS.get(ticket_tier, 0)
 
 
-## Coin'den charm puanı hesapla (DEPRECATED — tier-bazli CP kullaniliyor)
+## Bilet turu icin gem'i claim et (ilk kez acildi)
+func claim_tier_gem(ticket_tier: String) -> int:
+	if ticket_tier in gem_claimed_tiers:
+		return 0
+	var reward: int = TIER_GEM_REWARDS.get(ticket_tier, 0)
+	if reward > 0:
+		gem_claimed_tiers.append(ticket_tier)
+		round_gems += reward
+		SaveManager.save_game()
+	return reward
+
+
+## Coin'den gem hesapla (DEPRECATED — tier-bazli gem kullaniliyor)
 func calc_charm_from_coins(_earned: int) -> int:
 	return 0
 
@@ -258,11 +340,11 @@ func buy_charm(charm_id: String) -> bool:
 		return false
 
 	var cost: int = charm_info["cost"]
-	if charm_points < cost:
-		print("[GameState] Charm puani yetersiz: ", charm_points, " < ", cost)
+	if gems < cost:
+		print("[GameState] Gem yetersiz: ", gems, " < ", cost)
 		return false
 
-	charm_points -= cost
+	gems -= cost
 	charms[charm_id] = current_level + 1
 	SaveManager.save_game()
 	print("[GameState] Charm alindi: ", charm_id, " -> Lv.", current_level + 1)

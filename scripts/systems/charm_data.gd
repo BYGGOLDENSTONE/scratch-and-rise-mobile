@@ -97,7 +97,7 @@ const CHARMS := {
 	},
 	"koleksiyoncu_ruhu": {
 		"name": "Koleksiyoncu Ruhu",
-		"description": "Koleksiyon dusunce +{value} CP",
+		"description": "Koleksiyon dusunce +{value} Gem",
 		"cost": 10,
 		"max_level": 5,
 		"category": "mid",

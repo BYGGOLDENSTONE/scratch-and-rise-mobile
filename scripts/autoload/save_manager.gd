@@ -1,7 +1,7 @@
 extends Node
 
 ## Kayıt/yükleme sistemi. JSON tabanlı.
-## Mobil: charm, koleksiyon, istatistik, enerji kaydeder.
+## Mobil: gem, charm, koleksiyon, istatistik, enerji kaydeder.
 ## Tur içi coin kaydedilmez (geçici).
 
 const SAVE_PATH := "user://save_main.json"
@@ -15,7 +15,7 @@ func _ready() -> void:
 ## Oyun kaydet (her tur sonunda otomatik çağrılır)
 func save_game() -> void:
 	var data := {
-		"charm_points": GameState.charm_points,
+		"gems": GameState.gems,
 		"charms": GameState.charms,
 		"energy": GameState.energy,
 		"total_coins_earned": GameState.total_coins_earned,
@@ -30,6 +30,11 @@ func save_game() -> void:
 		"daily_quests": GameState.daily_quests,
 		"daily_quest_date": GameState.daily_quest_date,
 		"daily_bonus_claimed": GameState.daily_bonus_claimed,
+		"login_streak": GameState.login_streak,
+		"last_login_date": GameState.last_login_date,
+		"login_reward_claimed": GameState.login_reward_claimed,
+		"user_locale": GameState.user_locale,
+		"gem_claimed_tiers": GameState.gem_claimed_tiers,
 		"timestamp": Time.get_unix_time_from_system(),
 	}
 	# Mevcut save'i backup'a kopyala
@@ -67,7 +72,7 @@ func load_game() -> bool:
 		return false
 
 	var data: Dictionary = json.data
-	GameState.charm_points = int(data.get("charm_points", 0))
+	GameState.gems = int(data.get("gems", data.get("charm_points", 0)))
 	GameState.charms = data.get("charms", {})
 	GameState.total_coins_earned = int(data.get("total_coins_earned", 0))
 	GameState.total_rounds_played = int(data.get("total_rounds_played", 0))
@@ -94,8 +99,20 @@ func load_game() -> bool:
 	GameState.daily_quest_date = data.get("daily_quest_date", "")
 	GameState.daily_bonus_claimed = data.get("daily_bonus_claimed", false)
 
+	# Gunluk giris
+	GameState.login_streak = int(data.get("login_streak", 0))
+	GameState.last_login_date = data.get("last_login_date", "")
+	GameState.login_reward_claimed = data.get("login_reward_claimed", false)
+
+	# Gem claimed tiers
+	GameState.gem_claimed_tiers = data.get("gem_claimed_tiers", [])
+
 	# Tema tercihi
 	GameState.user_theme = int(data.get("user_theme", 0))
+	var loaded_locale: String = data.get("user_locale", "tr")
+	if loaded_locale not in GameState.SUPPORTED_LOCALES:
+		loaded_locale = "tr"
+	GameState.user_locale = loaded_locale
 	GameState._apply_saved_theme()
 
 	# Ses tercihi

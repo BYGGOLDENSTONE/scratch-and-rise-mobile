@@ -74,11 +74,7 @@ scratch-mobil/
 | M11 | IAP | Google Play Billing, enerji paketleri, reklam kaldirma | `bekliyor` |
 | M12 | Gorsel Polish | Neon casino tema, kazima shader, ekran efektleri, bilet/sembol gorselleri | `tamamlandi` |
 | M13 | Test & Yayin | Balans, beta test, Play Store yayin, ASO | `bekliyor` |
-
-### Faz 4: Strateji & Derinlik
-| Faz | Isim | Kapsam | Durum |
-|-----|------|--------|-------|
-| M14 | Kart Destesi | Sembol kartlari, kart oynama fazi, slot sistemi, CP entegrasyonu, ozel kartlar | `bekliyor` |
+| M14 | Leaderboard | Google Play Games Services, gunluk + haftalik siralama, CP/bilet verimlilik skoru | `bekliyor` |
 
 ---
 
@@ -105,10 +101,21 @@ scratch-mobil/
 - **Ozellikler:** Save sifirlama, enerji doldurma, +10/+100 charm, +100/+1000 coin, tur bitirme, sinerji kesfet, koleksiyon ekle, tum koleksiyonlari tamamla
 - **Dosyalar:** `scripts/debug/debug_panel.gd`, `scenes/debug/DebugPanel.tscn`
 
+## Para Birimi Sistemi
+- **Coin:** Tur ici bilet alma (gecici, tur sonunda sifir)
+- **Gem:** Charm acma/upgrade (kalici, harcanir, tam sayi)
+- **CP kaldirildi** — yerine Gem ve max coin (leaderboard) kullanilir
+- **Gem kazanma:** Sadece ilk kez o bilet turu kazildiginda (tek seferlik). Kagit=1, Bronz=2, Gumus=3, Altin=5, Platin=8, Elmas=12, Zumrut=18, Yakut=25, Obsidyen=35, Efsane=50
+- **gem_claimed_tiers:** Hangi tier'lardan gem alindigi (kalici, save edilir)
+- **Ek gem kaynaklari:** Gunluk giris odulu, gunluk gorevler, basarimlar
+- **Tur limiti:** Max 15 bilet/tur (uzun tur sorunu icin)
+
 ## Charm Sistemi Notlari
+- **Para birimi:** Gem (eski CP kaldirildi)
 - **Aktif efektler:** Sans Tokasi, Zengin/Mega Baslangic, Altinparmak, Kral Dokunusu, YOLO, Enerji Deposu, Hizli Parmak, Sinerji Radari
-- **Ertelenmis efektler:** Keskin Goz (M6-sembol uretimi), Joker Miknatisi (M6-ozel semboller), Carpan Gucu (M6), Anahtar Charm'lar (M6-bilet turleri)
 - **CharmData:** `scripts/systems/charm_data.gd` (preload ile referans, class_name cache sorunu nedeniyle)
+- **Fiyatlar:** Temel 1 gem, Orta 3-8 gem, Guclu 4-25 gem (seviye basina)
+- **Tum charmlari fullemek:** ~645 gem
 
 ## Sinerji Sistemi Notlari
 - **Dosya:** `scripts/systems/synergy_system.gd` (preload ile referans)
@@ -135,12 +142,12 @@ scratch-mobil/
 ## Basarim Sistemi Notlari
 - **Dosya:** `scripts/systems/achievement_system.gd` (preload ile referans)
 - **Basarimlar:** 10 erken + 15 orta + 22 gec + 13 gizli = 60 basarim
-- **Oduller:** 2-30 CP arasi
+- **Oduller:** 1-15 gem arasi
 - **Nadir seviyeleri (rarity):** common (gri), uncommon (yesil), rare (mavi), epic (mor), legendary (altin)
 - **Kontrol:** Her bilet sonrasi + tur sonu + charm satin alma sonrasi
 - **State:** `GameState.unlocked_achievements`, `GameState.stats`, `GameState.round_stats`
 - **UI:** Basarim ekrani (`scenes/screens/AchievementScreen.tscn`), Basarim toast (`scenes/ui/AchievementToast.tscn`)
-- **Toast efektleri:** Slide-in bounce animasyonu, rarity-renk seridi, ekran flash, mini konfeti, CP ucma efekti, epic+ icin screen shake, legendary icin tam konfeti + kenar flash
+- **Toast efektleri:** Slide-in bounce animasyonu, rarity-renk seridi, ekran flash, mini konfeti, gem ucma efekti, epic+ icin screen shake, legendary icin tam konfeti + kenar flash
 - **Basarim ekrani:** Kategori ilerleme cubuklari, rarity renk seridi her kartta, acilmis/kilitli gorsel ayrimi
 - **Gizli basarimlar (13):** Joker Ustasi (3x), Seri Eslesme (5 ardisik), Cift Sinerji (2 sinerji), Sifirdan Zirveye (0→500), Joker Cilginligi (4x), Bomba Zinciri, Sanssiz Sansli, Mukemmel Tur, Joker Festivali (5x), Uclu Sinerji (3 sinerji), Durdurulamaz (10 ardisik), Kral Midas (10K/tur), Yeni Baslayanin Sansi (ilk bilet jackpot)
 - **Yeni check type'lar:** sets_complete_gte, hidden_joker_count (target destekli), hidden_triple_synergy, hidden_rich_round, hidden_first_ticket_jackpot
@@ -225,7 +232,7 @@ scratch-mobil/
 - Detayli sonuclar: `python _fast_balance_test.py 2000` ile yeniden uretilebilir
 
 ## Balans Sistemi Notlari
-- **Oyun amaci:** En az bilette en cok CP toplamak (CP = Charm Point = ilerleme)
+- **Oyun amaci:** En az bilette en yuksek coin'e ulasmak + gem toplamak
 - **base_reward sistemi:** Odul = base_reward x carpan (base_reward << fiyat = dogal kayip)
 - **Alan sayisi:** Max 9 alan (Paper=6, Bronze=8, Silver+=9) — tum yuksek tier'lar 3x3 grid
 - **Fiyatlar:** Paper=5, Bronze=25, Silver=100, Gold=500, Platinum=2.5K, Diamond=7.5K, Emerald=20K, Ruby=50K, Obsidian=125K, Legendary=300K
@@ -238,37 +245,77 @@ scratch-mobil/
 ## Balans Durumu (2026-02-27, sim_tickets ile dogrulanmis, 2000 bilet/tier)
 - **ROI egrisi (olculen):** Paper x1.20, Bronze x0.96, Silver x0.67, Gold x0.35, Platinum x0.19, Diamond x0.17, Emerald x0.15, Ruby x0.12, Obsidian x0.09, Legendary x0.07
 - **Eslesme oranlari:** Paper %47, Bronze %60, Silver %61, Gold %59, Platinum %50, Diamond %49, Emerald %44, Ruby %43, Obsidian %42, Legendary %39
-- **CP/bilet:** Paper=0.07, Bronze=0.55, Silver=1.86, Gold=4.59, Platinum=11.6, Diamond=27, Emerald=56, Ruby=140, Obsidian=354, Legendary=722
-- **Oyun akisi:** Paper buildup (karli) → yuksek tier'larda CP icin risk al (zararda) → drain ol → Paper'a don → tekrar
-- **Neden Paper karli:** Oyuncuya coin biriktirme imkani verir, ama CP/bilet cok dusuk (0.07) — 163 Paper = 1 Platinum CP. Sabirli ama verimsiz.
+- **Gem/bilet (ilk kez):** Paper=1, Bronze=2, Silver=3, Gold=5, Platinum=8, Diamond=12, Emerald=18, Ruby=25, Obsidian=35, Legendary=50
+- **Oyun akisi:** Paper buildup (karli) → yuksek tier'larda gem icin risk al (zararda) → drain ol → Paper'a don → tekrar
+- **Neden Paper karli:** Oyuncuya coin biriktirme imkani verir, ama 0 gem — ilerleme saglamaz.
 - **Baslangic parasi:** 20 coin (Paper ile buildup zorunlu)
 
 ## Ses Efekti Sistemi Notlari
 - **Dosya:** `scripts/autoload/sound_manager.gd` (autoload: SoundManager)
-- **Sintetik sesler:** 19 placeholder ses, AudioStreamWAV ile runtime'da uretilir
+- **Sintetik sesler:** 19 placeholder ses, AudioStreamWAV ile runtime'da uretilir (44100Hz, yumusak tonlar)
 - **Ses turleri:** ui_tap, ui_back, popup_open, popup_close, scratch, match_pop, match_special, no_match, coin_gain, coin_spend, big_win, jackpot, achievement, event_trigger, energy_warn, ticket_complete, scene_swoosh, charm_buy, round_end
 - **Kullanim:** `SoundManager.play("ses_adi")` veya `SoundManager.play("ses_adi", pitch)`
-- **Ayarlar:** sfx_enabled (bool), sfx_volume (float 0-1), SaveManager'da saklanir
+- **Ayarlar:** sfx_enabled (bool), sfx_volume (float 0-0.5), SaveManager'da saklanir
 - **Entegrasyon:** 14 dosyada ses cagrilari: main.gd, main_menu.gd, ticket.gd, scratch_area.gd, screen_effects.gd, scene_transition.gd, settings_popup.gd, charm_screen.gd, collection_screen.gd, achievement_screen.gd, synergy_album.gd, round_end.gd, save_manager.gd
 - **Pitch escalation:** match_pop sesinde intensity ile pitch artar (0.9 + intensity * 0.15)
 - **Degistirme:** Gercek ses dosyalari ile degistirilebilir (_sounds dictionary'sine AudioStreamWAV yerine dosyadan yuklenen stream atanabilir)
 
-## Kart Destesi Sistemi Notlari
-- **Tasarim dok:** `docs/GDD.md` → "Kart Destesi Sistemi (Mikro Strateji)" bolumu
-- **Temel mekanik:** Bileti kazidiktan sonra elindeki sembol kartlariyla eksik eslesmeler tamamlanir
-- **Kart turleri:** Sembol kartlari (temel/orta/nadir) + Ozel kartlar (Joker, Cift, Carpan)
-- **Slot sistemi:** Baslangic 2 slot, CP ile max 6'ya cikarilir (15/30/60/100 CP)
-- **Kart acma:** CP ile kalici — bir kez ac, sonsuza kadar kullan (temel 5CP, nadir 20CP, ozel 40-60CP)
-- **Tur akisi:** Tur basi kart sec → bilet kazi → Kart Oynama Fazi → sonuc → sonraki bilet
-- **Strateji:** Sinerji tablosuna bakarak kart secimi, CP yonetimi (charm vs kart vs slot), kart tasarrufu
-- **Durum:** Tasarim tamamlandi, implementasyon bekliyor
+## Leaderboard Sistemi Notlari
+- **Altyapi:** Google Play Games Services (Android), Game Center (iOS) — ucretsiz, sunucu gereksiz
+- **Skor metrigi:** Max coin ÷ bilet sayisi (verimlilik) — siralama buna gore
+- **Gosterim:** Hem max coin hem bilet sayisi ayri ayri gorunur
+- **Leaderboard'lar:** Gunluk (her gece reset) + Haftalik (her pazartesi reset)
+- **Minimum esik:** Yok — 20 coin baslangic, Kagit ile yuksek coin imkansiz
+- **Gonderim:** Tur sonunda otomatik
+- **Tasarim dok:** `docs/GDD.md` → "Leaderboard Sistemi" bolumu
+
+## Gunluk Sistemler Notlari
+- **Gunluk giris odulu:** 7 gunluk dongu (enerji, gem, koleksiyon parcasi). Ardisik giris zorunlu, 1 gun atlarsa sayac sifirlanir.
+- **Gunluk gorevler:** Her gun 3 rastgele gorev. Hepsini tamamlayinca +5 gem bonus. Gorev havuzu: bilet kazi, sinerji bul, eslesme yap, koleksiyon parcasi bul, jackpot vur vb.
+- **Tasarim dok:** `docs/GDD.md` → "Gunluk Sistemler" bolumu
+
+## Lokalizasyon Notlari
+- **Sistem:** Programatik CSV yukleme (`GameState._load_translations()`), kodda `tr("KEY")` ile erisim
+- **Diller:** tr (varsayilan), en — sadece 2 dil destegi
+- **CSV Dosya:** `assets/translations/translations.csv` (~342 key, sadece keys/en/tr kolonlari)
+- **Yukleme:** GameState._ready() icinde CSV okunur, TranslationServer'a eklenir
+- **Dil degistirme:** `GameState.set_user_locale(locale)` → TranslationServer.set_locale() + locale_changed sinyal + save
+- **Ayarlar:** SettingsPopup'ta dil toggle butonu (2 dil dongusel)
+- **Kapsam:** Tum ekranlar `_update_texts()` fonksiyonu ile acilista ve dil degistiginde guncellenir
+- **Sembol/bilet isimleri:** `ticket_data.gd` SYMBOL_KEYS + `TranslationServer.translate()` ile cevriliyor
+- **Save uyumlulugu:** Desteklenmeyen locale yuklendiyse "tr"ye dusur
+- **Tasarim dok:** `docs/GDD.md` → "Lokalizasyon" bolumu
 
 ## SONRAKI SESSION GOREVLERI
-- [ ] M14: Kart Destesi Sistemi implementasyonu
+- [x] CP → Gem donusumu (kod degisiklikleri: GameState, CharmData, UI, SaveManager)
+- [x] Gunluk giris odulu sistemi
+- [x] Gunluk gorevler sistemi
+- [x] Lokalizasyon altyapisi (CSV + tr() entegrasyonu)
+- [ ] M10: Reklam (AdMob entegrasyonu)
+- [ ] M11: IAP (Google Play Billing)
+- [ ] M13: Test & Yayin
+- [ ] M14: Leaderboard (Google Play Games Services)
 
 ---
 
 ## Tamamlanan Gorevler
+
+### Bug Fix + Polish (2026-02-28)
+- **Ses yumusatma:** Sample rate 22050→44100Hz, sfx_volume 0.7→0.5, tum 19 sesin frekansi/amplitudu dusuruldu, arpejler 1 oktav asagi
+- **Dil destegi sadeleşme:** 7 dil→2 dil (tr, en). Desteklenmeyen diller kaldirildi.
+- **Sembol/bilet isim cevirisi:** SYMBOL_NAMES→SYMBOL_KEYS + TranslationServer.translate() ile. Bilet isimleri de ceviri sistemiyle.
+- **Gem tam sayi:** Float→int. Tek seferlik tier bazli odul (ilk kez o bilet turu kazildiginda). gem_claimed_tiers ile takip.
+- **Tur limiti:** MAX_TICKETS_PER_ROUND = 15 (uzun tur onlemi)
+- **Sahne gecis hizi:** 0.3s→0.15s fade suresi
+- **Dil kaliciligi:** Tum alt ekranlara _update_texts() eklendi (charm, koleksiyon, sinerji, basarim, gorevler). Baslik + geri butonu tr() ile. SettingsPopup acilista tum metinleri tr() ile ayarliyor. Save'den locale validasyonu.
+- **locale_changed sinyali:** Tum ekranlar dil degistiginde canli guncelleniyor (~20 dosya)
+- **CSV temizligi:** 7 kolondan 3 kolona (keys, en, tr). ~342 key.
+
+### CP→Gem + Gunluk Sistemler + Lokalizasyon (2026-02-27)
+- **CP→Gem donusumu:** ~17 dosyada charm_points→gems, round_cp→round_gems, reward_cp→reward_gem. Save uyumlulugu: `data.get("gems", data.get("charm_points", 0))`
+- **Gunluk giris odulu:** 7 gunluk dongu (enerji, gem, koleksiyon parcasi). `daily_login.gd` + `DailyLoginPopup.tscn`. Ana menude otomatik popup.
+- **Gunluk gorevler UI:** `DailyQuestScreen.tscn` + `daily_quest_screen.gd`. Gorev kartlari, ilerleme cubugu, TOPLA butonu, bonus butonu. `daily_quest_system.gd`'ye reward_energy eklendi.
+- **Lokalizasyon altyapisi:** ~335 key CSV dosyasi, programatik yukleme (TranslationServer), 7 dil destegi. ~12 dosyada UI string'leri tr() ile sarili. Ayarlar popup'ina dil toggle eklendi. Charm isimleri tr() ile, diger data string'leri (basarim, sinerji, koleksiyon) henuz Turkce.
 
 ### Balans Yeniden Ayarlama + Hizli Test Sistemi (2026-02-27)
 - **sim_tickets komutu:** Test harness'a eklendi, UI olmadan saf hesaplama ile saniyede binlerce bilet simule eder

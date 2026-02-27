@@ -9,6 +9,7 @@ signal popup_closed
 @onready var reset_btn: Button = %ResetBtn
 @onready var theme_btn: Button = %ThemeToggleBtn
 @onready var sound_btn: Button = %SoundToggleBtn
+@onready var lang_btn: Button = %LangBtn
 
 var _confirm_reset: bool = false
 
@@ -18,9 +19,9 @@ func _ready() -> void:
 	reset_btn.pressed.connect(_on_reset)
 	theme_btn.pressed.connect(_on_theme_toggle)
 	sound_btn.pressed.connect(_on_sound_toggle)
+	lang_btn.pressed.connect(_on_lang_toggle)
 	_apply_theme()
-	_update_theme_btn_text()
-	_update_sound_btn_text()
+	_update_all_texts()
 	# Giris animasyonu
 	var panel: PanelContainer = $CenterBox/Panel
 	panel.pivot_offset = panel.size / 2
@@ -40,14 +41,15 @@ func _apply_theme() -> void:
 	ThemeHelper.make_button(reset_btn, ThemeHelper.p("danger"), 14)
 	ThemeHelper.make_button(theme_btn, ThemeHelper.p("primary"), 16)
 	ThemeHelper.make_button(sound_btn, ThemeHelper.p("info"), 16)
+	ThemeHelper.make_button(lang_btn, ThemeHelper.p("secondary"), 16)
 	$BG.color = Color(0, 0, 0, 0.7)
 
 
 func _update_theme_btn_text() -> void:
 	if GameState.user_theme == 0:
-		theme_btn.text = "Tema: Karanlik"
+		theme_btn.text = tr("TEMA_KARANLIK")
 	else:
-		theme_btn.text = "Tema: Aydinlik"
+		theme_btn.text = tr("TEMA_AYDINLIK")
 
 
 func _on_theme_toggle() -> void:
@@ -67,9 +69,33 @@ func _on_sound_toggle() -> void:
 
 func _update_sound_btn_text() -> void:
 	if SoundManager.sfx_enabled:
-		sound_btn.text = "Ses: Acik"
+		sound_btn.text = tr("SES_ACIK")
 	else:
-		sound_btn.text = "Ses: Kapali"
+		sound_btn.text = tr("SES_KAPALI")
+
+
+func _update_lang_btn_text() -> void:
+	var locale_name: String = GameState.LOCALE_NAMES.get(GameState.user_locale, GameState.user_locale)
+	lang_btn.text = tr("DIL") + ": " + locale_name
+
+
+func _update_all_texts() -> void:
+	var title: Label = $CenterBox/Panel/VBox/Title
+	title.text = tr("AYARLAR")
+	close_btn.text = tr("KAPAT")
+	reset_btn.text = tr("SAVE_SIFIRLA")
+	_update_theme_btn_text()
+	_update_sound_btn_text()
+	_update_lang_btn_text()
+
+
+func _on_lang_toggle() -> void:
+	SoundManager.play("ui_tap")
+	var locales: Array = GameState.SUPPORTED_LOCALES
+	var idx: int = locales.find(GameState.user_locale)
+	idx = (idx + 1) % locales.size()
+	GameState.set_user_locale(locales[idx])
+	_update_all_texts()
 
 
 func _on_close() -> void:
@@ -82,14 +108,14 @@ func _on_reset() -> void:
 	if not _confirm_reset:
 		_confirm_reset = true
 		SoundManager.play("energy_warn")
-		reset_btn.text = "Emin misin? Tekrar bas"
+		reset_btn.text = tr("EMIN_MISIN")
 		# 3 saniye sonra geri al
 		var tw := create_tween()
 		tw.tween_interval(3.0)
 		tw.tween_callback(func():
 			_confirm_reset = false
 			if is_instance_valid(reset_btn):
-				reset_btn.text = "Save Sifirla"
+				reset_btn.text = tr("SAVE_SIFIRLA")
 		)
 	else:
 		# Save sifirla
@@ -100,7 +126,7 @@ func _on_reset() -> void:
 			if dir.file_exists("save_backup.json"):
 				dir.remove("save_backup.json")
 		# GameState sifirla
-		GameState.charm_points = 0
+		GameState.gems = 0
 		GameState.charms = {}
 		GameState.energy = GameState.BASE_MAX_ENERGY
 		GameState.total_coins_earned = 0

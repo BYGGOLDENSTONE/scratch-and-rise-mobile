@@ -11,10 +11,18 @@ const ThemeHelper := preload("res://scripts/ui/theme_helper.gd")
 
 func _ready() -> void:
 	back_btn.pressed.connect(_on_back)
+	GameState.locale_changed.connect(func(_l): _update_texts(); _rebuild_all())
 	_apply_theme()
+	_update_texts()
 	_build_header()
 	_build_list()
 	print("[AchievementScreen] Ready — %d basarim" % AchievementRef.ACHIEVEMENT_ORDER.size())
+
+
+func _update_texts() -> void:
+	var title: Label = $VBox/TopBar/Title
+	title.text = tr("BASARIMLAR_EKRANI")
+	back_btn.text = tr("GERI")
 
 
 func _apply_theme() -> void:
@@ -167,10 +175,10 @@ func _add_achievement_item(ach_id: String, ach: Dictionary) -> void:
 	var reward_label := Label.new()
 	reward_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	if is_unlocked:
-		reward_label.text = "+%d CP" % ach["reward_cp"]
+		reward_label.text = tr("GEM_ODUL_FMT") % ach["reward_gem"]
 		ThemeHelper.style_label(reward_label, ThemeHelper.p("warning"), 17)
 	else:
-		reward_label.text = "%d CP" % ach["reward_cp"]
+		reward_label.text = "%d Gem" % ach["reward_gem"]
 		ThemeHelper.style_label(reward_label, ThemeHelper.p("text_muted"), 15)
 	reward_box.add_child(reward_label)
 
@@ -198,6 +206,13 @@ func _create_progress_bar(current: int, total: int, color: Color) -> Control:
 		bar.add_child(fill)
 
 	return bar
+
+
+func _rebuild_all() -> void:
+	for child in achievement_list.get_children():
+		child.queue_free()
+	_build_header()
+	_build_list()
 
 
 func _on_back() -> void:

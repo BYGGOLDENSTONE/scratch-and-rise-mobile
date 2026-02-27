@@ -11,9 +11,17 @@ const ThemeHelper := preload("res://scripts/ui/theme_helper.gd")
 
 func _ready() -> void:
 	back_btn.pressed.connect(_on_back)
+	GameState.locale_changed.connect(func(_l): _update_texts(); _rebuild_list())
 	_apply_theme()
+	_update_texts()
 	_build_synergy_list()
 	print("[SynergyAlbum] Ready")
+
+
+func _update_texts() -> void:
+	var title: Label = $VBox/TopBar/Title
+	title.text = tr("SINERJI_ALBUMU")
+	back_btn.text = tr("GERI")
 
 
 func _apply_theme() -> void:
@@ -39,7 +47,7 @@ func _build_synergy_list() -> void:
 
 		_add_synergy_item(synergy_id, synergy, discovered)
 
-	count_label.text = "%d / %d Kesfedildi" % [discovered_count, total_count]
+	count_label.text = tr("KESFEDILDI_FMT") % [discovered_count, total_count]
 
 
 func _add_synergy_item(synergy_id: String, synergy: Dictionary, discovered: bool) -> void:
@@ -74,16 +82,22 @@ func _add_synergy_item(synergy_id: String, synergy: Dictionary, discovered: bool
 	else:
 		if is_hidden:
 			name_label.text = "???"
-			desc_label.text = "Gizli sinerji"
+			desc_label.text = tr("GIZLI_SINERJI")
 		else:
 			name_label.text = "%s  x%d" % [synergy["name"], synergy["multiplier"]]
-			desc_label.text = "Henuz kesfedilmedi"
+			desc_label.text = tr("HENUZ_KESFEDILMEDI")
 		ThemeHelper.style_label(name_label, ThemeHelper.p("text_muted"), 17)
 		ThemeHelper.style_label(desc_label, ThemeHelper.p("text_muted"), 13)
 
 	vbox.add_child(name_label)
 	vbox.add_child(desc_label)
 	synergy_list.add_child(item)
+
+
+func _rebuild_list() -> void:
+	for child in synergy_list.get_children():
+		child.queue_free()
+	_build_synergy_list()
 
 
 func _on_back() -> void:

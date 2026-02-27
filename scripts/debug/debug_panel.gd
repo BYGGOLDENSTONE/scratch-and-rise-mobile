@@ -1,7 +1,7 @@
 extends Control
 
 ## Gizli debug paneli. Basliga 5 kez tiklayinca acilir.
-## Save sifirlama, coin/enerji/charm ekleme, tur bitirme.
+## Save sifirlama, coin/enerji/gem ekleme, tur bitirme.
 const SynergyRef := preload("res://scripts/systems/synergy_system.gd")
 const CollectionRef := preload("res://scripts/systems/collection_system.gd")
 const EventRef := preload("res://scripts/systems/event_system.gd")
@@ -99,17 +99,17 @@ func _update_info() -> void:
 		if TicketData.is_ticket_unlocked(t_type):
 			unlocked_list.append(TicketData.TICKET_CONFIGS[t_type]["name"])
 	var unlocked_text: String = ", ".join(unlocked_list) if unlocked_list.size() > 0 else "Yok"
-	info_label.text = "Coin: %s | Enerji: %d/%d\nCharm: %s | Tur: %s\nAcik biletler: %s" % [
+	info_label.text = "Coin: %s | Enerji: %d/%d\nGem: %s | Tur: %s\nAcik biletler: %s" % [
 		GameState.format_number(GameState.coins),
 		GameState.energy, GameState.get_max_energy(),
-		GameState.format_number(GameState.charm_points),
+		GameState.format_number(GameState.gems),
 		"Aktif" if GameState.in_round else "Yok",
 		unlocked_text,
 	]
 
 
 func _on_reset_save() -> void:
-	GameState.charm_points = 0
+	GameState.gems = 0
 	GameState.charms = {}
 	GameState.energy = GameState.get_max_energy()
 	GameState.total_coins_earned = 0
@@ -146,8 +146,8 @@ func _on_fill_energy() -> void:
 
 
 func _on_add_charm(amount: int) -> void:
-	GameState.charm_points += amount
-	print("[Debug] +", amount, " charm. Toplam: ", GameState.charm_points)
+	GameState.gems += amount
+	print("[Debug] +", amount, " gem. Toplam: ", GameState.gems)
 	_update_info()
 
 
@@ -228,10 +228,10 @@ func _on_unlock_achievement() -> void:
 		if ach_id not in GameState.unlocked_achievements:
 			GameState.unlocked_achievements.append(ach_id)
 			var ach: Dictionary = AchievementRef.get_achievement(ach_id)
-			var reward_cp: int = ach.get("reward_cp", 0)
-			GameState.charm_points += reward_cp
+			var reward_gem: int = ach.get("reward_gem", 0)
+			GameState.gems += reward_gem
 			var display_name: String = ach.get("real_name", ach.get("name", ach_id))
-			print("[Debug] Basarim acildi: %s (+%d CP)" % [display_name, reward_cp])
+			print("[Debug] Basarim acildi: %s (+%d Gem)" % [display_name, reward_gem])
 			GameState.achievement_unlocked.emit(ach_id)
 			SaveManager.save_game()
 			_update_info()
@@ -244,7 +244,7 @@ func _on_unlock_all_achievements() -> void:
 		if ach_id not in GameState.unlocked_achievements:
 			GameState.unlocked_achievements.append(ach_id)
 			var ach: Dictionary = AchievementRef.get_achievement(ach_id)
-			GameState.charm_points += ach.get("reward_cp", 0)
+			GameState.gems += ach.get("reward_gem", 0)
 	SaveManager.save_game()
 	print("[Debug] Tum basarimlar acildi!")
 	_update_info()

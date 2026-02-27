@@ -15,7 +15,7 @@ func _ready() -> void:
 	modulate.a = 0.0
 
 
-func show_achievement(ach_name: String, reward_cp: int, rarity: String = "common") -> void:
+func show_achievement(ach_name: String, reward_gem: int, rarity: String = "common") -> void:
 	var rarity_color: Color = AchievementRef.RARITY_COLORS.get(rarity, AchievementRef.RARITY_COLORS["common"])
 
 	# --- Stiller ---
@@ -28,7 +28,7 @@ func show_achievement(ach_name: String, reward_cp: int, rarity: String = "common
 	# --- Icerik ---
 	name_label.text = ach_name
 	desc_label.text = AchievementRef.RARITY_NAMES.get(rarity, "Yaygin") + " Basarim!"
-	reward_label.text = "+%d CP" % reward_cp
+	reward_label.text = "+%d Gem" % reward_gem
 	rarity_strip.color = rarity_color
 
 	# --- Ekran efektleri ---
@@ -78,8 +78,8 @@ func show_achievement(ach_name: String, reward_cp: int, rarity: String = "common
 
 	tw.chain().tween_callback(queue_free)
 
-	# --- CP odul ucma efekti (bagimsiz tween) ---
-	_spawn_cp_fly(reward_cp)
+	# --- Gem odul ucma efekti (bagimsiz tween) ---
+	_spawn_gem_fly(reward_gem)
 
 
 func _pulse_strip(t: float, base_color: Color) -> void:
@@ -92,9 +92,9 @@ func _pulse_strip(t: float, base_color: Color) -> void:
 	)
 
 
-func _spawn_cp_fly(cp: int) -> void:
+func _spawn_gem_fly(gem_amount: int) -> void:
 	var fly_label := Label.new()
-	fly_label.text = "+%d CP" % cp
+	fly_label.text = "+%d Gem" % gem_amount
 	fly_label.add_theme_font_size_override("font_size", 26)
 	if ThemeHelper.is_dark():
 		fly_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.1))

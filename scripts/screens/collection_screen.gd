@@ -10,9 +10,17 @@ const ThemeHelper := preload("res://scripts/ui/theme_helper.gd")
 
 func _ready() -> void:
 	back_btn.pressed.connect(_on_back)
+	GameState.locale_changed.connect(func(_l): _update_texts(); _rebuild_list())
 	_apply_theme()
+	_update_texts()
 	_build_collection_list()
 	print("[CollectionScreen] Ready")
+
+
+func _update_texts() -> void:
+	var title: Label = $VBox/TopBar/Title
+	title.text = tr("KOLEKSIYON_EKRANI")
+	back_btn.text = tr("GERI")
 
 
 func _apply_theme() -> void:
@@ -80,18 +88,24 @@ func _add_set_card(set_id: String, set_data: Dictionary) -> void:
 	var bonus_label := Label.new()
 	bonus_label.add_theme_font_size_override("font_size", 12)
 	if is_complete:
-		bonus_label.text = "TAMAMLANDI! %s" % set_data["bonus_text"]
+		bonus_label.text = tr("TAMAMLANDI_FMT") % set_data["bonus_text"]
 		ThemeHelper.style_label(bonus_label, ThemeHelper.p("warning"), 13)
 	else:
 		var collected_count := 0
 		for p_id in pieces:
 			if GameState.has_collection_piece(set_id, p_id):
 				collected_count += 1
-		bonus_label.text = "%d / %d — Bonus: %s" % [collected_count, pieces.size(), set_data["bonus_text"]]
+		bonus_label.text = tr("KOLEKSIYON_ILERLEME_FMT") % [collected_count, pieces.size(), set_data["bonus_text"]]
 		ThemeHelper.style_label(bonus_label, ThemeHelper.p("text_secondary"), 13)
 	vbox.add_child(bonus_label)
 
 	collection_list.add_child(card)
+
+
+func _rebuild_list() -> void:
+	for child in collection_list.get_children():
+		child.queue_free()
+	_build_collection_list()
 
 
 func _on_back() -> void:

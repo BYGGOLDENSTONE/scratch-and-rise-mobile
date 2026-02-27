@@ -43,7 +43,7 @@ var _coin_delta_label: Label = null  # Coin yaninda +/- gosterimi
 var _is_first_ticket_of_round: bool = true  # Erken Kus charm icin
 var _no_match_count: int = 0  # Sanssiz Sansli basarimi icin
 var _settings_popup: PanelContainer = null  # Ayarlar popup referansi
-var _cp_label: Label = null  # Top bar CP gostergesi
+var _gems_label: Label = null  # Top bar Gem gostergesi
 
 
 func _ready() -> void:
@@ -51,10 +51,11 @@ func _ready() -> void:
 	GameState.energy_changed.connect(_on_energy_changed)
 	GameState.round_ended.connect(_on_round_ended)
 	GameState.theme_changed.connect(func(_t): _apply_theme())
+	GameState.locale_changed.connect(func(_l): _update_texts())
 	energy_label.mouse_filter = Control.MOUSE_FILTER_STOP
 	energy_label.gui_input.connect(_on_debug_tap_input)
 	_apply_theme()
-	_setup_cp_label()
+	_setup_gems_label()
 	_build_ticket_buttons()
 	_update_ui()
 	_update_ticket_buttons()
@@ -82,31 +83,41 @@ func _apply_theme() -> void:
 	ThemeHelper.make_button(koleksiyon_btn, ThemeHelper.p("success"), 22)
 	ThemeHelper.make_button(ayarlar_btn, ThemeHelper.p("text_secondary"), 22)
 	ThemeHelper.make_button(back_btn, ThemeHelper.p("danger"), 22)
-	# CP label stili
-	if _cp_label:
-		ThemeHelper.style_label(_cp_label, ThemeHelper.p("info"), 28)
+	# Gem label stili
+	if _gems_label:
+		ThemeHelper.style_label(_gems_label, ThemeHelper.p("info"), 28)
 
 
-func _setup_cp_label() -> void:
-	_cp_label = Label.new()
-	_cp_label.text = "CP: 0"
-	_cp_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_cp_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_cp_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+func _setup_gems_label() -> void:
+	_gems_label = Label.new()
+	_gems_label.text = tr("GEM_SAYI_FMT") % 0
+	_gems_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_gems_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_gems_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	# TicketCountLabel'dan sonra, EnergyBox'tan once ekle
 	var hbox: HBoxContainer = get_node("UILayer/UIRoot/VBox/TopBar/HBox")
 	var energy_box_idx: int = hbox.get_node("EnergyBox").get_index()
-	hbox.add_child(_cp_label)
-	hbox.move_child(_cp_label, energy_box_idx)
+	hbox.add_child(_gems_label)
+	hbox.move_child(_gems_label, energy_box_idx)
 
 
-func _update_cp_label() -> void:
-	if _cp_label:
-		var cp_val: float = GameState.round_cp
-		if cp_val == int(cp_val):
-			_cp_label.text = "CP: %d" % int(cp_val)
-		else:
-			_cp_label.text = "CP: %.1f" % cp_val
+func _update_gems_label() -> void:
+	if _gems_label:
+		_gems_label.text = tr("GEM_SAYI_FMT") % GameState.round_gems
+
+
+func _update_texts() -> void:
+	var charm_btn: Button = get_node("UILayer/UIRoot/VBox/BottomPanel/ActionButtons/CharmBtn")
+	var koleksiyon_btn: Button = get_node("UILayer/UIRoot/VBox/BottomPanel/ActionButtons/KoleksiyonBtn")
+	var ayarlar_btn: Button = get_node("UILayer/UIRoot/VBox/BottomPanel/ActionButtons/AyarlarBtn")
+	var back_btn: Button = get_node("UILayer/UIRoot/VBox/BottomPanel/ActionButtons/BackBtn")
+	charm_btn.text = tr("CHARM_BTN")
+	koleksiyon_btn.text = tr("KOLEKSIYON_BTN")
+	ayarlar_btn.text = tr("AYARLAR")
+	back_btn.text = tr("GERI")
+	ticket_placeholder.text = tr("BILET_ALANI")
+	_update_ui()
+	_update_ticket_buttons()
 
 
 func _process(_delta: float) -> void:
@@ -154,15 +165,15 @@ func _build_ticket_buttons() -> void:
 
 
 func _update_ui() -> void:
-	coin_label.text = "Coin: %s" % GameState.format_number(GameState.coins)
-	energy_label.text = "Enerji: %d/%d" % [GameState.energy, GameState.get_max_energy()]
-	ticket_count_label.text = "Bilet: %d" % tickets_scratched
-	_update_cp_label()
+	coin_label.text = tr("COIN_FMT") % GameState.format_number(GameState.coins)
+	energy_label.text = tr("ENERJI_FMT") % [GameState.energy, GameState.get_max_energy()]
+	ticket_count_label.text = tr("BILET_FMT") % tickets_scratched
+	_update_gems_label()
 
 
 func _on_coins_changed(_new_amount: int) -> void:
 	var old_text := coin_label.text
-	coin_label.text = "Coin: %s" % GameState.format_number(GameState.coins)
+	coin_label.text = tr("COIN_FMT") % GameState.format_number(GameState.coins)
 	_update_ticket_buttons()
 	# Coin degisim animasyonu: pulse + renk
 	if coin_label.text != old_text:
@@ -173,7 +184,7 @@ func _on_coins_changed(_new_amount: int) -> void:
 
 
 func _on_energy_changed(_new_amount: int) -> void:
-	energy_label.text = "Enerji: %d/%d" % [GameState.energy, GameState.get_max_energy()]
+	energy_label.text = tr("ENERJI_FMT") % [GameState.energy, GameState.get_max_energy()]
 
 
 func _on_round_ended(_total_earned: int) -> void:
@@ -222,7 +233,7 @@ func _on_ticket_buy(type: String) -> void:
 		# Coin yeterliligi kontrol et (swap icin de)
 		var swap_config: Dictionary = TicketData.TICKET_CONFIGS.get(type, TicketData.TICKET_CONFIGS["paper"])
 		if GameState.coins < swap_config["price"]:
-			_show_warning("Coin yetersiz!")
+			_show_warning(tr("COIN_YETERSIZ"))
 			return
 		# Kazilmamis bilet: sil, yeni turu sec (coin henuz cekilmemis)
 		current_ticket.queue_free()
@@ -259,7 +270,7 @@ func _on_ticket_buy(type: String) -> void:
 		# Coin yeterliligi kontrol et (henuz cekme, ilk kazimada cekilecek)
 		if GameState.coins < price:
 			print("[Main] Coin yetersiz!")
-			_show_warning("Coin yetersiz!")
+			_show_warning(tr("COIN_YETERSIZ"))
 			return
 		_pending_ticket_price = price
 
@@ -403,11 +414,13 @@ func _on_ticket_completed(symbols: Array) -> void:
 		match_data["reward"] = reward
 		GameState.add_coins(reward)
 		_show_coin_delta(reward)
-		# Tier-bazli CP hesapla ve ekle
-		var cp_earned: float = GameState.get_ticket_cp(ticket_type, match_data["tier"])
-		GameState.round_cp += cp_earned
-		_update_cp_label()
-		print("[Main] Eslesme! +", reward, " coin, +", cp_earned, " CP")
+		# Tier-bazli gem: sadece ilk kez acildiginda
+		var gems_earned: int = GameState.claim_tier_gem(ticket_type)
+		_update_gems_label()
+		if gems_earned > 0:
+			print("[Main] Eslesme! +", reward, " coin, +", gems_earned, " Gem (ilk kez!)")
+		else:
+			print("[Main] Eslesme! +", reward, " coin")
 	else:
 		print("[Main] Eslesme yok")
 
@@ -456,11 +469,11 @@ func _on_ticket_completed(symbols: Array) -> void:
 	if not drop.is_empty():
 		GameState.add_collection_piece(drop["set_id"], drop["piece_id"])
 		print("[Main] Koleksiyon parcasi dustu: %s / %s" % [drop["set_id"], drop["piece_id"]])
-		# Koleksiyoncu Ruhu charm: parca dusunce +CP
+		# Koleksiyoncu Ruhu charm: parca dusunce +gem
 		var kol_ruhu_level: int = GameState.get_charm_level("koleksiyoncu_ruhu")
 		if kol_ruhu_level > 0:
-			GameState.charm_points += kol_ruhu_level
-			print("[Main] Koleksiyoncu Ruhu: +%d CP" % kol_ruhu_level)
+			GameState.gems += kol_ruhu_level
+			print("[Main] Koleksiyoncu Ruhu: +%d Gem" % kol_ruhu_level)
 		if CollectionRef.is_set_complete(drop["set_id"]):
 			match_data["set_completed"] = drop["set_id"]
 			print("[Main] SET TAMAMLANDI: ", drop["set_id"])
@@ -504,7 +517,7 @@ func _play_match_effects(match_data: Dictionary) -> void:
 func _on_match_result_dismissed() -> void:
 	tickets_scratched += 1
 	GameState._tickets_since_golden += 1
-	ticket_count_label.text = "Bilet: %d" % tickets_scratched
+	ticket_count_label.text = tr("BILET_FMT") % tickets_scratched
 
 	# Basarim kontrolu
 	var context := {
@@ -569,6 +582,12 @@ func _remove_current_ticket() -> void:
 			GameState.end_round()
 			return
 
+	# Bilet limiti kontrolu
+	if tickets_scratched >= GameState.MAX_TICKETS_PER_ROUND and GameState.in_round:
+		print("[Main] Bilet limiti doldu (%d), tur bitiyor!" % tickets_scratched)
+		GameState.end_round()
+		return
+
 	# Otomatik bilet: son secilen tur icin coin yetiyorsa otomatik al
 	if _selected_ticket_type != "" and GameState.in_round:
 		var config: Dictionary = TicketData.TICKET_CONFIGS.get(_selected_ticket_type, {})
@@ -592,14 +611,14 @@ func _update_ticket_buttons() -> void:
 
 		var price_text: String = GameState.format_number(config["price"])
 		if not unlocked:
-			btn.text = "%s\nKilitli" % config["name"]
+			btn.text = "%s\n%s" % [tr(config["name"]), tr("KILITLI")]
 			btn.disabled = true
 		elif can_swap:
 			# Kazimadan degistirme: coin yeten biletlere gecis yapilabilir
-			btn.text = "%s\n%s C" % [config["name"], price_text]
+			btn.text = "%s\n%s C" % [tr(config.get("name", t_type)), price_text]
 			btn.disabled = (t_type == _selected_ticket_type) or (GameState.coins < config["price"])
 		else:
-			btn.text = "%s\n%s C" % [config["name"], price_text]
+			btn.text = "%s\n%s C" % [tr(config.get("name", t_type)), price_text]
 			btn.disabled = (current_ticket != null and current_ticket.has_started_scratching) or (GameState.coins < config["price"])
 
 
@@ -750,22 +769,22 @@ func _unlock_achievement(ach_id: String) -> void:
 	if ach.is_empty():
 		return
 	GameState.unlocked_achievements.append(ach_id)
-	var reward_cp: int = ach.get("reward_cp", 0)
-	GameState.charm_points += reward_cp
+	var reward_gem: int = ach.get("reward_gem", 0)
+	GameState.gems += reward_gem
 	GameState.achievement_unlocked.emit(ach_id)
 	SoundManager.play("achievement")
 	var display_name: String = ach.get("real_name", ach.get("name", ach_id))
 	var rarity: String = ach.get("rarity", "common")
-	print("[Main] Basarim acildi: %s (+%d CP) [%s]" % [display_name, reward_cp, rarity])
-	_show_achievement_toast(display_name, reward_cp, rarity)
+	print("[Main] Basarim acildi: %s (+%d Gem) [%s]" % [display_name, reward_gem, rarity])
+	_show_achievement_toast(display_name, reward_gem, rarity)
 	SaveManager.save_game()
 
 
 ## Basarim toast'u goster
-func _show_achievement_toast(ach_name: String, reward_cp: int, rarity: String = "common") -> void:
+func _show_achievement_toast(ach_name: String, reward_gem: int, rarity: String = "common") -> void:
 	var toast := AchievementToastScene.instantiate()
 	get_node("UILayer").add_child(toast)
-	toast.show_achievement(ach_name, reward_cp, rarity)
+	toast.show_achievement(ach_name, reward_gem, rarity)
 
 
 ## Olay banner'i goster

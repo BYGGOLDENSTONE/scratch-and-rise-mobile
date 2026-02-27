@@ -6,34 +6,42 @@ const CharmDataRef := preload("res://scripts/systems/charm_data.gd")
 const AchievementRef := preload("res://scripts/systems/achievement_system.gd")
 const ThemeHelper := preload("res://scripts/ui/theme_helper.gd")
 
-@onready var cp_label: Label = %CPLabel
+@onready var gem_label: Label = %GemLabel
 @onready var charm_list: VBoxContainer = %CharmList
 @onready var back_btn: Button = %BackBtn
 
 
 func _ready() -> void:
 	back_btn.pressed.connect(_on_back)
-	GameState.charm_points_changed.connect(_on_cp_changed)
+	GameState.gems_changed.connect(_on_gems_changed)
+	GameState.locale_changed.connect(func(_l): _update_texts(); _rebuild_list(); _update_gems())
 	_apply_theme()
+	_update_texts()
 	_build_charm_list()
-	_update_cp()
-	print("[CharmScreen] Ready — CP: ", GameState.charm_points)
+	_update_gems()
+	print("[CharmScreen] Ready — Gem: ", GameState.gems)
+
+
+func _update_texts() -> void:
+	var title: Label = $VBox/TopBar/Title
+	title.text = tr("CHARM_EKRANI")
+	back_btn.text = tr("GERI")
 
 
 func _apply_theme() -> void:
 	$Background.color = ThemeHelper.p("bg_main")
 	var title: Label = $VBox/TopBar/Title
 	ThemeHelper.style_title(title, ThemeHelper.p("info"), 26)
-	ThemeHelper.style_label(cp_label, ThemeHelper.p("warning"), 20)
+	ThemeHelper.style_label(gem_label, ThemeHelper.p("warning"), 20)
 	ThemeHelper.make_button(back_btn, ThemeHelper.p("danger"), 17)
 
 
-func _update_cp() -> void:
-	cp_label.text = "%s CP" % GameState.format_number(GameState.charm_points)
+func _update_gems() -> void:
+	gem_label.text = tr("GEM_FMT") % GameState.format_number(GameState.gems)
 
 
-func _on_cp_changed(_new_amount: int) -> void:
-	_update_cp()
+func _on_gems_changed(_new_amount: int) -> void:
+	_update_gems()
 
 
 func _build_charm_list() -> void:
@@ -55,17 +63,18 @@ func _build_charm_list() -> void:
 
 
 func _add_section_header(category: String) -> void:
-	var labels := {
-		"basic": "TEMEL CHARM'LAR",
-		"mid": "ORTA CHARM'LAR",
-		"power": "GUCLU CHARM'LAR",
+	var label_keys := {
+		"basic": "TEMEL_CHARMLAR",
+		"mid": "ORTA_CHARMLAR",
+		"power": "GUCLU_CHARMLAR",
 	}
 
 	var sep := HSeparator.new()
 	charm_list.add_child(sep)
 
 	var header := Label.new()
-	header.text = labels.get(category, category.to_upper())
+	var key: String = label_keys.get(category, "")
+	header.text = tr(key) if key != "" else category.to_upper()
 	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	ThemeHelper.style_label(header, ThemeHelper.p("warning"), 16)
 	charm_list.add_child(header)
@@ -100,12 +109,13 @@ func _add_charm_item(charm_id: String, charm: Dictionary) -> void:
 
 	# Isim + seviye
 	var name_label := Label.new()
+	var charm_display_name: String = tr("CHARM_NAME_" + charm_id.to_upper())
 	if level > 0 and max_level > 1:
-		name_label.text = "%s  Lv.%d" % [charm["name"], level]
+		name_label.text = "%s  Lv.%d" % [charm_display_name, level]
 	elif level > 0 and max_level == 1:
-		name_label.text = "%s  AKTIF" % charm["name"]
+		name_label.text = "%s  %s" % [charm_display_name, tr("AKTIF")]
 	else:
-		name_label.text = charm["name"]
+		name_label.text = charm_display_name
 	ThemeHelper.style_label(name_label, ThemeHelper.p("text_primary"), 16)
 	info_vbox.add_child(name_label)
 
@@ -120,14 +130,14 @@ func _add_charm_item(charm_id: String, charm: Dictionary) -> void:
 	btn.custom_minimum_size = Vector2(110, 40)
 
 	if level >= max_level:
-		btn.text = "MAX"
+		btn.text = tr("MAX")
 		btn.disabled = true
 	elif level > 0:
-		btn.text = "+  %d CP" % cost
-		btn.disabled = GameState.charm_points < cost
+		btn.text = tr("CHARM_UP_FMT") % cost
+		btn.disabled = GameState.gems < cost
 	else:
-		btn.text = "AL  %d CP" % cost
-		btn.disabled = GameState.charm_points < cost
+		btn.text = tr("CHARM_AL_FMT") % cost
+		btn.disabled = GameState.gems < cost
 
 	ThemeHelper.make_button(btn, ThemeHelper.p("success"), 14)
 	btn.pressed.connect(_on_charm_buy.bind(charm_id))
@@ -146,10 +156,10 @@ func _on_charm_buy(charm_id: String) -> void:
 			if ach_id not in GameState.unlocked_achievements:
 				GameState.unlocked_achievements.append(ach_id)
 				var ach: Dictionary = AchievementRef.get_achievement(ach_id)
-				var reward_cp: int = ach.get("reward_cp", 0)
-				GameState.charm_points += reward_cp
+				var reward_gem: int = ach.get("reward_gem", 0)
+				GameState.gems += reward_gem
 				var display_name: String = ach.get("real_name", ach.get("name", ach_id))
-				print("[CharmScreen] Basarim acildi: %s (+%d CP)" % [display_name, reward_cp])
+				print("[CharmScreen] Basarim acildi: %s (+%d Gem)" % [display_name, reward_gem])
 				GameState.achievement_unlocked.emit(ach_id)
 				SaveManager.save_game()
 		_rebuild_list()

@@ -37,6 +37,11 @@ window/handheld/orientation=1
 
 pointing/emulate_touch_from_mouse=true
 
+[internationalization]
+
+locale/locale_filter_mode=1
+locale/locale_filter=PackedStringArray("en", "tr", "es", "pt_BR", "de", "fr", "ja")
+
 [rendering]
 
 renderer/rendering_method="mobile"

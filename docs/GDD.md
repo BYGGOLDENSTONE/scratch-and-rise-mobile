@@ -11,14 +11,43 @@
 - **Hedef Kitle:** Casual mobil oyuncular, kazi kazan severler
 
 ## Konsept
-Gercek bir kazi kazan deneyimi. Oyuncu enerji harcayarak tura baslar, baslangic parasiyla biletler satin alir, kazir ve eslesme arar. Eslesme varsa kazanir, yoksa o bilet bosa gider. Para bitince tur biter. Her turda kazanilan Luck Charm'lar kalici olarak oyuncuyu guclendirir. Kripto ve kumar dunyasinin meme kulturuyle sarmalanmis esprili bir ton.
+Gercek bir kazi kazan deneyimi. Oyuncu enerji harcayarak tura baslar, baslangic parasiyla biletler satin alir, kazir ve eslesme arar. Eslesme varsa kazanir, yoksa o bilet bosa gider. Para bitince tur biter. Her bilet acilisinda Gem kazanilir, Gem'ler ile Luck Charm'lar alinarak kalici guc kazanilir. Kripto ve kumar dunyasinin meme kulturuyle sarmalanmis esprili bir ton.
+
+---
+
+## Para Birimleri
+
+| Para Birimi | Rolu | Kalici mi? | Harcanir mi? |
+|---|---|---|---|
+| **Coin** | Tur ici bilet alma, risk yonetimi | Gecici (tur sonunda sifir) | Evet |
+| **Gem** | Charm acma, upgrade | Kalici | Evet |
+
+### Gem Kazanma
+Her bilet acilisinda (eslesme olsun olmasin) bilet tier'ina gore gem kazanilir:
+
+| Bilet | Fiyat | Gem |
+|---|---|---|
+| Kagit | 5 | 0 |
+| Bronz | 25 | 1 |
+| Gumus | 100 | 1 |
+| Altin | 500 | 2 |
+| Platin | 2,500 | 3 |
+| Elmas | 7,500 | 4 |
+| Zumrut | 20,000 | 5 |
+| Yakut | 50,000 | 6 |
+| Obsidyen | 125,000 | 7 |
+| Efsane | 300,000 | 8 |
+
+- Kagit ile gem kazanilmaz → yuksek tier'e gecmeye tesvik
+- Bir turda 5-6 bilet acan oyuncu ~5-15 gem kazanir
+- Ek kaynaklar: Gunluk giris odulu, gunluk gorevler, basarimlar
 
 ---
 
 ## Temel Oyun Dongusu
 
 ### Ana Hedef
-**En az bilette en cok CP (Charm Point) toplamak.** CP = kalici ilerleme. Coin sadece bilet almak icin bir arac.
+**En az bilette en yuksek coin'e ulasmak.** Coin = tur ici performans. Gem = kalici ilerleme.
 
 ### Tur Dongusu (Session)
 ```
@@ -29,40 +58,43 @@ ENERJI HARCA (1) --> 20 COIN AL --> BILET SATIN AL --> KAZI
                                   EVET          HAYIR
                                   /                \
                             COIN KAZAN        HICBIR SEY
-                            + CP KAZAN        (parayi zaten verdin)
+                            + GEM KAZAN       (parayi zaten verdin)
+                            (bilet acilisi)   (ama gem yine kazanilir!)
                                  |
                            STRATEJIK KARAR:
-                     Ucuz bilet (coin biriktir, dusuk CP)
+                     Ucuz bilet (coin biriktir, dusuk gem)
                         veya
-                     Pahali bilet (coin harca, yuksek CP)
+                     Pahali bilet (coin harca, yuksek gem)
                                  |
                        PARA BITTI --> TUR BITER
                                  |
-                          CHARM PUANI (CP) KAZAN
+                          GEM ILE CHARM AL
                          (meta progression)
 ```
 
-### CP Optimizasyon Stratejisi
+### Strateji
 ```
-Paper bilet (5 coin):  ROI x1.20 (karli!) ama CP/bilet = 0.07 (cok dusuk)
-Gold bilet (500 coin): ROI x0.35 (zarar!) ama CP/bilet = 4.59 (65x daha iyi)
-Platinum (2.5K coin):  ROI x0.19 (buyuk zarar!) ama CP/bilet = 11.6 (163x daha iyi)
+Kagit bilet (5 coin):  ROI x1.20 (karli!) ama 0 gem
+Bronz bilet (25 coin): ROI x0.96 (basabas) ama 1 gem
+Altin (500 coin):      ROI x0.35 (zarar!) ama 2 gem
+Platin (2.5K coin):    ROI x0.19 (buyuk zarar!) ama 3 gem
 
-Akilli oyuncu: Paper ile coin biriktir → yuksek tier'a gec → CP topla → drain ol → Paper'a don
-Aceleci oyuncu: Hemen pahali bilet → hizli batar, az CP
-Sabirli oyuncu: Hep Paper → asla batmaz, ama anlamsiz CP (163 Paper = 1 Platinum)
+Akilli oyuncu: Paper ile coin biriktir → yuksek tier'a gec → gem topla → drain ol → Paper'a don
+Aceleci oyuncu: Hemen pahali bilet → hizli batar, az gem
+Sabirli oyuncu: Hep Paper → asla batmaz, ama 0 gem (hic ilerleme yok!)
 ```
 
 ### Meta Dongusu
 ```
-TUR OYNA --> CP KAZAN --> CHARM AL --> DAHA GUCLU BASLA --> DAHA VERIMLI CP --> DAHA COK CHARM
+TUR OYNA --> GEM KAZAN --> CHARM AL --> DAHA GUCLU BASLA --> DAHA VERIMLI TUR --> DAHA COK GEM
 ```
 
 ### Onemli Kurallar
 - Kazima para vermez. Kazima **sembolleri acar**. Eslesme **para kazandirir**.
 - Bilet satin almak = o parayi riske etmek. Eslesme yoksa hicbir sey donmez.
-- Paper her zaman karli ama CP vermez — sonsuz grind anlamsiz.
-- Oyunun ozi: Coin yonetimi ile CP toplama verimliligi.
+- Paper her zaman karli ama gem vermez — sonsuz grind ilerleme saglamaz.
+- Gem her bilet acilisinda kazanilir (eslesme sarti yok) — risk alan odullendirilir.
+- Oyunun ozi: Coin yonetimi ile gem toplama verimliligi.
 
 ---
 
@@ -139,24 +171,24 @@ Eslesme yoksa:
 ## Bilet Sistemi
 
 ### Bilet Turleri
-| Bilet | Fiyat | Alan | Sembol | base_reward | ROI | CP/bilet | Acilma |
-|-------|-------|------|--------|-------------|-----|----------|--------|
-| Kagit | 5 | 6 | 5 | 5 | x1.20 | 0.07 | Baslangic |
-| Bronz | 25 | 8 | 7 | 12 | x0.96 | 0.55 | Baslangic |
-| Gumus | 100 | 9 | 11 | 38 | x0.67 | 1.86 | Baslangic |
-| Altin | 500 | 9 | 12 | 65 | x0.35 | 4.59 | Baslangic |
-| Platin | 2,500 | 9 | 15 | 100 | x0.19 | 11.6 | Baslangic |
-| Elmas | 7,500 | 9 | 17 | 225 | x0.17 | 27 | Baslangic |
-| Zumrut | 20,000 | 9 | 19 | 430 | x0.15 | 56 | Baslangic |
-| Yakut | 50,000 | 9 | 21 | 750 | x0.12 | 140 | Baslangic |
-| Obsidyen | 125,000 | 9 | 23 | 1,000 | x0.09 | 354 | Baslangic |
-| Efsane | 300,000 | 9 | 25 | 1,800 | x0.07 | 722 | Baslangic |
+| Bilet | Fiyat | Alan | Sembol | base_reward | ROI | Gem | Acilma |
+|-------|-------|------|--------|-------------|-----|-----|--------|
+| Kagit | 5 | 6 | 5 | 5 | x1.20 | 0 | Baslangic |
+| Bronz | 25 | 8 | 7 | 12 | x0.96 | 1 | Baslangic |
+| Gumus | 100 | 9 | 11 | 38 | x0.67 | 1 | Baslangic |
+| Altin | 500 | 9 | 12 | 65 | x0.35 | 2 | Baslangic |
+| Platin | 2,500 | 9 | 15 | 100 | x0.19 | 3 | Baslangic |
+| Elmas | 7,500 | 9 | 17 | 225 | x0.17 | 4 | Baslangic |
+| Zumrut | 20,000 | 9 | 19 | 430 | x0.15 | 5 | Baslangic |
+| Yakut | 50,000 | 9 | 21 | 750 | x0.12 | 6 | Baslangic |
+| Obsidyen | 125,000 | 9 | 23 | 1,000 | x0.09 | 7 | Baslangic |
+| Efsane | 300,000 | 9 | 25 | 1,800 | x0.07 | 8 | Baslangic |
 
 ### Bilet Mantigi
 - Tum biletler max 9 alan (Paper=6, Bronze=8, Silver+=9) — 3x3 grid
 - Daha pahali bilet = daha genis sembol havuzu = eslesme **zorlasir**
-- Dusuk ROI = coin kaybedersin AMA CP/bilet **cok yuksek**
-- Oyuncu stratejik secim yapar: coin biriktir mi (Paper), CP icin risk al mi (yuksek tier)?
+- Dusuk ROI = coin kaybedersin AMA gem/bilet **cok yuksek**
+- Oyuncu stratejik secim yapar: coin biriktir mi (Paper), gem icin risk al mi (yuksek tier)?
 
 ### Risk / Odul Ornekleri
 ```
@@ -165,14 +197,14 @@ Kagit Bilet (5 coin) — "Guvenli liman"
 - Normal eslesme (%39): 5-10 coin (kucuk kar)
 - Buyuk eslesme (%7): 15-25 coin (guzel!)
 - Jackpot (%1): 40-75 coin (harika!)
-- ROI x1.20 = uzun vadede karli, ama CP neredeyse sifir
+- ROI x1.20 = uzun vadede karli, ama 0 gem
 
-Altin Bilet (500 coin) — "Buyuk risk, buyuk CP"
-- Eslesme yok (%41): 0 coin (500 coin kaybettin!)
-- Normal eslesme (%47): 65-195 coin (yine zarar)
-- Buyuk eslesme (%11): 195-520 coin (basabas veya kucuk kar)
-- Jackpot (%1): 975-2600 coin (buyuk kar!)
-- ROI x0.35 = cogu zaman zarar, ama CP/bilet 65x Paper
+Altin Bilet (500 coin) — "Buyuk risk, buyuk gem"
+- Eslesme yok (%41): 0 coin (500 coin kaybettin!) ama 2 gem kazandin
+- Normal eslesme (%47): 65-195 coin (yine zarar) + 2 gem
+- Buyuk eslesme (%11): 195-520 coin (basabas veya kucuk kar) + 2 gem
+- Jackpot (%1): 975-2600 coin (buyuk kar!) + 2 gem
+- ROI x0.35 = cogu zaman zarar, ama gem kazanimi Paper'in sonsuz kati
 ```
 
 ---
@@ -193,11 +225,11 @@ Odul = bilet_baz_odulu x eslesme_carpani x charm_bonusu
 
 ### Beklenen Deger (ROI Egrisi)
 Her tier'in farkli ROI'si var — bu oyunun stratejik omurgasi:
-- **Paper (x1.20):** Hafif karli — coin biriktirme araci, CP neredeyse sifir
-- **Bronze (x0.96):** Basabas — eglenceli, dusuk risk
-- **Silver-Gold (x0.35-0.67):** Zarar — ama CP/bilet 26-65x daha iyi
-- **Platinum+ (x0.06-0.19):** Buyuk zarar — ama CP/bilet 163-10.000x daha iyi
-Oyuncu stratejisi: Paper ile buildup → yuksek tier'da CP icin harca → drain ol → Paper'a don
+- **Paper (x1.20):** Hafif karli — coin biriktirme araci, 0 gem
+- **Bronze (x0.96):** Basabas — eglenceli, 1 gem
+- **Silver-Gold (x0.35-0.67):** Zarar — ama 1-2 gem
+- **Platinum+ (x0.06-0.19):** Buyuk zarar — ama 3-8 gem
+Oyuncu stratejisi: Paper ile buildup → yuksek tier'da gem icin harca → drain ol → Paper'a don
 
 ### Ozel Semboller (Nadir cikar)
 | Sembol | Efekt | Cikma Sansi |
@@ -246,191 +278,54 @@ Ayni bilette belirli semboller bir arada cikarsa ozel bonus tetiklenir.
 ## Luck Charm Sistemi (Meta Progression)
 
 Oyunun kalbi. Turlar arasi kalici bonuslar. Oyuncunun "bir daha oynayacagim cunku daha gucluyum" hissi.
-
-### Charm Kazanma
-- **Tur sonu:** Her tur sonunda performansa gore 1-5 Charm Puani
-- **Baslarilar:** Belirli milestone'lara ulasinca bonus charm
-- **Streak:** Ardisik gunlerde oynama = ekstra charm puani
-- **Reklam:** Tur sonu reklamla charm puani x2
-
-### Charm Puani Hesaplama (Tur Sonu)
-```
-Baz puan = 1
-+ Tur sonu coin / 100 (max +3)
-+ Jackpot vurduysan +1
-+ Sinerji bulduysan +1
-= Toplam Charm Puani
-```
+Charm'lar **Gem** ile satin alinir ve seviye atlatilir.
 
 ### Charm Listesi
 
 #### Temel Charm'lar (Ucuz, erken oyun)
-| Charm | Maliyet | Etki | Max Seviye |
-|-------|---------|------|------------|
-| Sans Tokasi | 3 CP | Eslesme odulu +%10 | 20 |
-| Zengin Baslangic | 5 CP | Baslangic parasi +10 coin | 10 |
-| Keskin Goz | 3 CP | 3'lu eslesme sansi +%5 | 15 |
-| Hizli Parmak | 2 CP | Kazima animasyonu hizlanir | 10 |
+| Charm | Gem | Etki | Max Lv | Full Maliyet |
+|-------|-----|------|--------|--------------|
+| Sans Tokasi | 1 | Eslesme odulu +%10 | 20 | 20 gem |
+| Zengin Baslangic | 2 | Baslangic parasi +10 coin | 10 | 20 gem |
+| Keskin Goz | 1 | 3'lu eslesme sansi +%5 | 15 | 15 gem |
+| Hizli Parmak | 1 | Kazima animasyonu hizlanir | 10 | 10 gem |
 
-#### Anahtar Charm'lar (Yeni bilet turleri acar)
-| Charm | Maliyet | Etki |
-|-------|---------|------|
-| Gumus Anahtar | 15 CP | Gumus bilet acilir |
-| Altin Anahtar | 30 CP | Altin bilet acilir |
-| Platin Anahtar | 60 CP | Platin bilet acilir |
+#### Orta Charm'lar (Biraz biriktir)
+| Charm | Gem | Etki | Max Lv | Full Maliyet |
+|-------|-----|------|--------|--------------|
+| Sansli Yildiz | 3 | Ozel sembol sansi +%4 | 5 | 15 gem |
+| Ikinci Sans | 5 | Eslesme yoksa tekrar cekme %10 | 5 | 25 gem |
+| Hazine Avcisi | 4 | Koleksiyon dusme sansi +%20 | 5 | 20 gem |
+| Cifte Sans | 3 | 4+ eslesmede ekstra +%8 coin | 5 | 15 gem |
+| Miknatis | 5 | Sinerji sansi +%6 | 5 | 25 gem |
+| Erken Kus | 3 | Ilk bilet %15 indirimli | 10 | 30 gem |
+| Sans Carki | 7 | Her 5. bilette bonus olay +%10 | 3 | 21 gem |
+| Koleksiyoncu Ruhu | 4 | Koleksiyon dusunce +1 gem | 5 | 20 gem |
+| Combo Ustasi | 7 | Ardisik eslesme bonusu +%5 | 5 | 35 gem |
+| Dayaniklilik | 4 | Enerji yenilenme hizi +%15 | 3 | 12 gem |
+| Son Hamle | 8 | Coin < 20 ise bedava Paper, tur basi 1x | 3 | 24 gem |
 
 #### Guclu Charm'lar (Pahali, gec oyun)
-| Charm | Maliyet | Etki | Max Seviye |
-|-------|---------|------|------------|
-| Joker Miknatisi | 10 CP | Joker sembol sansi +%3 | 5 |
-| Carpan Gucu | 15 CP | Carpan sembol sansi +%2 | 5 |
-| Enerji Deposu | 20 CP | Max enerji +1 | 3 (max 8) |
-| Sinerji Radari | 10 CP | Sinerji sansi +%5 | 10 |
-| Altinparmak | 25 CP | Tum oduller +%15 | 10 |
-| Kral Dokunusu | 50 CP | 4+ eslesme odulu x2 | 3 |
-| YOLO | 40 CP | %1 sansla bilet odulu x50 | 1 |
-| Mega Baslangic | 30 CP | Baslangic parasi +50 coin | 5 |
+| Charm | Gem | Etki | Max Lv | Full Maliyet |
+|-------|-----|------|--------|--------------|
+| Joker Miknatisi | 4 | Joker sembol sansi +%3 | 5 | 20 gem |
+| Carpan Gucu | 7 | Carpan sembol sansi +%2 | 5 | 35 gem |
+| Enerji Deposu | 10 | Max enerji +1 | 3 | 30 gem |
+| Sinerji Radari | 4 | Sinerji sansi +%5 | 10 | 40 gem |
+| Altinparmak | 12 | Tum oduller +%15 | 10 | 120 gem |
+| Kral Dokunusu | 25 | 4+ eslesme odulu x2 | 3 | 75 gem |
+| YOLO | 18 | %1 sansla bilet odulu x50 | 1 | 18 gem |
+| Mega Baslangic | 14 | Baslangic parasi +50 coin | 5 | 70 gem |
+
+### Charm Ozet
+- **Tum charmlari fullemek:** ~645 gem
+- **Tur basi kazanim:** ~5-15 gem
+- **Full charm:** ~45-130 tur
 
 ### Charm Sifirlama (Opsiyonel Gec Oyun)
-- Tum charm'lari sifirla = charm puanlarini geri al + %10 bonus
+- Tum charm'lari sifirla = gem'leri geri al + %10 bonus
 - "Rebirth" hissi, yeniden dagitma ozgurlugu
 - Sadece cok ileri oyuncular icin
-
----
-
-## Kart Destesi Sistemi (Mikro Strateji)
-
-Oyuncunun elinde sembol kartlari bulunur. Bileti kazidiktan sonra, eslesmesi eksik kalan sembolleri tamamlamak icin elindeki kartlari kullanabilir. Bu sistem kazima sansini stratejik kararlarla birlestirerek oyuna derinlik katar.
-
-### Temel Mekanik
-- Oyuncunun bir **kart destesi** var (acilmis kartlar havuzu)
-- Her tur basinda desteden **slot sayisi kadar kart secer** (2-6 arasi)
-- Bilet kazindiktan sonra **Kart Oynama Fazi** baslar
-- Oyuncu elindeki kartlari kullanarak eslesmesi eksik sembolleri tamamlar
-- Kullanilan kartlar o tur icin harcanir, kullanilmayanlar sonraki bilete tasinir
-- Tur bitince tum kartlar geri doner (yeni turda tekrar sec)
-
-### Kart Oynama Fazi
-```
-Bilet kazindi → Tum semboller gorundu
-      ↓
-KART OYNAMA FAZI (sure siniri yok, rahat dusun)
-      ↓
-Ornek durum:
-  Bilette: Uzum, Kiraz, Uzum, Limon, Kiraz, Yildiz
-  Elde: [Uzum] [Yildiz] [Kiraz]
-      ↓
-Oyuncu "Uzum" kartini oynar → 2 Uzum + 1 kart = 3'lu eslesme!
-Veya "Kiraz" kartini oynar → 2 Kiraz + 1 kart = 3'lu eslesme!
-Veya ikisini de oynar → 2 eslesme birden!
-Veya hicbirini oynamaz → kartlari sakla, sonraki bilette kullan
-      ↓
-Sonuc hesaplanir (kart bonuslari dahil)
-```
-
-### Strateji Ornekleri
-```
-Senaryo 1 - Basit karar:
-  Bilette 2x Uzum var. Elde Uzum karti var.
-  → Kagit bilette mi kullanayim (5 coin odul) yoksa Altin bilette mi saklayayim (100+ coin odul)?
-
-Senaryo 2 - Sinerji plani:
-  Sinerji tablosunda "Meyve Kokteyli = Kiraz + Limon + Uzum → x3 bonus"
-  → Tura Kiraz, Limon, Uzum kartlariyla gir
-  → Bilette 2 meyve denk gelirse kartla tamamla + sinerji bonusu kap
-
-Senaryo 3 - Kaynak yonetimi:
-  3 bilet kaldi, elde 2 kart kaldi.
-  → Hangi bilete kullanmak daha karli? Ucuz bilette garantici ol mu, pahali bilette risk mi al?
-```
-
-### Kart Turleri
-
-#### Sembol Kartlari (Ana Mekanik)
-Her sembol icin 1 kart. Biletteki o sembolden +1 ekler.
-
-| Kategori | Kartlar | CP Maliyeti |
-|----------|---------|-------------|
-| Temel | Kiraz, Limon, Uzum | 5 CP |
-| Orta | Yildiz, Ay, Kalp, Elmas | 10 CP |
-| Nadir | Tac, 7, Anka, Ejderha | 20 CP |
-| Yeni Tier | Yakut, Safir, Zumrut, Inci | 15 CP |
-| Ust Tier | Ates, Kurukafa, Tekboynuz, Yildirim | 25 CP |
-
-#### Ozel Kartlar (Gec Oyun, Pahali)
-| Kart | CP Maliyeti | Etki |
-|------|-------------|------|
-| Joker Karti | 50 CP | Herhangi bir sembol olarak sayilir |
-| Cift Karti | 40 CP | Oynadigin sembolden +1 yerine +2 ekler |
-| Carpan Karti | 60 CP | O biletteki toplam odulu x2 yapar (sembol eklemez) |
-
-### Kart Slot Sistemi
-Oyuncu baslangicta 2 kart slotuna sahiptir. CP harcayarak slot acabilir.
-
-| Slot | Maliyet | Toplam Harcanan |
-|------|---------|-----------------|
-| 2 slot | Baslangic | 0 CP |
-| 3. slot | 15 CP | 15 CP |
-| 4. slot | 30 CP | 45 CP |
-| 5. slot | 60 CP | 105 CP |
-| 6. slot | 100 CP | 205 CP |
-
-### CP Harcama Stratejisi
-Oyuncu CP'sini uc farkli alana yatirir — bu kararlar oyunun stratejik omurgasini olusturur:
-
-```
-CP Kazandin! Ne yapacaksin?
-  ├── Charm al → Pasif bonuslar (eslesme sansi, odul artisi)
-  ├── Kart ac → Yeni sembol kartlari (sinerji hedefleme)
-  └── Slot ac → Daha fazla kart tasi (esneklik)
-
-Ornek: 30 CP'n var.
-  A) Sans Tokasi charm Lv.4 → her bilette +%40 odul (pasif, guvenli)
-  B) 3 nadir sembol karti ac → sinerji hedefleme imkani (aktif, stratejik)
-  C) 4. kart slotu ac → her tur 1 ekstra kart (uzun vadeli yatirim)
-```
-
-### Tur Baslangici Kart Secimi
-```
-TUR BASLIYOR — Kartlarini Sec!
-
-Acilmis kartlarin: [Kiraz] [Uzum] [Limon] [Yildiz] [Ay] [Tac] [Joker]
-Slot sayisi: 4
-
-Sinerji tablosuna bak:
-  Meyve Kokteyli (Kiraz+Limon+Uzum) = x3
-  Gece Gokyuzu (Yildiz+Ay) = x4
-  Kraliyet (Tac+Elmas) = x5
-
-Secim: [Kiraz] [Limon] [Uzum] [Yildiz]
-  → Meyve Kokteyli sinerjisini hedefliyorsun + yedek Yildiz
-```
-
-### Kart Sistemi Ilerleme Asamalari
-
-#### Erken Oyun (0-50 CP)
-- 2 slot, 2-3 temel kart (Kiraz, Limon, Uzum)
-- Basit eslesmeler tamamlanir
-- "Kart ne ise yariyor?" ogrenir
-
-#### Orta Oyun (50-150 CP)
-- 3-4 slot, 6-8 kart (temel + orta)
-- Sinerji tablosuna bakarak kart secimi baslar
-- Slot mu alsam, kart mi alsam kararlari
-
-#### Gec Oyun (150-400 CP)
-- 5-6 slot, 12+ kart + ozel kartlar
-- Sinerji hedefleme tam devrede
-- Joker/Cift/Carpan kartlari ile buyuk kombinasyonlar
-- "Bu turda meyve mi hedefleyeyim yoksa kozmik mi?" gibi derin kararlar
-
-### Kart Sistemi Kurallari
-1. Kart oynamak **isteğe bağli** — her zaman pas gecebilirsin
-2. Bir bilette **birden fazla kart** oynanabilir
-3. Kartlar **sadece eslesmesi eksik** sembollere oynanabilir (zaten 3+ eslesme varsa gerek yok, ama 4'e cikarmak icin oynanabilir)
-4. Ozel kartlar (Joker, Cift, Carpan) tur basinda **sadece 1 tane** secilebilir
-5. Kullanilan kart o turda **harcanir**, tur bitince geri gelir
-6. Kart acma **kalici** — bir kez CP harca, sonsuza kadar kullan
 
 ---
 
@@ -475,37 +370,81 @@ Koleksiyon parcalari nadir duser. Daha pahali biletlerden daha yuksek sans.
 ### Erken Oyun
 | Basarim | Kosul | Odul |
 |---------|-------|------|
-| Ilk Kazima | 1 bilet tamamla | 2 CP |
-| Ilk Eslesme | Ilk eslesme | 3 CP |
-| Kucuk Adimlar | 100 toplam coin kazan | 5 CP |
-| Sinerji Avcisi | Ilk sinerji kesfet | 5 CP |
-| Seri Kazici | Bir turda 10 bilet kazi | 3 CP |
+| Ilk Kazima | 1 bilet tamamla | 1 gem |
+| Ilk Eslesme | Ilk eslesme | 2 gem |
+| Kucuk Adimlar | 100 toplam coin kazan | 3 gem |
+| Sinerji Avcisi | Ilk sinerji kesfet | 3 gem |
+| Seri Kazici | Bir turda 10 bilet kazi | 2 gem |
 
 ### Orta Oyun
 | Basarim | Kosul | Odul |
 |---------|-------|------|
-| Gumus Kazici | Gumus bilet ac | 5 CP |
-| Altin Avci | Altin bilet ac | 10 CP |
-| Jackpot! | Ilk jackpot vur | 10 CP |
-| Koleksiyoncu | Ilk seti tamamla | 10 CP |
-| Zengin Tur | Bir turda 500+ coin kazan | 8 CP |
+| Gumus Kazici | Gumus bilet ac | 3 gem |
+| Altin Avci | Altin bilet ac | 5 gem |
+| Jackpot! | Ilk jackpot vur | 5 gem |
+| Koleksiyoncu | Ilk seti tamamla | 5 gem |
+| Zengin Tur | Bir turda 500+ coin kazan | 4 gem |
 
 ### Gec Oyun
 | Basarim | Kosul | Odul |
 |---------|-------|------|
-| Platin Seri | Platin bilet ac | 15 CP |
-| Combo Master | 5 farkli sinerji kesfet | 15 CP |
-| Milyoner | Bir turda 1000+ coin kazan | 20 CP |
-| Tam Set | Tum koleksiyonlari tamamla | 30 CP |
-| Charm Ustasi | 50 charm seviyesi topla | 20 CP |
+| Platin Seri | Platin bilet ac | 8 gem |
+| Combo Master | 5 farkli sinerji kesfet | 8 gem |
+| Milyoner | Bir turda 1000+ coin kazan | 10 gem |
+| Tam Set | Tum koleksiyonlari tamamla | 15 gem |
+| Charm Ustasi | 50 charm seviyesi topla | 10 gem |
 
 ### Gizli Basarimlar
 | Basarim | Kosul | Odul |
 |---------|-------|------|
-| ??? | 3x Joker ayni bilette | 15 CP |
-| ??? | Ardisik 5 bilet eslesme | 10 CP |
-| ??? | Tek bilette 2 sinerji | 20 CP |
-| ??? | 0 coin ile tura basla (charm'siz) ve 500+ coin bitir | 25 CP |
+| ??? | 3x Joker ayni bilette | 8 gem |
+| ??? | Ardisik 5 bilet eslesme | 5 gem |
+| ??? | Tek bilette 2 sinerji | 10 gem |
+| ??? | 0 coin ile tura basla (charm'siz) ve 500+ coin bitir | 12 gem |
+
+---
+
+## Leaderboard Sistemi
+
+Google Play Games Services (Android) / Game Center (iOS) uzerinden.
+
+### Skor Metrigi
+- **Siralama:** Max coin ÷ bilet sayisi (verimlilik)
+- **Gosterim:** Hem turda ulasilan max coin hem bilet sayisi ayri ayri gorunur
+- **Minimum esik:** Yok (balans sistemi bunu dogal olarak cozuyor — 20 coin baslangic, ilk bilet Kagit, yuksek coin icin yuksek tier bilet + buyuk eslesme sart)
+
+### Leaderboard Turleri
+| Leaderboard | Reset | Motivasyon |
+|---|---|---|
+| Gunluk | Her gece sifirlanir | "Bugun 1. olayim" — kisa vadeli heyecan, her gun geri getirme |
+| Haftalik | Her pazartesi sifirlanir | "Bu hafta formumu koruyayim" — orta vadeli hedef, ciddi rekabet |
+
+### Neden Bu Metrik?
+Oyunun temel amaci "en az bilette en yuksek coin'e ulasmak". Leaderboard bunu dogrudan odullendirir:
+- Yuksek coin icin pahali biletlerde buyuk eslesmeler lazim (risk)
+- Az bilet icin verimli coin yonetimi lazim (strateji)
+- Kagit bilette jackpot bile vursan max coin dusuk kalir (sistem kendini koruyor)
+
+### Ornek Gorunum
+```
++------------------------------------------+
+|  GUNUN EN IYILERI                        |
++------------------------------------------+
+|  1. Gamer42    12,400 coin   4 bilet     |
+|  2. Ahmet       8,900 coin   7 bilet     |
+|  3. Zeynep      5,200 coin  12 bilet     |
+|  ...                                      |
+|  524. Sen        320 coin   18 bilet     |
++------------------------------------------+
+|         [ Gunluk | Haftalik ]            |
++------------------------------------------+
+```
+
+### Teknik
+- Google Play Games Services (ucretsiz, sunucu gereksiz)
+- 2 ayri leaderboard tanimlanir (gunluk + haftalik)
+- Tur sonunda skor otomatik gonderilir
+- Godot eklentisi ile entegrasyon
 
 ---
 
@@ -514,7 +453,7 @@ Koleksiyon parcalari nadir duser. Daha pahali biletlerden daha yuksek sans.
 ### Reklam (AdMob)
 | Yer | Tur | Zorunlu mu? |
 |-----|-----|-------------|
-| Tur sonu | Rewarded Video (charm x2) | Hayir, opsiyonel |
+| Tur sonu | Rewarded Video (gem x2) | Hayir, opsiyonel |
 | Enerji | Rewarded Video (+1 enerji) | Hayir, opsiyonel |
 | Tur arasi | Interstitial (her 3 turda 1) | Evet, ama kapatilabilir (IAP) |
 | Banner | Alt kisimda kucuk banner | Evet, ama kapatilabilir (IAP) |
@@ -526,47 +465,48 @@ Koleksiyon parcalari nadir duser. Daha pahali biletlerden daha yuksek sans.
 | 15 Enerji | $1.99 | 15 enerji (%25 bonus) |
 | 50 Enerji | $4.99 | 50 enerji (%40 bonus) |
 | Reklam Kaldirma | $2.99 | Interstitial ve banner kaldirilir (kalici) |
-| Baslangic Paketi | $3.99 | 20 enerji + 10 CP + Reklam kaldirma |
+| Baslangic Paketi | $3.99 | 20 enerji + 20 gem + Reklam kaldirma |
 
 ### Monetizasyon Felsefesi
 - **Asla pay-to-win degil.** Reklam/IAP sadece enerji (daha cok oynama hakki) verir.
 - Charm'lar, biletler, eslesme oranlari SATIN ALINAMAZ.
-- Reklam izlemek opsiyonel ama odullendirici (charm x2, +1 enerji).
+- Reklam izlemek opsiyonel ama odullendirici (gem x2, +1 enerji).
 - Sabir gosterirsen bedava oynayabilirsin.
 
 ---
 
 ## Ilerleme Asamalari
 
-### ASAMA 1: Ilk Turlar (0-50 CP)
+### ASAMA 1: Ilk Turlar (0-10 gem)
 *"Ilk adim... WAGMI"*
-- Kagit biletlerle ogren
-- 5 coin'lik biletlerle dusuk risk
+- Kagit biletlerle ogren (gem yok ama coin biriktir)
+- Bronz bilete gec = ilk gem'ler
 - Ilk eslesme heyecani
-- Sans Tokasi, Keskin Goz charm'lari
+- Sans Tokasi, Keskin Goz charm'lari (1 gem)
 - Hedef: Sistemi ogren, ilk charm'lari al
 
-### ASAMA 2: Bronz Donem (50-150 CP)
+### ASAMA 2: Bronz Donem (10-50 gem)
 *"Bronza gectik, artik ciddiyiz"*
-- Bronz biletler acilir (daha buyuk oduller, daha buyuk risk)
+- Bronz/Gumus biletlerle gem biriktir
 - Gece Gokyuzu sinerjisi kesfedilebilir
 - Zengin Baslangic charm'i ile daha uzun turlar
-- Hedef: Gumus Anahtar icin biriktir
+- Hedef: Orta charm'lara yatirim
 
-### ASAMA 3: Stratejik Donem (150-400 CP)
+### ASAMA 3: Stratejik Donem (50-200 gem)
 *"Artik hesap yapiyoruz"*
-- Gumus + Altin biletler acilir
+- Altin + Platin biletlere ulasmak = 2-3 gem/bilet
 - Buyuk risk, buyuk odul
 - Turda bilet cesidi secimi onemli: ucuz ile mi basla, pahali ile mi riske gir?
 - Sinerjiler ve ozel semboller devreye girer
-- Hedef: Platin Anahtar
+- Hedef: Guclu charm'lar
 
-### ASAMA 4: Usta Donem (400+ CP)
+### ASAMA 4: Usta Donem (200+ gem)
 *"Kazi kazan imparatoru"*
-- Platin biletler = dev oduller veya dev kayiplar
+- Elmas+ biletler = dev oduller veya dev kayiplar, 4-8 gem/bilet
 - Tum sinerjiler ve koleksiyonlar pesinde
 - Charm optimizasyonu (hangisini max'layim?)
 - Gizli basarimlar avinda
+- Leaderboard rekabeti
 - Sonsuz replayability
 
 ---
@@ -636,11 +576,11 @@ Koleksiyon parcalari nadir duser. Daha pahali biletlerden daha yuksek sans.
 |                           |
 |  Toplam bilet: 8          |
 |  Eslesme: 4               |
-|  En buyuk kazanc: 75      |
+|  Max coin: 1,240          |
 |                           |
-|  Charm Puani: +3 CP       |
+|  Kazanilan: +7 gem        |
 |                           |
-|  [Reklam izle: CP x2]    |
+|  [Reklam izle: gem x2]   |
 |  [ ANA MENU ]            |
 +---------------------------+
 ```
@@ -648,23 +588,87 @@ Koleksiyon parcalari nadir duser. Daha pahali biletlerden daha yuksek sans.
 ### Charm Ekrani
 ```
 +---------------------------+
-|  LUCK CHARM'LAR   42 CP  |
+|  LUCK CHARM'LAR  42 gem   |
 +---------------------------+
 |                           |
 | Sans Tokasi     Lv.3  [+]|
-| +%30 eslesme odulu        |
+| +%30 eslesme odulu  1 gem |
 |                           |
 | Zengin Baslangic Lv.1 [+]|
-| +10 coin baslangic        |
-|                           |
-| Gumus Anahtar   [AL 15CP]|
-| Gumus bileti acar         |
+| +10 coin baslangic  2 gem |
 |                           |
 | Keskin Goz      Lv.5  [+]|
-| +%25 eslesme sansi        |
+| +%25 eslesme sansi  1 gem |
 |                           |
 +---------------------------+
 ```
+
+---
+
+## Gunluk Sistemler
+
+### Gunluk Giris Odulu
+7 gunluk dongu, her gun artan odul. Sifir efor, sadece oyunu acmak yeterli.
+
+| Gun | Odul |
+|-----|------|
+| 1 | +1 enerji |
+| 2 | +2 gem |
+| 3 | Rastgele koleksiyon parcasi |
+| 4 | +2 enerji |
+| 5 | +5 gem |
+| 6 | +3 enerji |
+| 7 | +15 gem + Rastgele koleksiyon parcasi |
+
+7. gunden sonra tekrar 1. gune doner.
+Ardisik giris zorunlu — 1 gun atlarsan sayac sifirlanir.
+
+### Gunluk Gorevler
+Her gun 3 rastgele gorev verilir. Tamamlayinca bonus odul.
+
+```
+Gunluk Gorevler:
+☐ 5 bilet kazi           → +1 enerji
+☐ 1 sinerji bul          → +2 gem
+☐ Gold+ bilet ac         → +3 gem
+━━━━━━━━━━━━━━━━━━━━━━━━
+Hepsini tamamla           → +5 gem bonus
+```
+
+Gorev havuzu (rastgele secilir):
+| Gorev | Odul |
+|-------|------|
+| X bilet kazi | +1 enerji |
+| 1 sinerji bul | +2 gem |
+| Gold+ bilet ac | +3 gem |
+| 3 eslesme yap | +2 gem |
+| 1 koleksiyon parcasi bul | +3 gem |
+| Jackpot vur | +5 gem |
+| X coin kazan (tek tur) | +2 gem |
+
+---
+
+## Lokalizasyon
+
+Godot'un dahili CSV-tabanli ceviri sistemi kullanilir. Kodda `tr("KEY")` ile erisim.
+
+### Desteklenen Diller
+| Dil | Kod | Pazar | Oncelik |
+|-----|-----|-------|---------|
+| Ingilizce | en | Global | Zorunlu |
+| Turkce | tr | Turkiye | Zorunlu |
+| Ispanyolca | es | Latin Amerika + Ispanya | Yuksek |
+| Portekizce | pt_BR | Brezilya | Yuksek |
+| Almanca | de | Almanya/Avusturya | Orta |
+| Fransizca | fr | Fransa/Afrika | Orta |
+| Japonca | ja | Japonya | Orta |
+
+### Teknik
+- `assets/translations/translations.csv` dosyasinda tum metinler
+- Godot Project Settings → Localization → CSV eklenir
+- Dil secimi: Ayarlar popup'inda veya cihaz diline gore otomatik
+- Sayi formati: locale'e gore (1,000 vs 1.000)
+- Sembol/charm isimleri de cevrilir
 
 ---
 
@@ -683,7 +687,7 @@ Koleksiyon parcalari nadir duser. Daha pahali biletlerden daha yuksek sans.
 ## Save Sistemi
 
 ### Kaydedilen Veriler
-- Charm seviyeleri ve charm puani
+- Charm seviyeleri ve gem miktari
 - Koleksiyon parcalari
 - Kesfedilen sinerjiler
 - Basarimlar

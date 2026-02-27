@@ -6,36 +6,36 @@ extends RefCounted
 const CharmDataRef := preload("res://scripts/systems/charm_data.gd")
 const SynergyRef := preload("res://scripts/systems/synergy_system.gd")
 
-const SYMBOL_NAMES := {
-	"cherry": "Kiraz",
-	"lemon": "Limon",
-	"grape": "Uzum",
-	"star": "Yildiz",
-	"moon": "Ay",
-	"clover": "Yonca",
-	"bell": "Zil",
-	"diamond": "Elmas",
-	"heart": "Kalp",
-	"seven": "7",
-	"crown": "Tac",
-	"horseshoe": "Nal",
-	"phoenix": "Anka",
-	"dragon": "Ejderha",
-	"dice": "Zar",
-	"ruby_gem": "Yakut",
-	"sapphire": "Safir",
-	"emerald_gem": "Zumrut",
-	"pearl": "Inci",
-	"fire": "Ates",
-	"skull": "Kurukafa",
-	"unicorn": "Tekboynuz",
-	"lightning": "Yildirim",
-	"anchor": "Capa",
-	"crystal": "Kristal",
+const SYMBOL_KEYS := {
+	"cherry": "SYM_KIRAZ",
+	"lemon": "SYM_LIMON",
+	"grape": "SYM_UZUM",
+	"star": "SYM_YILDIZ",
+	"moon": "SYM_AY",
+	"clover": "SYM_YONCA",
+	"bell": "SYM_ZIL",
+	"diamond": "SYM_ELMAS",
+	"heart": "SYM_KALP",
+	"seven": "SYM_YEDI",
+	"crown": "SYM_TAC",
+	"horseshoe": "SYM_NAL",
+	"phoenix": "SYM_ANKA",
+	"dragon": "SYM_EJDERHA",
+	"dice": "SYM_ZAR",
+	"ruby_gem": "SYM_YAKUT",
+	"sapphire": "SYM_SAFIR",
+	"emerald_gem": "SYM_ZUMRUT",
+	"pearl": "SYM_INCI",
+	"fire": "SYM_ATES",
+	"skull": "SYM_KURUKAFA",
+	"unicorn": "SYM_TEKBOYNUZ",
+	"lightning": "SYM_YILDIRIM",
+	"anchor": "SYM_CAPA",
+	"crystal": "SYM_KRISTAL",
 	# Ozel semboller
-	"joker": "Joker",
-	"x2_multiplier": "x2",
-	"bomb": "Bomba",
+	"joker": "SYM_JOKER",
+	"x2_multiplier": "SYM_X2",
+	"bomb": "SYM_BOMBA",
 }
 
 const SYMBOL_COLORS := {
@@ -75,7 +75,7 @@ const SYMBOL_COLORS := {
 ## Gercek kazi kazan modeli: cogu bilet kayip, sadece jackpot kar ettirir
 const TICKET_CONFIGS := {
 	"paper": {
-		"name": "Kagit",
+		"name": "TICKET_KAGIT",
 		"price": 5,
 		"base_reward": 5,       # x1 = break even, guvenli baslangic
 		"area_count": 6,
@@ -83,7 +83,7 @@ const TICKET_CONFIGS := {
 		"symbol_pool": ["cherry", "lemon", "grape", "star", "moon"],
 	},
 	"bronze": {
-		"name": "Bronz",
+		"name": "TICKET_BRONZ",
 		"price": 25,
 		"base_reward": 12,      # x1 = kayip 13 (%52), ROI ~x0.95
 		"area_count": 8,
@@ -91,7 +91,7 @@ const TICKET_CONFIGS := {
 		"symbol_pool": ["cherry", "lemon", "grape", "star", "moon", "clover", "bell"],
 	},
 	"silver": {
-		"name": "Gumus",
+		"name": "TICKET_GUMUS",
 		"price": 100,
 		"base_reward": 38,      # ROI ~x0.65 hedefi
 		"area_count": 9,
@@ -99,7 +99,7 @@ const TICKET_CONFIGS := {
 		"symbol_pool": ["cherry", "lemon", "grape", "star", "moon", "clover", "bell", "diamond", "heart", "seven", "crown"],
 	},
 	"gold": {
-		"name": "Altin",
+		"name": "TICKET_ALTIN",
 		"price": 500,
 		"base_reward": 65,      # ROI ~x0.35 hedefi
 		"area_count": 9,
@@ -107,7 +107,7 @@ const TICKET_CONFIGS := {
 		"symbol_pool": ["cherry", "lemon", "grape", "star", "moon", "clover", "bell", "diamond", "heart", "seven", "crown", "horseshoe"],
 	},
 	"platinum": {
-		"name": "Platin",
+		"name": "TICKET_PLATIN",
 		"price": 2500,
 		"base_reward": 100,     # ROI ~x0.20 hedefi
 		"area_count": 9,
@@ -115,7 +115,7 @@ const TICKET_CONFIGS := {
 		"symbol_pool": ["cherry", "lemon", "grape", "star", "moon", "clover", "bell", "diamond", "heart", "seven", "crown", "horseshoe", "phoenix", "dragon", "dice"],
 	},
 	"diamond_tier": {
-		"name": "Elmas",
+		"name": "TICKET_ELMAS",
 		"price": 7500,
 		"base_reward": 225,     # ROI ~x0.15 hedefi
 		"area_count": 9,
@@ -123,7 +123,7 @@ const TICKET_CONFIGS := {
 		"symbol_pool": ["cherry", "lemon", "grape", "star", "moon", "clover", "bell", "diamond", "heart", "seven", "crown", "horseshoe", "phoenix", "dragon", "dice", "ruby_gem", "sapphire"],
 	},
 	"emerald_tier": {
-		"name": "Zumrut",
+		"name": "TICKET_ZUMRUT",
 		"price": 20000,
 		"base_reward": 430,     # ROI ~x0.12 hedefi
 		"area_count": 9,
@@ -131,7 +131,7 @@ const TICKET_CONFIGS := {
 		"symbol_pool": ["cherry", "lemon", "grape", "star", "moon", "clover", "bell", "diamond", "heart", "seven", "crown", "horseshoe", "phoenix", "dragon", "dice", "ruby_gem", "sapphire", "emerald_gem", "pearl"],
 	},
 	"ruby_tier": {
-		"name": "Yakut",
+		"name": "TICKET_YAKUT",
 		"price": 50000,
 		"base_reward": 750,     # ROI ~x0.10 hedefi
 		"area_count": 9,
@@ -139,7 +139,7 @@ const TICKET_CONFIGS := {
 		"symbol_pool": ["cherry", "lemon", "grape", "star", "moon", "clover", "bell", "diamond", "heart", "seven", "crown", "horseshoe", "phoenix", "dragon", "dice", "ruby_gem", "sapphire", "emerald_gem", "pearl", "fire", "skull"],
 	},
 	"obsidian": {
-		"name": "Obsidyen",
+		"name": "TICKET_OBSIDYEN",
 		"price": 125000,
 		"base_reward": 1000,    # ROI ~x0.08 hedefi
 		"area_count": 9,
@@ -147,7 +147,7 @@ const TICKET_CONFIGS := {
 		"symbol_pool": ["cherry", "lemon", "grape", "star", "moon", "clover", "bell", "diamond", "heart", "seven", "crown", "horseshoe", "phoenix", "dragon", "dice", "ruby_gem", "sapphire", "emerald_gem", "pearl", "fire", "skull", "unicorn", "lightning"],
 	},
 	"legendary": {
-		"name": "Efsane",
+		"name": "TICKET_EFSANE",
 		"price": 300000,
 		"base_reward": 1800,    # ROI ~x0.06 hedefi
 		"area_count": 9,
@@ -255,7 +255,17 @@ static func get_random_symbols(type: String) -> Array:
 
 
 static func get_display_name(symbol_id: String) -> String:
-	return SYMBOL_NAMES.get(symbol_id, symbol_id)
+	var key: String = SYMBOL_KEYS.get(symbol_id, "")
+	if key != "":
+		return TranslationServer.translate(key)
+	return symbol_id
+
+
+## Bilet turunu gosterim ismi (ceviri destekli)
+static func get_ticket_display_name(ticket_type: String) -> String:
+	var config: Dictionary = TICKET_CONFIGS.get(ticket_type, {})
+	var name_key: String = config.get("name", ticket_type)
+	return TranslationServer.translate(name_key)
 
 
 static func get_color(symbol_id: String) -> Color:

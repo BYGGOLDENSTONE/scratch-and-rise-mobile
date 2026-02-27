@@ -192,6 +192,8 @@ func _cmd_change_scene(cmd: Dictionary) -> Dictionary:
 		"synergy": "res://scenes/screens/SynergyAlbum.tscn",
 		"collection": "res://scenes/screens/CollectionScreen.tscn",
 		"achievement": "res://scenes/screens/AchievementScreen.tscn",
+		"quest": "res://scenes/screens/DailyQuestScreen.tscn",
+		"daily": "res://scenes/screens/DailyQuestScreen.tscn",
 	}
 	if scene_path in aliases:
 		scene_path = aliases[scene_path]
@@ -277,7 +279,7 @@ func _sim_single_tier(ticket_type: String, max_count: int, starting_coins: int) 
 	var tickets_played := 0
 	var total_spent := 0
 	var total_earned := 0
-	var total_cp := 0.0
+	var total_gems := 0
 	var tier_counts := {"normal": 0, "big": 0, "jackpot": 0, "none": 0}
 	var coin_history := [coins]
 	var rewards := []
@@ -297,13 +299,13 @@ func _sim_single_tier(ticket_type: String, max_count: int, starting_coins: int) 
 		var match_result: Dictionary = MatchSystemRef.check_match(symbols, ticket_type)
 
 		var reward: int = 0
-		var cp: float = 0.0
+		var cp: int = 0
 
 		if match_result["has_match"]:
 			reward = match_result["reward"]
 			var tier: String = match_result["tier"]
 			tier_counts[tier] += 1
-			cp = GameState.get_ticket_cp(ticket_type, tier)
+			cp = GameState.get_ticket_gems(ticket_type)
 			multipliers.append(match_result["multiplier"])
 		else:
 			tier_counts["none"] += 1
@@ -311,14 +313,14 @@ func _sim_single_tier(ticket_type: String, max_count: int, starting_coins: int) 
 
 		coins += reward
 		total_earned += reward
-		total_cp += cp
+		total_gems += cp
 		coin_history.append(coins)
 		rewards.append(reward)
 
 	var net: int = total_earned - total_spent
 	var avg_roi: float = float(total_earned) / float(total_spent) if total_spent > 0 else 0.0
 	var match_rate: float = float(tickets_played - tier_counts["none"]) / float(tickets_played) if tickets_played > 0 else 0.0
-	var cp_per_ticket: float = total_cp / float(tickets_played) if tickets_played > 0 else 0.0
+	var gems_per_ticket: float = total_gems / float(tickets_played) if tickets_played > 0 else 0.0
 
 	# Coin history'yi kisalt (cok buyukse sadece 200 nokta)
 	var history_out: Array = coin_history
@@ -336,8 +338,8 @@ func _sim_single_tier(ticket_type: String, max_count: int, starting_coins: int) 
 		"avg_roi": snappedf(avg_roi, 0.001),
 		"match_rate": snappedf(match_rate, 0.001),
 		"tier_counts": tier_counts,
-		"total_cp": snappedf(total_cp, 0.01),
-		"cp_per_ticket": snappedf(cp_per_ticket, 0.001),
+		"total_gems": total_gems,
+		"gems_per_ticket": snappedf(gems_per_ticket, 0.001),
 		"final_coins": coins,
 		"coin_history": history_out,
 		"rewards": rewards,
@@ -471,7 +473,7 @@ func _export_game_state() -> Dictionary:
 		"coins": GameState.coins,
 		"energy": GameState.energy,
 		"max_energy": GameState.get_max_energy(),
-		"charm_points": GameState.charm_points,
+		"gems": GameState.gems,
 		"in_round": GameState.in_round,
 		"total_coins_earned": GameState.total_coins_earned,
 		"total_rounds_played": GameState.total_rounds_played,
